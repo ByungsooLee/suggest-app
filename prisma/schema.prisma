@@ -1,0 +1,226 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RecommendationStatus {
+  completed
+  empty
+}
+
+enum ReactionType {
+  liked
+  too_dark
+  too_long
+  not_now
+  mismatch
+}
+
+model User {
+  id                    String   @id @default(cuid())
+  name                  String?
+  username              String?  @unique
+  email                 String?  @unique
+  passwordHash          String?
+  emailVerified         DateTime?
+  image                 String?
+  onboardingCompletedAt DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  accounts               Account[]
+  sessions               Session[]
+  preferences            UserPreference[]
+  tasteProfiles          UserTasteProfile[]
+  recommendationSessions RecommendationSession[]
+  feedbackLogs           FeedbackLog[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@unique([token])
+}
+
+model UserPreference {
+  id               String   @id @default(cuid())
+  userId           String
+  favoriteArtists  String[]
+  favoriteMovies   String[]
+  preferredMoods   String[]
+  dislikedElements String[]
+  inputVersion     Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasteProfiles UserTasteProfile[]
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model UserTasteProfile {
+  id                     String   @id @default(cuid())
+  userId                 String
+  sourcePreferenceId     String?
+  profileVersion         Int      @default(1)
+  summary                String
+  moodCalm               Float
+  moodDark               Float
+  moodEmotional          Float
+  toneStylish            Float
+  toneFunny              Float
+  paceSlowBurn           Float
+  complexity             Float
+  emotionalWeight        Float
+  runtimeToleranceMin    Int
+  runtimeToleranceMax    Int
+  metadata               Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourcePreference       UserPreference?         @relation(fields: [sourcePreferenceId], references: [id], onDelete: SetNull)
+  recommendationSessions RecommendationSession[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([sourcePreferenceId])
+}
+
+model Movie {
+  id                   String   @id @default(cuid())
+  title                String
+  releaseYear          Int
+  runtimeMinutes       Int
+  genrePrimary         String
+  genreSecondary       String?
+  moodCalm             Float
+  moodDark             Float
+  moodEmotional        Float
+  toneStylish          Float
+  toneFunny            Float
+  paceSlowBurn         Float
+  complexity           Float
+  emotionalWeight      Float
+  moodTags             String[]
+  watchContexts        String[]
+  contentWarnings      String[]
+  availabilityNote     String?
+  metadata             Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  recommendationResults RecommendationResult[]
+
+  @@unique([title, releaseYear])
+  @@index([genrePrimary, releaseYear])
+  @@index([runtimeMinutes])
+}
+
+model RecommendationSession {
+  id                     String               @id @default(cuid())
+  userId                 String
+  tasteProfileId         String?
+  status                 RecommendationStatus @default(completed)
+  currentMoods           String[]
+  desiredRuntimeMin      Int
+  desiredRuntimeMax      Int
+  watchingWith           String
+  excludeContentWarnings String[]
+  excludeTags            String[]
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasteProfile UserTasteProfile?    @relation(fields: [tasteProfileId], references: [id], onDelete: SetNull)
+  results      RecommendationResult[]
+  feedbackLogs FeedbackLog[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([tasteProfileId])
+}
+
+model RecommendationResult {
+  id                String   @id @default(cuid())
+  sessionId         String
+  movieId           String
+  rank              Int
+  totalScore        Float
+  moodMatchScore    Float
+  contextMatchScore Float
+  runtimeFitScore   Float
+  styleMatchScore   Float
+  reason1           String
+  reason2           String?
+  reason3           String?
+  createdAt         DateTime @default(now())
+
+  session      RecommendationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  movie        Movie                 @relation(fields: [movieId], references: [id], onDelete: Restrict)
+  feedbackLogs FeedbackLog[]
+
+  @@unique([sessionId, rank])
+  @@index([sessionId, totalScore(sort: Desc)])
+  @@index([movieId])
+}
+
+model FeedbackLog {
+  id                     String       @id @default(cuid())
+  userId                 String
+  sessionId              String
+  recommendationResultId String?
+  reaction               ReactionType
+  comment                String?
+  createdAt              DateTime     @default(now())
+
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session              RecommendationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  recommendationResult RecommendationResult? @relation(fields: [recommendationResultId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([sessionId])
+  @@index([reaction, createdAt(sort: Desc)])
+}

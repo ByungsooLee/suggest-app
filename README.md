@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Movie Recommendation MVP
 
-## Getting Started
+音楽の好みと今の気分から、今夜観る映画を最大3本で提案するMVPです。
 
-First, run the development server:
+## Product Principles
+
+- 推薦件数は最大3件（主推薦1件 + バックアップ最大2件）
+- 理由は短く明快に表示
+- ローカル認証（メール + ユーザー名 + パスワード）
+- 手動入力はログイン後オンボーディングのみ（ゲストモードなし）
+
+## Tech Stack
+
+- Next.js 16 (App Router, TypeScript, Tailwind)
+- Auth.js (`next-auth` v5 beta) + Credentials Provider
+- Prisma Adapter + PostgreSQL
+- Zod validation
+
+## Main Routes
+
+- `/` ランディング
+- `/login` ログイン導線
+- `/onboarding` 初回嗜好入力
+- `/profile/taste` 味覚プロファイル表示
+- `/recommend` 推薦条件入力
+- `/recommend/result/[sessionId]` 結果表示とフィードバック
+
+## API Endpoints
+
+- `GET /api/me`
+- `POST /api/onboarding`
+- `GET /api/taste-profile`
+- `POST /api/taste-profile/rebuild`
+- `POST /api/recommendations`
+- `GET /api/recommendations/:sessionId`
+- `POST /api/feedback`
+
+## Setup
+
+1) 環境変数を用意:
+
+```bash
+cp .env.example .env
+```
+
+2) 依存関係インストール:
+
+```bash
+npm install
+```
+
+3) Prisma Client生成:
+
+```bash
+npx prisma generate
+```
+
+4) マイグレーションとSeed投入:
+
+```bash
+npx prisma migrate dev --name init
+npm run db:seed
+```
+
+5) 開発サーバー起動:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick Login (Local)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Google OAuth設定なしで確認できます。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1) `/login` を開く  
+2) 「新規登録」で `name / email / username / password` を入力  
+3) 作成後、自動で `/onboarding` へ遷移  
+4) 次回以降は同じ `email + username + password` でログイン
 
-## Learn More
+## Shared Vocabulary Rule
 
-To learn more about Next.js, take a look at the following resources:
+推薦で使う語彙（mood/watch-context/content-warning/style/feedback）は `src/lib/constants/taxonomy.ts` を単一ソースとし、
+validation/seed/UIで共通利用します。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Runtime Validation Rules
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `desiredRuntimeMin <= desiredRuntimeMax`
+- `runtimeToleranceMin <= runtimeToleranceMax`
+- 推薦スコアは `0..1`
+- content warningが無い場合は `[]`（`none`タグは使わない）
