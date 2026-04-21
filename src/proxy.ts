@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 
-const protectedPaths = ["/onboarding", "/profile", "/recommend"];
+const protectedPaths = ["/onboarding", "/profile", "/recommend", "/mypage"];
 
 export default auth((request) => {
   const isProtected = protectedPaths.some((path) => request.nextUrl.pathname.startsWith(path));
@@ -16,5 +16,5 @@ export default auth((request) => {
 });
 
 export const config = {
-  matcher: ["/onboarding/:path*", "/profile/:path*", "/recommend/:path*"],
+  matcher: ["/onboarding/:path*", "/profile/:path*", "/recommend/:path*", "/mypage/:path*"],
 };

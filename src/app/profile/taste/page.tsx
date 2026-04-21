@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ScreenHeader } from "@/components/screen-header";
 import { prisma } from "@/lib/db/prisma";
+import { RankingsGate } from "./rankings-gate";
 
 export default async function TasteProfilePage() {
   const session = await auth();
@@ -74,6 +75,8 @@ export default async function TasteProfilePage() {
           </div>
         </section>
       )}
+
+      <RankingsGate />
     </main>
   );
 }

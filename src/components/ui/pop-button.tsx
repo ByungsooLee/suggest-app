@@ -6,6 +6,7 @@ type PopButtonProps = {
   disabled?: boolean;
   variant?: "primary" | "secondary" | "ghost";
   className?: string;
+  onClick?: () => void;
 };
 
 export function PopButton({
@@ -14,6 +15,7 @@ export function PopButton({
   disabled = false,
   variant = "primary",
   className = "",
+  onClick,
 }: PopButtonProps) {
   const base =
     "inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60";
@@ -25,7 +27,7 @@ export function PopButton({
         : "border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800";
 
   return (
-    <button type={type} disabled={disabled} className={`${base} ${palette} ${className}`.trim()}>
+    <button type={type} disabled={disabled} onClick={onClick} className={`${base} ${palette} ${className}`.trim()}>
       {children}
     </button>
   );

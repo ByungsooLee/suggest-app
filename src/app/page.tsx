@@ -24,6 +24,9 @@ export default function Home() {
           <Link href="/recommend">
             <PopButton variant="ghost">条件から試す</PopButton>
           </Link>
+          <Link href="/mypage">
+            <PopButton variant="secondary">マイページ</PopButton>
+          </Link>
         </div>
       </PopCard>
       <div className="mt-4 grid gap-3 text-sm text-zinc-600 dark:text-zinc-300 md:grid-cols-3">

@@ -25,10 +25,10 @@ export default async function OnboardingPage() {
     <main className="mx-auto min-h-screen w-full max-w-xl px-6 py-10">
       <ScreenHeader
         title="初期オンボーディング"
-        description="登録したアカウントでログイン後、手動で好みを登録します。入力は最小限で完了できます。"
+        description="3秒で理解できる選択式フローです。MBTI選択とスワイプだけで好み推定を開始します。"
       />
       <PopCard tone="muted" className="mt-5 text-sm text-zinc-600 dark:text-zinc-300">
-        3つずつ入力するだけで、今夜向けのTaste Profileを自動生成します。
+        テキスト入力は不要です。タイプ選択 → 直感スワイプ → ワンタップ完了で進められます。
       </PopCard>
       <OnboardingForm />
     </main>

@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth/require-user";
 import { prisma } from "@/lib/db/prisma";
 
-type ReasonType = "mood_match" | "context_match" | "runtime_fit" | "style_match";
+type ReasonType = "mood_match" | "context_match" | "runtime_fit" | "style_match" | "actor_match" | "director_match" | "review_match";
 type ConfidenceLabel = "very_high" | "high" | "medium" | "low";
 
 const inferReasonType = (index: number): ReasonType => {
@@ -53,6 +53,12 @@ export async function GET(_request: Request, context: { params: Promise<{ sessio
     title: result.movie.title,
     score: result.totalScore,
     confidenceLabel: inferConfidenceLabel(result.totalScore),
+    posterUrl: result.movie.posterUrl,
+    overview: result.movie.overview,
+    directors: result.movie.directors,
+    cast: result.movie.cast,
+    reviewScore: result.movie.reviewScore,
+    reviewSummary: result.movie.reviewSummary,
     reasons: [result.reason1, result.reason2, result.reason3]
       .filter((v): v is string => Boolean(v))
       .map((text, idx) => ({

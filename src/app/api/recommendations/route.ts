@@ -1,8 +1,18 @@
 import { recommendMovies } from "@/lib/recommendation/engine";
 import { requireUser } from "@/lib/auth/require-user";
 import { prisma } from "@/lib/db/prisma";
+import { resolveStrictMoviePoster } from "@/lib/movies/strict-movie-poster-match";
 import { parseJson } from "@/lib/validation/http";
 import { RecommendationsRequestSchema } from "@/lib/validation/schemas";
+
+const mergeUniqueNames = (values: string[]) =>
+  Array.from(
+    new Set(
+      values
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
 
 export async function POST(request: Request) {
   const authResult = await requireUser();
@@ -27,6 +37,16 @@ export async function POST(request: Request) {
   }
 
   const movies = await prisma.movie.findMany();
+  const userPreferences = await prisma.user.findUnique({
+    where: { id: authResult.userId },
+    select: {
+      favoriteGenres: true,
+      excludedGenres: true,
+      preferredDirectors: true,
+      preferredActors: true,
+      discoveryMode: true,
+    },
+  });
 
   const recommendations = recommendMovies({
     movies,
@@ -38,8 +58,45 @@ export async function POST(request: Request) {
       watchingWith: parsed.data.watchingWith,
       excludeContentWarnings: parsed.data.excludeContentWarnings,
       excludeTags: parsed.data.excludeTags,
+      favoriteGenres: userPreferences?.favoriteGenres ?? [],
+      excludedGenres: userPreferences?.excludedGenres ?? [],
+      preferredDirectors: mergeUniqueNames([...(userPreferences?.preferredDirectors ?? []), ...parsed.data.preferredDirectors]),
+      preferredActors: mergeUniqueNames([...(userPreferences?.preferredActors ?? []), ...parsed.data.preferredActors]),
+      minimumReviewScore: parsed.data.minimumReviewScore,
+      discoveryMode: (userPreferences?.discoveryMode as "focused" | "balanced" | "wide" | null) ?? "balanced",
     },
   });
+  const movieById = new Map(movies.map((movie) => [movie.id, movie]));
+  const recommendedMovieIds = new Set(recommendations.map((item) => item.movieId));
+  const missingPosterMovies = [...recommendedMovieIds]
+    .map((movieId) => movieById.get(movieId))
+    .filter((movie): movie is (typeof movies)[number] => movie !== undefined && !movie.posterUrl);
+
+  if (missingPosterMovies.length > 0) {
+    const posterMatches = await Promise.all(
+      missingPosterMovies.map(async (movie) => ({
+        movie,
+        match: await resolveStrictMoviePoster({
+          title: movie.title,
+          releaseYear: movie.releaseYear,
+        }),
+      })),
+    );
+
+    await Promise.all(
+      posterMatches.map(async ({ movie, match }) => {
+        if (!match.matched || !match.posterUrl) return;
+        await prisma.movie.update({
+          where: { id: movie.id },
+          data: { posterUrl: match.posterUrl },
+        });
+        movieById.set(movie.id, {
+          ...movie,
+          posterUrl: match.posterUrl,
+        });
+      }),
+    );
+  }
 
   const session = await prisma.recommendationSession.create({
     data: {
@@ -91,6 +148,12 @@ export async function POST(request: Request) {
         title: topPick.title,
         score: topPick.score,
         confidenceLabel: topPick.confidenceLabel,
+        posterUrl: movieById.get(topPick.movieId)?.posterUrl ?? null,
+        overview: movieById.get(topPick.movieId)?.overview ?? null,
+        directors: movieById.get(topPick.movieId)?.directors ?? [],
+        cast: movieById.get(topPick.movieId)?.cast ?? [],
+        reviewScore: movieById.get(topPick.movieId)?.reviewScore ?? null,
+        reviewSummary: movieById.get(topPick.movieId)?.reviewSummary ?? null,
         reasons: topPick.reasons,
       },
       backups: backups.map((item) => ({
@@ -99,6 +162,12 @@ export async function POST(request: Request) {
         title: item.title,
         score: item.score,
         confidenceLabel: item.confidenceLabel,
+        posterUrl: movieById.get(item.movieId)?.posterUrl ?? null,
+        overview: movieById.get(item.movieId)?.overview ?? null,
+        directors: movieById.get(item.movieId)?.directors ?? [],
+        cast: movieById.get(item.movieId)?.cast ?? [],
+        reviewScore: movieById.get(item.movieId)?.reviewScore ?? null,
+        reviewSummary: movieById.get(item.movieId)?.reviewSummary ?? null,
         reasons: item.reasons,
       })),
     },

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-label="No poster image">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1200" fill="url(#bg)"/>
+  <rect x="60" y="60" width="680" height="1080" rx="36" fill="none" stroke="#374151" stroke-width="4"/>
+  <g fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="400" y="520" font-size="84" font-weight="700">NO IMAGE</text>
+    <text x="400" y="600" font-size="32" opacity="0.85">Poster is not available</text>
+  </g>
+</svg>

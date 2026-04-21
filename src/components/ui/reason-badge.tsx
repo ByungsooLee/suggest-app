@@ -1,10 +1,13 @@
-type ReasonType = "mood_match" | "context_match" | "runtime_fit" | "style_match";
+type ReasonType = "mood_match" | "context_match" | "runtime_fit" | "style_match" | "actor_match" | "director_match" | "review_match";
 
 const reasonEmoji: Record<ReasonType, string> = {
   mood_match: "🎯",
   context_match: "👥",
   runtime_fit: "⏱️",
   style_match: "✨",
+  actor_match: "🎬",
+  director_match: "🧭",
+  review_match: "⭐",
 };
 
 type ReasonBadgeProps = {

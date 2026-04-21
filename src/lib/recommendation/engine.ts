@@ -9,6 +9,12 @@ type ContextInput = {
   watchingWith: WatchContext;
   excludeContentWarnings: string[];
   excludeTags: string[];
+  favoriteGenres?: string[];
+  excludedGenres?: string[];
+  preferredDirectors?: string[];
+  preferredActors?: string[];
+  minimumReviewScore?: number;
+  discoveryMode?: "focused" | "balanced" | "wide";
 };
 
 type ContextVector = {
@@ -20,6 +26,12 @@ type ContextVector = {
   watchingWith: WatchContext;
   excludeContentWarnings: Set<string>;
   excludeTags: Set<string>;
+  favoriteGenres: Set<string>;
+  excludedGenres: Set<string>;
+  preferredDirectors: Set<string>;
+  preferredActors: Set<string>;
+  minimumReviewScore?: number;
+  discoveryMode: "focused" | "balanced" | "wide";
 };
 
 type ScoreBreakdown = {
@@ -36,7 +48,10 @@ export type RecommendationOutput = {
   title: string;
   score: number;
   confidenceLabel: "very_high" | "high" | "medium" | "low";
-  reasons: Array<{ type: "mood_match" | "context_match" | "runtime_fit" | "style_match"; text: string }>;
+  reasons: Array<{
+    type: "mood_match" | "context_match" | "runtime_fit" | "style_match" | "actor_match" | "director_match" | "review_match";
+    text: string;
+  }>;
   breakdown: ScoreBreakdown;
 };
 
@@ -63,6 +78,15 @@ function pickVariant(type: keyof typeof reasonVariants, seed: number) {
 function seedFromMovie(movie: Movie, rank: number) {
   const titleSum = [...movie.title].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   return titleSum + movie.runtimeMinutes + rank * 7;
+}
+
+function normalize(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function overlapCount(source: string[], preferred: Set<string>) {
+  if (preferred.size === 0 || source.length === 0) return 0;
+  return source.reduce((count, name) => (preferred.has(normalize(name)) ? count + 1 : count), 0);
 }
 
 export function toConfidenceLabel(score: number): "very_high" | "high" | "medium" | "low" {
@@ -92,6 +116,12 @@ export function buildContextVector(input: ContextInput): ContextVector {
     watchingWith: input.watchingWith,
     excludeContentWarnings: new Set(input.excludeContentWarnings),
     excludeTags: new Set(input.excludeTags),
+    favoriteGenres: new Set(input.favoriteGenres ?? []),
+    excludedGenres: new Set(input.excludedGenres ?? []),
+    preferredDirectors: new Set((input.preferredDirectors ?? []).map(normalize)),
+    preferredActors: new Set((input.preferredActors ?? []).map(normalize)),
+    minimumReviewScore: input.minimumReviewScore,
+    discoveryMode: input.discoveryMode ?? "balanced",
   };
 }
 
@@ -107,6 +137,19 @@ export function filterMovies(movies: Movie[], context: ContextVector): Movie[] {
 
     if (movie.moodTags.some((tag) => context.excludeTags.has(tag))) {
       return false;
+    }
+
+    if (context.excludedGenres.has(movie.genrePrimary)) {
+      return false;
+    }
+
+    if (context.minimumReviewScore !== undefined) {
+      if (movie.reviewScore === null || movie.reviewScore === undefined) {
+        return false;
+      }
+      if (movie.reviewScore < context.minimumReviewScore) {
+        return false;
+      }
     }
 
     return true;
@@ -135,8 +178,35 @@ export function scoreMovie(movie: Movie, taste: UserTasteProfile, context: Conte
     Math.abs(movie.emotionalWeight - taste.emotionalWeight);
   const styleMatchScore = clamp01(1 - styleDistance / 5);
 
+  const genreMatched =
+    context.favoriteGenres.size === 0
+      ? 0.5
+      : context.favoriteGenres.has(movie.genrePrimary) || (movie.genreSecondary ? context.favoriteGenres.has(movie.genreSecondary) : false)
+        ? 1
+        : 0;
+
+  const genreFactor =
+    context.discoveryMode === "focused"
+      ? genreMatched * 0.12
+      : context.discoveryMode === "wide"
+        ? (genreMatched === 1 ? 0.05 : 0.08)
+        : genreMatched * 0.08;
+
+  const directorOverlap = overlapCount(movie.directors, context.preferredDirectors);
+  const actorOverlap = overlapCount(movie.cast, context.preferredActors);
+  const directorScore = clamp01(directorOverlap / 2);
+  const actorScore = clamp01(actorOverlap / 3);
+  const reviewScore = movie.reviewScore ? clamp01(movie.reviewScore / 10) : 0.5;
+
   const totalScore = clamp01(
-    clamp01(moodScore) * 0.38 + contextMatchScore * 0.22 + runtimeFitScore * 0.15 + styleMatchScore * 0.25,
+    clamp01(moodScore) * 0.28 +
+      contextMatchScore * 0.18 +
+      runtimeFitScore * 0.14 +
+      styleMatchScore * 0.2 +
+      genreFactor +
+      directorScore * 0.08 +
+      actorScore * 0.08 +
+      reviewScore * 0.04,
   );
 
   return {
@@ -169,6 +239,18 @@ export function buildReasons(
   }
   if (breakdown.styleMatchScore >= 0.7) {
     reasons.push({ type: "style_match", text: pickVariant("style_match", seed + 4) });
+  }
+  if (context.favoriteGenres.has(movie.genrePrimary)) {
+    reasons.push({ type: "style_match", text: `好きなジャンル（${movie.genrePrimary}）に近い候補です。` });
+  }
+  if (overlapCount(movie.directors, context.preferredDirectors) > 0) {
+    reasons.push({ type: "director_match", text: "推し監督の作風に近い一本です。" });
+  }
+  if (overlapCount(movie.cast, context.preferredActors) > 0) {
+    reasons.push({ type: "actor_match", text: "好きな俳優が出演している候補です。" });
+  }
+  if ((movie.reviewScore ?? 0) >= 7.5) {
+    reasons.push({ type: "review_match", text: "レビュー評価が高く、満足度を期待しやすいです。" });
   }
 
   if (reasons.length === 0) {

@@ -59,10 +59,19 @@ export default async function RecommendResultPage({
   return (
     <main className="mx-auto min-h-screen w-full max-w-2xl space-y-5 px-6 py-10">
       <ScreenHeader title="今夜のおすすめ" description="主推薦1本を中心に、最大2本のバックアップを提案します。" />
+      <Link href="/" className="inline-block">
+        <PopButton variant="ghost">トップページに戻る</PopButton>
+      </Link>
       <MovieCard
         rank={topPick.rank}
         title={topPick.movie.title}
         score={topPick.totalScore}
+        posterUrl={topPick.movie.posterUrl}
+        overview={topPick.movie.overview}
+        directors={topPick.movie.directors}
+        cast={topPick.movie.cast}
+        reviewScore={topPick.movie.reviewScore}
+        reviewSummary={topPick.movie.reviewSummary}
         reasons={[topPick.reason1, topPick.reason2, topPick.reason3]
           .filter((v): v is string => Boolean(v))
           .map((text, index) => ({
@@ -81,6 +90,12 @@ export default async function RecommendResultPage({
           rank={item.rank}
           title={item.movie.title}
           score={item.totalScore}
+          posterUrl={item.movie.posterUrl}
+          overview={item.movie.overview}
+          directors={item.movie.directors}
+          cast={item.movie.cast}
+          reviewScore={item.movie.reviewScore}
+          reviewSummary={item.movie.reviewSummary}
           reasons={[item.reason1, item.reason2, item.reason3]
             .filter((v): v is string => Boolean(v))
             .map((text, index) => ({
@@ -97,6 +112,9 @@ export default async function RecommendResultPage({
         <PopButton variant="primary">この作品を観る</PopButton>
         <Link href="/recommend">
           <PopButton variant="ghost">別条件で再提案</PopButton>
+        </Link>
+        <Link href="/">
+          <PopButton variant="ghost">トップページに戻る</PopButton>
         </Link>
       </div>
       <FeedbackChips sessionId={recommendationSession.id} recommendationResultId={topPick.id} />
