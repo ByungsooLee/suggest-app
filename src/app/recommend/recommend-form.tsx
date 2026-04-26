@@ -11,10 +11,10 @@ import { CONTENT_WARNING_TAGS, MOOD_TAGS, WATCH_CONTEXTS, type MoodTag, type Wat
 const STEP_COUNT = 4;
 
 const STEP_LABELS = [
-  "今のムード",
-  "上映時間",
-  "誰と観るか",
-  "除外条件",
+  "今夜は何分？",
+  "誰と観る？",
+  "避けたいもの",
+  "今夜の気分",
 ] as const;
 
 const WATCH_CONTEXT_LABELS: Record<WatchContext, string> = {
@@ -45,7 +45,7 @@ const RUNTIME_PRESETS = [
 export function RecommendForm() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [currentMoods, setCurrentMoods] = useState<MoodTag[]>(["calm"]);
+  const [currentMoods, setCurrentMoods] = useState<MoodTag[]>([]);
   const [runtimeTarget, setRuntimeTarget] = useState(120);
   const [watchingWith, setWatchingWith] = useState<WatchContext>("solo_watch");
   const [excludeContentWarnings, setExcludeContentWarnings] = useState<string[]>([]);
@@ -58,7 +58,7 @@ export function RecommendForm() {
   const desiredRuntimeMin = useMemo(() => Math.max(60, runtimeTarget - 20), [runtimeTarget]);
   const desiredRuntimeMax = useMemo(() => Math.min(240, runtimeTarget + 20), [runtimeTarget]);
 
-  const toggleValue = (arr: string[], value: string, set: (next: string[]) => void) => {
+  const toggleValue = <T extends string>(arr: T[], value: T, set: (next: T[]) => void) => {
     if (arr.includes(value)) {
       set(arr.filter((v) => v !== value));
       return;
@@ -117,14 +117,7 @@ export function RecommendForm() {
     }
   };
 
-  const canAdvance =
-    (step === 1 && currentMoods.length > 0 && currentMoods.length <= 3) ||
-    step === 2 ||
-    step === 3 ||
-    step === 4;
-
   const goNext = () => {
-    if (!canAdvance) return;
     setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
   };
 
@@ -137,33 +130,14 @@ export function RecommendForm() {
       <div className="sticky top-2 z-10 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-overlay)] p-3 backdrop-blur">
         <p className="text-heading">step {step}/4 · {STEP_LABELS[step - 1]}</p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-bg-elevated)]">
-          <div className="h-full rounded-full bg-[var(--color-accent)] transition-all" style={{ width: `${stepProgress}%` }} />
+          <div className="h-full rounded-full bg-[var(--color-accent)] transition-all duration-300" style={{ width: `${stepProgress}%` }} />
         </div>
       </div>
 
+      {/* Step 1: 尺 */}
       {step === 1 && (
-        <PopCard tone="highlight" className="space-y-3">
-          <h2 className="text-movie-title text-[1.5rem]">今の気分を選んでください</h2>
-          <p className="text-body">最大3つまで選べます。未選択だと次へ進めません。</p>
-          <div className="flex flex-wrap gap-2">
-            {MOOD_TAGS.map((mood) => (
-              <MoodChip
-                key={mood}
-                label={MOOD_LABELS[mood]}
-                selected={currentMoods.includes(mood)}
-                onClick={() => {
-                  if (!currentMoods.includes(mood) && currentMoods.length >= 3) return;
-                  toggleValue(currentMoods, mood, setCurrentMoods);
-                }}
-              />
-            ))}
-          </div>
-        </PopCard>
-      )}
-
-      {step === 2 && (
         <PopCard tone="surface" className="space-y-4">
-          <h2 className="text-movie-title text-[1.5rem]">観る時間の目安を決める</h2>
+          <h2 className="text-movie-title text-[1.5rem]">今夜は何分くらい観たい？</h2>
           <div className="flex flex-wrap gap-2">
             {RUNTIME_PRESETS.map((preset) => (
               <MoodChip
@@ -196,9 +170,10 @@ export function RecommendForm() {
         </PopCard>
       )}
 
-      {step === 3 && (
+      {/* Step 2: 文脈（シングル選択・タップ後260ms自動進行） */}
+      {step === 2 && (
         <PopCard tone="surface" className="space-y-4">
-          <h2 className="text-movie-title text-[1.5rem]">誰と観るか</h2>
+          <h2 className="text-movie-title text-[1.5rem]">今夜は誰と観る？</h2>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {WATCH_CONTEXTS.map((context) => (
               <MoodChip
@@ -207,62 +182,89 @@ export function RecommendForm() {
                 selected={watchingWith === context}
                 onClick={() => {
                   setWatchingWith(context);
-                  window.setTimeout(() => {
-                    setStep(4);
-                  }, 260);
+                  window.setTimeout(() => setStep(3), 260);
                 }}
               />
             ))}
           </div>
+          <button type="button" className="text-label hover:text-[var(--color-text-primary)]" onClick={goNext}>
+            このまま次へ
+          </button>
         </PopCard>
       )}
 
-      {step === 4 && (
-        <PopCard tone="muted" className="space-y-4">
-          <h2 className="text-movie-title text-[1.5rem]">除外条件（任意）</h2>
-          <div className="space-y-2">
-            <p className="text-label">避けたい内容</p>
-            <div className="flex flex-wrap gap-2">
-              {CONTENT_WARNING_TAGS.map((warning) => (
-                <MoodChip
-                  key={warning}
-                  label={warning}
-                  selected={excludeContentWarnings.includes(warning)}
-                  onClick={() => toggleValue(excludeContentWarnings, warning, setExcludeContentWarnings)}
-                />
-              ))}
-            </div>
+      {/* Step 3: 除外条件 */}
+      {step === 3 && (
+        <PopCard tone="surface" className="space-y-4">
+          <h2 className="text-movie-title text-[1.5rem]">今夜は避けたいものは？</h2>
+          <p className="text-body">任意。スキップして次へ進めます。</p>
+          <div className="flex flex-wrap gap-2">
+            {CONTENT_WARNING_TAGS.map((warning) => (
+              <MoodChip
+                key={warning}
+                label={warning}
+                selected={excludeContentWarnings.includes(warning)}
+                onClick={() => toggleValue(excludeContentWarnings, warning, setExcludeContentWarnings)}
+              />
+            ))}
           </div>
           <div className="space-y-1">
-            <label className="text-label">除外タグ（カンマ区切り）</label>
+            <label className="text-label">除外タグ（カンマ区切り、任意）</label>
             <input
               value={excludeTags}
               onChange={(event) => setExcludeTags(event.target.value)}
-              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
               placeholder="slow_burn, dark"
             />
           </div>
         </PopCard>
       )}
 
-      <PopCard tone="surface" className="space-y-1 text-sm">
-        <p className="text-label">入力サマリー</p>
-        <p className="text-body">
-          ムード {currentMoods.map((mood) => MOOD_LABELS[mood]).join(" / ") || "未選択"} / 尺 {desiredRuntimeMin}-{desiredRuntimeMax}分
-        </p>
-        <p className="text-body">
-          文脈 {WATCH_CONTEXT_LABELS[watchingWith]} / warning {excludeContentWarnings.length ? excludeContentWarnings.join(", ") : "指定なし"}
-        </p>
-      </PopCard>
+      {/* Step 4: 気分（任意・おまかせ可） */}
+      {step === 4 && (
+        <>
+          <PopCard tone="highlight" className="space-y-3">
+            <h2 className="text-movie-title text-[1.5rem]">今夜の気分は？</h2>
+            <p className="text-body">最大3つまで。選ばなくてもおまかせで提案します。</p>
+            <div className="flex flex-wrap gap-2">
+              {MOOD_TAGS.map((mood) => (
+                <MoodChip
+                  key={mood}
+                  label={MOOD_LABELS[mood]}
+                  selected={currentMoods.includes(mood)}
+                  onClick={() => {
+                    if (!currentMoods.includes(mood) && currentMoods.length >= 3) return;
+                    toggleValue(currentMoods, mood, setCurrentMoods);
+                  }}
+                />
+              ))}
+            </div>
+          </PopCard>
 
-      {state === "error" && <p className="text-sm text-rose-600">{errorMessage}</p>}
+          <PopCard tone="surface" className="space-y-1 text-sm">
+            <p className="text-label">選んだ条件</p>
+            <p className="text-body">
+              尺 {desiredRuntimeMin}〜{desiredRuntimeMax}分 · {WATCH_CONTEXT_LABELS[watchingWith]}
+            </p>
+            {excludeContentWarnings.length > 0 && (
+              <p className="text-body">除外: {excludeContentWarnings.join(", ")}</p>
+            )}
+            {currentMoods.length > 0 && (
+              <p className="text-body">気分: {currentMoods.map((m) => MOOD_LABELS[m]).join(" / ")}</p>
+            )}
+          </PopCard>
+        </>
+      )}
+
+      {state === "error" && <p className="text-sm text-rose-500">{errorMessage}</p>}
+
       <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[var(--color-bg-void)] via-[var(--color-bg-void)] to-transparent px-6 pb-7 pt-6">
         <div className="mx-auto flex w-full max-w-5xl gap-2">
           <PopButton type="button" variant="ghost" onClick={goBack} disabled={step === 1 || state === "loading"}>
             戻る
           </PopButton>
           {step < 4 ? (
-            <PopButton type="button" className="flex-1" onClick={goNext} disabled={!canAdvance || state === "loading"}>
+            <PopButton type="button" className="flex-1" onClick={goNext} disabled={state === "loading"}>
               次へ
             </PopButton>
           ) : (

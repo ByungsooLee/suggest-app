@@ -41,7 +41,7 @@ export function MovieCard({
     .join(" · ");
 
   return (
-    <PopCard tone={primary ? "highlight" : "surface"} className={primary ? "border-[var(--color-border-accent)]" : ""}>
+    <PopCard tone={primary ? "highlight" : "surface"} className={`movie-card${primary ? " border-[var(--color-border-accent)]" : ""}`}>
       <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {posterUrl ? (

@@ -9,7 +9,7 @@ export async function GET() {
   const authResult = await requireUser();
   if (!authResult.ok) return authResult.response;
 
-  let items: Awaited<ReturnType<typeof prisma.userWatchlistItem.findMany>> = [];
+  let items: Awaited<ReturnType<typeof prisma.userWatchlistItem.findMany<{ include: { movie: { select: { id: true; title: true; posterUrl: true } } } }>>> = [];
   try {
     items = await prisma.userWatchlistItem.findMany({
       where: { userId: authResult.userId },

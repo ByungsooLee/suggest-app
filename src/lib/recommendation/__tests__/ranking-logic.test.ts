@@ -24,6 +24,7 @@ test("scoreBaseRelevance uses watch context and creator affinity", () => {
     mbtiVector,
     hasMbtiSignal: true,
     watchingWith: "friends_hangout",
+    influenceStrength: "balanced",
     preferredDirectors: ["Wes Anderson"],
     preferredActors: ["Scarlett Johansson"],
     candidate: {
@@ -31,6 +32,7 @@ test("scoreBaseRelevance uses watch context and creator affinity", () => {
       directors: ["Wes Anderson"],
       cast: ["Scarlett Johansson"],
       reviewScore: 8.4,
+      genreSecondary: null,
     },
     currentMoods: ["calm"],
     retrievalSupportScore: 0.7,
@@ -43,6 +45,7 @@ test("scoreBaseRelevance uses watch context and creator affinity", () => {
     mbtiVector,
     hasMbtiSignal: true,
     watchingWith: "friends_hangout",
+    influenceStrength: "balanced",
     preferredDirectors: [],
     preferredActors: [],
     candidate: {
@@ -50,6 +53,7 @@ test("scoreBaseRelevance uses watch context and creator affinity", () => {
       directors: ["Other Director"],
       cast: ["Other Actor"],
       reviewScore: 8.4,
+      genreSecondary: null,
     },
     currentMoods: ["calm"],
     retrievalSupportScore: 0.4,

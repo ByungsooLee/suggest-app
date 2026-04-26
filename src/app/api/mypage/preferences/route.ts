@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth/require-user";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { parseJson } from "@/lib/validation/http";
-import { MyPagePreferencesSchema, PreferencesPatchSchema } from "@/lib/validation/schemas";
+import { PreferencesPatchSchema } from "@/lib/validation/schemas";
 
 export async function GET() {
   const authResult = await requireUser();
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
   const authResult = await requireUser();
   if (!authResult.ok) return authResult.response;
 
-  const parsed = await parseJson(request, MyPagePreferencesSchema);
+  const parsed = await parseJson(request, PreferencesPatchSchema);
   if (!parsed.ok) return parsed.response;
 
   const favoriteSet = new Set(parsed.data.favoriteGenres);
