@@ -9,13 +9,13 @@ type PopCardProps = {
 export function PopCard({ children, tone = "surface", className = "" }: PopCardProps) {
   const toneClass =
     tone === "highlight"
-      ? "border-pink-300 bg-gradient-to-br from-pink-100 to-purple-100 dark:border-pink-500/40 dark:from-pink-950/60 dark:to-purple-950/60"
+      ? "border-[var(--color-border-accent)] bg-[var(--color-bg-surface)]"
       : tone === "muted"
-        ? "border-zinc-200 bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/80"
-        : "border-violet-200 bg-white dark:border-violet-900/60 dark:bg-zinc-950/80";
+        ? "border-[var(--color-border)] bg-[var(--color-bg-elevated)]"
+        : "border-[var(--color-border)] bg-[var(--color-bg-surface)]";
 
   return (
-    <section className={`rounded-3xl border p-5 shadow-lg shadow-zinc-950/5 ${toneClass} ${className}`.trim()}>
+    <section className={`rounded-[var(--radius-xl)] border p-5 ${toneClass} ${className}`.trim()}>
       {children}
     </section>
   );

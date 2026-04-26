@@ -1,16 +1,8 @@
 import { requireUser } from "@/lib/auth/require-user";
 import { prisma } from "@/lib/db/prisma";
-import { searchTmdbMovieByTitleYear } from "@/lib/tmdb/client";
+import { ONBOARDING_MOVIES_V1 } from "@/lib/onboarding/onboarding-movie-list";
 
-const DEFAULT_LIMIT = 12;
-const MAX_LIMIT = 30;
-const MIN_OVERVIEW_LENGTH = 120;
-const MAX_TMDB_LOOKUPS = 3;
-const CATALOG_POOL_SIZE = 160;
-
-function normalizeTitle(value: string) {
-  return value.normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-}
+const ONBOARDING_MOVIE_COUNT = 14;
 
 export async function GET(request: Request) {
   const authResult = await requireUser();
@@ -18,10 +10,18 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const fallbackPosterUrl = new URL("/images/no-poster.svg", url.origin).toString();
-  const rawLimit = Number(url.searchParams.get("limit") ?? DEFAULT_LIMIT);
-  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.floor(rawLimit), 6), MAX_LIMIT) : DEFAULT_LIMIT;
+  const titleYearPairs = ONBOARDING_MOVIES_V1.map((movie) => ({
+    title: movie.title,
+    releaseYear: movie.releaseYear,
+  }));
 
   const movies = await prisma.movie.findMany({
+    where: {
+      OR: titleYearPairs.map((movie) => ({
+        title: movie.title,
+        releaseYear: movie.releaseYear,
+      })),
+    },
     select: {
       id: true,
       title: true,
@@ -31,52 +31,21 @@ export async function GET(request: Request) {
       genrePrimary: true,
       genreSecondary: true,
     },
-    orderBy: [{ releaseYear: "desc" }, { createdAt: "desc" }],
-    take: CATALOG_POOL_SIZE,
   });
 
-  if (movies.length === 0) {
+  if (movies.length !== ONBOARDING_MOVIE_COUNT) {
     return Response.json(
       {
-        code: "NO_MOVIES",
-        message: "Swipe candidates are unavailable because the movie catalog is empty.",
+        code: "ONBOARDING_MOVIES_MISSING",
+        message: "Onboarding movie set is incomplete in catalog. Run seed before onboarding.",
       },
-      { status: 404 },
+      { status: 409 },
     );
   }
 
-  const sampledMovies = [...movies]
-    .map((movie) => ({ movie, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .slice(0, limit)
-    .map(({ movie }) => movie);
+  const movieByKey = new Map(movies.map((movie) => [`${movie.title}::${movie.releaseYear}`, movie]));
 
-  const overviewByMovieId = new Map<string, string>();
-  const moviesNeedingBackfill = sampledMovies
-    .filter((movie) => {
-      const overview = movie.overview?.trim() ?? "";
-      return overview.length < MIN_OVERVIEW_LENGTH;
-    })
-    .slice(0, MAX_TMDB_LOOKUPS);
-
-  await Promise.all(
-    moviesNeedingBackfill.map(async (movie) => {
-      try {
-        const results = await searchTmdbMovieByTitleYear(movie.title, movie.releaseYear);
-        const normalizedTitle = normalizeTitle(movie.title);
-        const strictTitleMatch =
-          results.find((item) => normalizeTitle(item.title ?? item.original_title ?? "") === normalizedTitle) ?? results[0];
-        const candidateOverview = strictTitleMatch?.overview?.trim();
-        if (candidateOverview) {
-          overviewByMovieId.set(movie.id, candidateOverview);
-        }
-      } catch {
-        // Ignore TMDB lookup errors to keep onboarding candidates fast and available.
-      }
-    }),
-  );
-
-  const shuffled: Array<{
+  const ordered: Array<{
     movieId: string;
     title: string;
     releaseYear: number | null;
@@ -85,21 +54,19 @@ export async function GET(request: Request) {
     genrePrimary: string | null;
     genreSecondary: string | null;
   }> = [];
-  for (const movie of sampledMovies) {
-    const existingOverview = movie.overview?.trim() ?? null;
-    const backfilledOverview = overviewByMovieId.get(movie.id) ?? null;
-    const overview =
-      backfilledOverview && backfilledOverview.length > (existingOverview?.length ?? 0) ? backfilledOverview : existingOverview;
-    shuffled.push({
+  for (const movieRef of ONBOARDING_MOVIES_V1) {
+    const movie = movieByKey.get(`${movieRef.title}::${movieRef.releaseYear}`);
+    if (!movie) continue;
+    ordered.push({
       movieId: movie.id,
       title: movie.title,
       releaseYear: movie.releaseYear ?? null,
       posterUrl: movie.posterUrl ?? fallbackPosterUrl,
-      overview,
+      overview: movie.overview?.trim() ?? null,
       genrePrimary: movie.genrePrimary,
       genreSecondary: movie.genreSecondary,
     });
   }
 
-  return Response.json({ items: shuffled }, { status: 200 });
+  return Response.json({ items: ordered }, { status: 200 });
 }

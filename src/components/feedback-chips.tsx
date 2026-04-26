@@ -7,11 +7,11 @@ import { PopCard } from "@/components/ui/pop-card";
 import { ReactionPill } from "@/components/ui/reaction-pill";
 
 const LABELS: Record<FeedbackReaction, string> = {
-  liked: "liked",
-  too_dark: "too dark",
-  too_long: "too long",
-  not_now: "not now",
-  mismatch: "mismatch",
+  liked: "好き",
+  too_dark: "重すぎた",
+  too_long: "長すぎた",
+  not_now: "今じゃない",
+  mismatch: "気分と違う",
 };
 const EMOJI: Record<FeedbackReaction, string> = {
   liked: "😍",
@@ -48,7 +48,7 @@ export function FeedbackChips({ sessionId, recommendationResultId }: FeedbackChi
 
   return (
     <PopCard tone="muted" className="space-y-3">
-      <h3 className="text-sm font-medium">推薦フィードバック（ワンタップ）</h3>
+      <h3 className="text-sm font-[500]">推薦フィードバック（ワンタップ）</h3>
       <div className="flex flex-wrap gap-2">
         {FEEDBACK_REACTIONS.map((reaction) => (
           <ReactionPill
@@ -60,9 +60,9 @@ export function FeedbackChips({ sessionId, recommendationResultId }: FeedbackChi
           />
         ))}
       </div>
-      {state === "loading" && <p className="text-xs text-zinc-500">保存中...</p>}
-      {state === "done" && <p className="text-xs text-emerald-600">フィードバックを保存しました。</p>}
-      {state === "error" && <p className="text-xs text-rose-600">保存に失敗しました。再試行してください。</p>}
+      {state === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">保存中...</p>}
+      {state === "done" && <p className="text-xs text-[var(--color-match-high)]">フィードバックを保存しました。</p>}
+      {state === "error" && <p className="text-xs text-[var(--color-streaming)]">保存に失敗しました。再試行してください。</p>}
     </PopCard>
   );
 }

@@ -15,18 +15,26 @@ export function LoginPanels({ loginAction, registerAction }: LoginPanelsProps) {
 
   return (
     <section className="mt-6 space-y-4">
-      <div className="inline-flex rounded-full bg-zinc-200 p-1 dark:bg-zinc-800">
+      <div className="inline-flex rounded-[var(--radius-full)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-1">
         <button
           type="button"
           onClick={() => setTab("login")}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tab === "login" ? "bg-white text-zinc-900" : "text-zinc-500 dark:text-zinc-300"}`}
+          className={`rounded-[var(--radius-full)] px-4 py-1.5 text-xs font-[500] transition ${
+            tab === "login"
+              ? "bg-[var(--color-accent-dim)] text-[var(--color-accent)]"
+              : "text-[var(--color-text-secondary)]"
+          }`}
         >
           ログイン
         </button>
         <button
           type="button"
           onClick={() => setTab("register")}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tab === "register" ? "bg-white text-zinc-900" : "text-zinc-500 dark:text-zinc-300"}`}
+          className={`rounded-[var(--radius-full)] px-4 py-1.5 text-xs font-[500] transition ${
+            tab === "register"
+              ? "bg-[var(--color-accent-dim)] text-[var(--color-accent)]"
+              : "text-[var(--color-text-secondary)]"
+          }`}
         >
           新規登録
         </button>
@@ -40,20 +48,20 @@ export function LoginPanels({ loginAction, registerAction }: LoginPanelsProps) {
               type="email"
               required
               placeholder="email@example.com"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <input
               name="username"
               required
               placeholder="username"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <input
               name="password"
               type="password"
               required
               placeholder="password (min 8)"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <PopButton type="submit" variant="primary" className="w-full">
               ログインして続ける
@@ -67,27 +75,27 @@ export function LoginPanels({ loginAction, registerAction }: LoginPanelsProps) {
               name="name"
               required
               placeholder="表示名"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <input
               name="email"
               type="email"
               required
               placeholder="email@example.com"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <input
               name="username"
               required
               placeholder="username"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <input
               name="password"
               type="password"
               required
               placeholder="password (min 8)"
-              className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
             />
             <PopButton type="submit" variant="secondary" className="w-full">
               登録してオンボーディングへ

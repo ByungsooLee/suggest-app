@@ -9,10 +9,10 @@ export function MoodChip({ label, selected = false, onClick }: MoodChipProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+      className={`rounded-[var(--radius-full)] border px-3 py-1.5 text-xs font-[300] transition ${
         selected
-          ? "bg-violet-500 text-white shadow-md shadow-violet-500/30"
-          : "border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          ? "border-[var(--color-border-accent)] bg-[var(--color-accent-dim)] text-[var(--color-accent)]"
+          : "border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
       }`}
     >
       {label}

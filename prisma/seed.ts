@@ -1,5 +1,6 @@
 import { PrismaClient, type Prisma } from "@prisma/client";
 import { resolveStrictMoviePoster } from "../src/lib/movies/strict-movie-poster-match";
+import { ONBOARDING_MOVIES_V1 } from "../src/lib/onboarding/onboarding-movie-list";
 
 import {
   CONTENT_WARNING_TAGS,
@@ -71,6 +72,9 @@ const realPersonMetadata: Record<
   "The Martian": { directors: ["Ridley Scott"], cast: ["Matt Damon", "Jessica Chastain"] },
   "Interstellar": { directors: ["Christopher Nolan"], cast: ["Matthew McConaughey", "Anne Hathaway"] },
   "Whiplash": { directors: ["Damien Chazelle"], cast: ["Miles Teller", "J.K. Simmons"] },
+  Parasite: { directors: ["Bong Joon-ho"], cast: ["Song Kang-ho", "Choi Woo-shik"] },
+  "Inside Out": { directors: ["Pete Docter"], cast: ["Amy Poehler", "Phyllis Smith"] },
+  "Gone Girl": { directors: ["David Fincher"], cast: ["Ben Affleck", "Rosamund Pike"] },
   "Birdman": { directors: ["Alejandro G. Inarritu"], cast: ["Michael Keaton", "Edward Norton"] },
   "Little Miss Sunshine": { directors: ["Jonathan Dayton", "Valerie Faris"], cast: ["Abigail Breslin", "Steve Carell"] },
   "About Time": { directors: ["Richard Curtis"], cast: ["Domhnall Gleeson", "Rachel McAdams"] },
@@ -121,11 +125,15 @@ function vectorFromPreset(preset: VectorPreset) {
       moodCalm: 0.78,
       moodDark: 0.2,
       moodEmotional: 0.84,
+      moodUplifting: 0.52,
       toneStylish: 0.7,
       toneFunny: 0.2,
+      paceFast: 0.32,
       paceSlowBurn: 0.66,
       complexity: 0.45,
       emotionalWeight: 0.8,
+      tension: 0.28,
+      accessibility: 0.72,
     };
   }
   if (preset === "dark_stylish") {
@@ -133,11 +141,15 @@ function vectorFromPreset(preset: VectorPreset) {
       moodCalm: 0.25,
       moodDark: 0.82,
       moodEmotional: 0.56,
+      moodUplifting: 0.2,
       toneStylish: 0.9,
       toneFunny: 0.08,
+      paceFast: 0.34,
       paceSlowBurn: 0.72,
       complexity: 0.7,
       emotionalWeight: 0.68,
+      tension: 0.74,
+      accessibility: 0.34,
     };
   }
   if (preset === "fun_light") {
@@ -145,11 +157,15 @@ function vectorFromPreset(preset: VectorPreset) {
       moodCalm: 0.62,
       moodDark: 0.08,
       moodEmotional: 0.44,
+      moodUplifting: 0.82,
       toneStylish: 0.58,
       toneFunny: 0.88,
+      paceFast: 0.66,
       paceSlowBurn: 0.2,
       complexity: 0.28,
       emotionalWeight: 0.32,
+      tension: 0.24,
+      accessibility: 0.92,
     };
   }
   if (preset === "tense_complex") {
@@ -157,22 +173,30 @@ function vectorFromPreset(preset: VectorPreset) {
       moodCalm: 0.18,
       moodDark: 0.76,
       moodEmotional: 0.5,
+      moodUplifting: 0.18,
       toneStylish: 0.6,
       toneFunny: 0.06,
+      paceFast: 0.48,
       paceSlowBurn: 0.7,
       complexity: 0.82,
       emotionalWeight: 0.66,
+      tension: 0.86,
+      accessibility: 0.38,
     };
   }
   return {
     moodCalm: 0.5,
     moodDark: 0.35,
     moodEmotional: 0.56,
+    moodUplifting: 0.58,
     toneStylish: 0.62,
     toneFunny: 0.4,
+    paceFast: 0.52,
     paceSlowBurn: 0.48,
     complexity: 0.46,
     emotionalWeight: 0.52,
+    tension: 0.5,
+    accessibility: 0.64,
   };
 }
 
@@ -216,6 +240,9 @@ const movieSeeds: MovieSeed[] = [
   { title: "The Martian", releaseYear: 2015, runtimeMinutes: 144, genrePrimary: "sci-fi", genreSecondary: "adventure", preset: "balanced", moodTags: ["uplifting", "easy_to_watch"], watchContexts: ["friends_hangout", "family_time"], contentWarnings: [] },
   { title: "Interstellar", releaseYear: 2014, runtimeMinutes: 169, genrePrimary: "sci-fi", genreSecondary: "drama", preset: "balanced", moodTags: ["emotional", "complex_plot"], watchContexts: ["solo_watch", "friends_hangout"], contentWarnings: [] },
   { title: "Whiplash", releaseYear: 2014, runtimeMinutes: 106, genrePrimary: "drama", genreSecondary: "music", preset: "tense_complex", moodTags: ["tense", "emotional"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing"] },
+  { title: "Parasite", releaseYear: 2019, runtimeMinutes: 132, genrePrimary: "thriller", genreSecondary: "drama", preset: "tense_complex", moodTags: ["dark", "complex_plot"], watchContexts: ["solo_watch", "friends_hangout"], contentWarnings: ["violence", "disturbing"] },
+  { title: "Inside Out", releaseYear: 2015, runtimeMinutes: 95, genrePrimary: "animation", genreSecondary: "family", preset: "fun_light", moodTags: ["uplifting", "emotional", "easy_to_watch"], watchContexts: ["family_time", "friends_hangout"], contentWarnings: [] },
+  { title: "Gone Girl", releaseYear: 2014, runtimeMinutes: 149, genrePrimary: "thriller", genreSecondary: "mystery", preset: "dark_stylish", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"] },
   { title: "Birdman", releaseYear: 2014, runtimeMinutes: 119, genrePrimary: "drama", genreSecondary: "comedy", preset: "balanced", moodTags: ["stylish", "complex_plot"], watchContexts: ["solo_watch", "friends_hangout"], contentWarnings: [] },
   { title: "Little Miss Sunshine", releaseYear: 2006, runtimeMinutes: 101, genrePrimary: "comedy", genreSecondary: "drama", preset: "fun_light", moodTags: ["uplifting", "easy_to_watch"], watchContexts: ["family_time", "friends_hangout"], contentWarnings: [] },
   { title: "About Time", releaseYear: 2013, runtimeMinutes: 123, genrePrimary: "romance", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["emotional", "uplifting", "easy_to_watch"], watchContexts: ["date_friendly", "family_time"], contentWarnings: ["sad_ending"] },
@@ -257,6 +284,11 @@ function asCreateInput(seed: MovieSeed): Prisma.MovieCreateInput {
   const slug = slugify(seed.title);
   const providers = defaultProviders(seed);
   const people = realPersonMetadata[seed.title];
+  const onboardingOverride = ONBOARDING_MOVIES_V1.find(
+    (movie) => movie.title === seed.title && movie.releaseYear === seed.releaseYear,
+  );
+  const featureVector = onboardingOverride?.features ?? vectorFromPreset(seed.preset);
+
   return {
     title: seed.title,
     releaseYear: seed.releaseYear,
@@ -271,7 +303,7 @@ function asCreateInput(seed: MovieSeed): Prisma.MovieCreateInput {
     reviewScore: seed.reviewScore ?? 7.2,
     reviewSummary: seed.reviewSummary ?? "全体として安定した評価を獲得している作品です。",
     reviewSource: normalizeReviewSource(seed.reviewSource),
-    ...vectorFromPreset(seed.preset),
+    ...featureVector,
     moodTags: seed.moodTags,
     watchContexts: seed.watchContexts,
     contentWarnings: seed.contentWarnings,

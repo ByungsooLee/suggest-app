@@ -1,73 +1,62 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { MoodChip } from "@/components/ui/mood-chip";
-import { PersonPreviewTrigger } from "@/components/person-preview-trigger";
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
-import { CONTENT_WARNING_TAGS, MOOD_TAGS, MOVIE_GENRES, WATCH_CONTEXTS } from "@/lib/constants/taxonomy";
+import { CONTENT_WARNING_TAGS, MOOD_TAGS, WATCH_CONTEXTS, type MoodTag, type WatchContext } from "@/lib/constants/taxonomy";
 
-type SuggestionItem = {
-  name: string;
-  count: number;
-  role: "director" | "actor";
-  encodedName: string;
+const STEP_COUNT = 4;
+
+const STEP_LABELS = [
+  "今のムード",
+  "上映時間",
+  "誰と観るか",
+  "除外条件",
+] as const;
+
+const WATCH_CONTEXT_LABELS: Record<WatchContext, string> = {
+  solo_watch: "ひとりで観る",
+  date_friendly: "デートで観る",
+  friends_hangout: "友人と観る",
+  family_time: "家族で観る",
+  late_night_fit: "夜更かしで観る",
 };
 
-type SuggestionsResponse = {
-  genres: string[];
-  directors: SuggestionItem[];
-  actors: SuggestionItem[];
-  fallbackUsed: boolean;
+const MOOD_LABELS: Record<MoodTag, string> = {
+  calm: "落ち着きたい",
+  emotional: "感情を揺さぶられたい",
+  stylish: "映像美を楽しみたい",
+  dark: "ダークな雰囲気",
+  funny: "笑いたい",
+  tense: "緊張感がほしい",
+  uplifting: "前向きになりたい",
+  melancholic: "余韻に浸りたい",
 };
 
-type MyPagePreferencesResponse = {
-  preferences: {
-    favoriteGenres: string[];
-    preferredDirectors: string[];
-    preferredActors: string[];
-  };
-};
-
-const parseCsv = (value: string) =>
-  Array.from(
-    new Set(
-      value
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean)
-        .filter((item) => !item.toLowerCase().startsWith("unknown ")),
-    ),
-  );
-
-const setCsv = (values: string[]) => values.join(", ");
-
-const toggleName = (source: string, name: string) => {
-  const list = parseCsv(source);
-  if (list.includes(name)) return setCsv(list.filter((item) => item !== name));
-  return setCsv([...list, name]);
-};
+const RUNTIME_PRESETS = [
+  { id: "quick", label: "さくっと (90分)", value: 90 },
+  { id: "standard", label: "標準 (120分)", value: 120 },
+  { id: "long", label: "じっくり (150分)", value: 150 },
+] as const;
 
 export function RecommendForm() {
   const router = useRouter();
-  const [currentMoods, setCurrentMoods] = useState<string[]>(["calm"]);
-  const [desiredRuntimeMin, setDesiredRuntimeMin] = useState(90);
-  const [desiredRuntimeMax, setDesiredRuntimeMax] = useState(130);
-  const [watchingWith, setWatchingWith] = useState<(typeof WATCH_CONTEXTS)[number]>("solo_watch");
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [currentMoods, setCurrentMoods] = useState<MoodTag[]>(["calm"]);
+  const [runtimeTarget, setRuntimeTarget] = useState(120);
+  const [watchingWith, setWatchingWith] = useState<WatchContext>("solo_watch");
   const [excludeContentWarnings, setExcludeContentWarnings] = useState<string[]>([]);
   const [excludeTags, setExcludeTags] = useState("");
-  const [preferredDirectors, setPreferredDirectors] = useState("");
-  const [preferredActors, setPreferredActors] = useState("");
-  const [suggestionGenres, setSuggestionGenres] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<SuggestionsResponse | null>(null);
-  const [suggestionState, setSuggestionState] = useState<"idle" | "loading" | "error">("idle");
-  const [minimumReviewScore, setMinimumReviewScore] = useState<number>(0);
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const selectedDirectorSet = new Set(parseCsv(preferredDirectors));
-  const selectedActorSet = new Set(parseCsv(preferredActors));
+  const [selectedPreset, setSelectedPreset] = useState<(typeof RUNTIME_PRESETS)[number]["id"]>("standard");
+  const stepProgress = Math.round((step / STEP_COUNT) * 100);
+
+  const desiredRuntimeMin = useMemo(() => Math.max(60, runtimeTarget - 20), [runtimeTarget]);
+  const desiredRuntimeMax = useMemo(() => Math.min(240, runtimeTarget + 20), [runtimeTarget]);
 
   const toggleValue = (arr: string[], value: string, set: (next: string[]) => void) => {
     if (arr.includes(value)) {
@@ -82,252 +71,207 @@ export function RecommendForm() {
     setState("loading");
     setErrorMessage("");
 
-    const response = await fetch("/api/recommendations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        currentMoods,
-        desiredRuntimeMin,
-        desiredRuntimeMax,
-        watchingWith,
-        excludeContentWarnings,
-        excludeTags: excludeTags
-          .split(",")
-          .map((value) => value.trim())
-          .filter(Boolean),
-        preferredDirectors: parseCsv(preferredDirectors).slice(0, 10),
-        preferredActors: parseCsv(preferredActors).slice(0, 10),
-        minimumReviewScore: minimumReviewScore > 0 ? minimumReviewScore : undefined,
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-    const data = (await response.json()) as { sessionId?: string; message?: string };
-    if (!response.ok || !data.sessionId) {
+    try {
+      const response = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          currentMoods,
+          desiredRuntimeMin,
+          desiredRuntimeMax,
+          watchingWith,
+          excludeContentWarnings,
+          excludeTags: excludeTags
+            .split(",")
+            .map((value) => value.trim())
+            .filter(Boolean),
+          preferredGenres: [],
+          preferredDirectors: [],
+          preferredActors: [],
+          minimumReviewScore: undefined,
+        }),
+      });
+
+      const data = (await response.json().catch(() => ({}))) as { sessionId?: string; message?: string };
+      if (!response.ok || !data.sessionId) {
+        setState("error");
+        setErrorMessage(data.message ?? "推薦作成に失敗しました。");
+        return;
+      }
+
+      router.push(`/recommend/result/${data.sessionId}`);
+      router.refresh();
+    } catch (error) {
       setState("error");
-      setErrorMessage(data.message ?? "推薦作成に失敗しました。");
-      return;
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setErrorMessage("計算に時間がかかっています。しばらくして再試行してください。");
+      } else {
+        setErrorMessage("通信エラーが発生しました。ネットワーク状態を確認して再試行してください。");
+      }
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    router.push(`/recommend/result/${data.sessionId}`);
-    router.refresh();
   };
 
-  useEffect(() => {
-    const loadMyPagePreferences = async () => {
-      try {
-        const response = await fetch("/api/mypage/preferences", { cache: "no-store" });
-        if (!response.ok) return;
-        const data = (await response.json()) as MyPagePreferencesResponse;
-        setSuggestionGenres(data.preferences.favoriteGenres ?? []);
-        if (data.preferences.preferredDirectors?.length) {
-          setPreferredDirectors(parseCsv(data.preferences.preferredDirectors.join(", ")).join(", "));
-        }
-        if (data.preferences.preferredActors?.length) {
-          setPreferredActors(parseCsv(data.preferences.preferredActors.join(", ")).join(", "));
-        }
-      } catch {
-        // no-op: recommendation screen still works with manual input
-      }
-    };
-    void loadMyPagePreferences();
-  }, []);
+  const canAdvance =
+    (step === 1 && currentMoods.length > 0 && currentMoods.length <= 3) ||
+    step === 2 ||
+    step === 3 ||
+    step === 4;
 
-  useEffect(() => {
-    const loadSuggestions = async () => {
-      setSuggestionState("loading");
-      try {
-        const query = suggestionGenres.join(",");
-        const response = await fetch(`/api/movies/suggestions?genres=${encodeURIComponent(query)}&limit=12`, {
-          cache: "no-store",
-        });
-        if (!response.ok) throw new Error("suggestions failed");
-        const data = (await response.json()) as SuggestionsResponse;
-        setSuggestions(data);
-        setSuggestionState("idle");
-      } catch {
-        setSuggestionState("error");
-      }
-    };
-    void loadSuggestions();
-  }, [suggestionGenres]);
+  const goNext = () => {
+    if (!canAdvance) return;
+    setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
+  };
+
+  const goBack = () => {
+    setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) : prev));
+  };
 
   return (
-    <form className="mt-6 space-y-6" onSubmit={submit}>
-      <PopCard tone="highlight" className="space-y-2">
-        <h2 className="text-sm font-semibold">今のムード (1〜3)</h2>
-        <div className="flex flex-wrap gap-2">
-          {MOOD_TAGS.map((mood) => (
-            <MoodChip key={mood} label={mood} selected={currentMoods.includes(mood)} onClick={() => toggleValue(currentMoods, mood, setCurrentMoods)} />
-          ))}
+    <form className="mt-6 space-y-6 pb-32" onSubmit={submit}>
+      <div className="sticky top-2 z-10 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-overlay)] p-3 backdrop-blur">
+        <p className="text-heading">step {step}/4 · {STEP_LABELS[step - 1]}</p>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-bg-elevated)]">
+          <div className="h-full rounded-full bg-[var(--color-accent)] transition-all" style={{ width: `${stepProgress}%` }} />
         </div>
-      </PopCard>
+      </div>
 
-      <PopCard tone="surface" className="grid grid-cols-2 gap-3">
-        <label className="space-y-1 text-sm">
-          <span>最小時間</span>
-          <input
-            type="number"
-            min={60}
-            max={240}
-            value={desiredRuntimeMin}
-            onChange={(event) => setDesiredRuntimeMin(Number(event.target.value))}
-            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
-          />
-        </label>
-        <label className="space-y-1 text-sm">
-          <span>最大時間</span>
-          <input
-            type="number"
-            min={60}
-            max={240}
-            value={desiredRuntimeMax}
-            onChange={(event) => setDesiredRuntimeMax(Number(event.target.value))}
-            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
-          />
-        </label>
-      </PopCard>
+      {step === 1 && (
+        <PopCard tone="highlight" className="space-y-3">
+          <h2 className="text-movie-title text-[1.5rem]">今の気分を選んでください</h2>
+          <p className="text-body">最大3つまで選べます。未選択だと次へ進めません。</p>
+          <div className="flex flex-wrap gap-2">
+            {MOOD_TAGS.map((mood) => (
+              <MoodChip
+                key={mood}
+                label={MOOD_LABELS[mood]}
+                selected={currentMoods.includes(mood)}
+                onClick={() => {
+                  if (!currentMoods.includes(mood) && currentMoods.length >= 3) return;
+                  toggleValue(currentMoods, mood, setCurrentMoods);
+                }}
+              />
+            ))}
+          </div>
+        </PopCard>
+      )}
 
-      <PopCard tone="surface" className="space-y-2">
-        <h2 className="text-sm font-semibold">誰と観るか</h2>
-        <select
-          value={watchingWith}
-          onChange={(event) => setWatchingWith(event.target.value as (typeof WATCH_CONTEXTS)[number])}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        >
-          {WATCH_CONTEXTS.map((context) => (
-            <option key={context} value={context}>
-              {context}
-            </option>
-          ))}
-        </select>
-      </PopCard>
-
-      <PopCard tone="muted" className="space-y-2">
-        <h2 className="text-sm font-semibold">除外したいwarning</h2>
-        <div className="flex flex-wrap gap-2">
-          {CONTENT_WARNING_TAGS.map((warning) => (
-            <MoodChip
-              key={warning}
-              label={warning}
-              selected={excludeContentWarnings.includes(warning)}
-              onClick={() => toggleValue(excludeContentWarnings, warning, setExcludeContentWarnings)}
+      {step === 2 && (
+        <PopCard tone="surface" className="space-y-4">
+          <h2 className="text-movie-title text-[1.5rem]">観る時間の目安を決める</h2>
+          <div className="flex flex-wrap gap-2">
+            {RUNTIME_PRESETS.map((preset) => (
+              <MoodChip
+                key={preset.id}
+                label={preset.label}
+                selected={selectedPreset === preset.id}
+                onClick={() => {
+                  setSelectedPreset(preset.id);
+                  setRuntimeTarget(preset.value);
+                }}
+              />
+            ))}
+          </div>
+          <div className="space-y-2">
+            <label className="text-label">詳細調整（{runtimeTarget}分）</label>
+            <input
+              type="range"
+              min={60}
+              max={240}
+              step={5}
+              value={runtimeTarget}
+              onChange={(event) => setRuntimeTarget(Number(event.target.value))}
+              className="w-full accent-[var(--color-accent)]"
             />
-          ))}
-        </div>
-      </PopCard>
+            <p className="text-body">検索範囲: {desiredRuntimeMin} 〜 {desiredRuntimeMax} 分</p>
+          </div>
+          <button type="button" className="text-label hover:text-[var(--color-text-primary)]" onClick={goNext}>
+            このまま次へ
+          </button>
+        </PopCard>
+      )}
 
-      <PopCard tone="muted" className="space-y-1">
-        <label className="text-sm font-semibold">除外タグ (カンマ区切り)</label>
-        <input
-          value={excludeTags}
-          onChange={(event) => setExcludeTags(event.target.value)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-          placeholder="slow_burn, dark"
-        />
-      </PopCard>
+      {step === 3 && (
+        <PopCard tone="surface" className="space-y-4">
+          <h2 className="text-movie-title text-[1.5rem]">誰と観るか</h2>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {WATCH_CONTEXTS.map((context) => (
+              <MoodChip
+                key={context}
+                label={WATCH_CONTEXT_LABELS[context]}
+                selected={watchingWith === context}
+                onClick={() => {
+                  setWatchingWith(context);
+                  window.setTimeout(() => {
+                    setStep(4);
+                  }, 260);
+                }}
+              />
+            ))}
+          </div>
+        </PopCard>
+      )}
 
-      <PopCard tone="surface" className="space-y-2">
-        <label className="text-sm font-semibold">監督で絞る (カンマ区切り)</label>
-        <div className="flex flex-wrap gap-2">
-          {suggestionState === "loading" && <p className="text-xs text-zinc-500">候補を読み込み中...</p>}
-          {suggestionState === "error" && <p className="text-xs text-rose-600">候補の取得に失敗しました。</p>}
-          {suggestionState === "idle" && suggestions?.directors.length === 0 && (
-            <p className="text-xs text-zinc-500">このジャンルでは監督候補がまだありません。</p>
-          )}
-          {suggestions?.directors.map((director) => (
-            <PersonPreviewTrigger
-              key={`recommend-director-${director.name}`}
-              name={director.name}
-              count={director.count}
-              role={director.role}
-              selected={selectedDirectorSet.has(director.name)}
-              onSelect={() => setPreferredDirectors((prev) => toggleName(prev, director.name))}
+      {step === 4 && (
+        <PopCard tone="muted" className="space-y-4">
+          <h2 className="text-movie-title text-[1.5rem]">除外条件（任意）</h2>
+          <div className="space-y-2">
+            <p className="text-label">避けたい内容</p>
+            <div className="flex flex-wrap gap-2">
+              {CONTENT_WARNING_TAGS.map((warning) => (
+                <MoodChip
+                  key={warning}
+                  label={warning}
+                  selected={excludeContentWarnings.includes(warning)}
+                  onClick={() => toggleValue(excludeContentWarnings, warning, setExcludeContentWarnings)}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-label">除外タグ（カンマ区切り）</label>
+            <input
+              value={excludeTags}
+              onChange={(event) => setExcludeTags(event.target.value)}
+              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
+              placeholder="slow_burn, dark"
             />
-          ))}
-        </div>
-        <input
-          value={preferredDirectors}
-          onChange={(event) => setPreferredDirectors(event.target.value)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-          placeholder="Christopher Nolan, Denis Villeneuve"
-        />
-      </PopCard>
-
-      <PopCard tone="surface" className="space-y-2">
-        <label className="text-sm font-semibold">俳優で絞る (カンマ区切り)</label>
-        <div className="flex flex-wrap gap-2">
-          {suggestionState === "loading" && <p className="text-xs text-zinc-500">候補を読み込み中...</p>}
-          {suggestionState === "error" && <p className="text-xs text-rose-600">候補の取得に失敗しました。</p>}
-          {suggestionState === "idle" && suggestions?.actors.length === 0 && (
-            <p className="text-xs text-zinc-500">このジャンルでは俳優候補がまだありません。</p>
-          )}
-          {suggestions?.actors.map((actor) => (
-            <PersonPreviewTrigger
-              key={`recommend-actor-${actor.name}`}
-              name={actor.name}
-              count={actor.count}
-              role={actor.role}
-              selected={selectedActorSet.has(actor.name)}
-              onSelect={() => setPreferredActors((prev) => toggleName(prev, actor.name))}
-            />
-          ))}
-        </div>
-        <input
-          value={preferredActors}
-          onChange={(event) => setPreferredActors(event.target.value)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-          placeholder="Ryan Gosling, Amy Adams"
-        />
-      </PopCard>
-
-      <PopCard tone="surface" className="space-y-2">
-        <label className="text-sm font-semibold">最低レビュー点 (0-10)</label>
-        <input
-          type="number"
-          min={0}
-          max={10}
-          step={0.1}
-          value={minimumReviewScore}
-          onChange={(event) => setMinimumReviewScore(Number(event.target.value))}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-        />
-      </PopCard>
-
-      <PopCard tone="muted" className="space-y-2">
-        <p className="text-sm font-semibold">候補提案に使うジャンル</p>
-        <div className="flex flex-wrap gap-2">
-          {MOVIE_GENRES.map((genre) => (
-            <MoodChip
-              key={`suggestion-genre-${genre}`}
-              label={genre}
-              selected={suggestionGenres.includes(genre)}
-              onClick={() =>
-                setSuggestionGenres((prev) =>
-                  prev.includes(genre) ? prev.filter((item) => item !== genre) : [...prev, genre],
-                )
-              }
-            />
-          ))}
-        </div>
-        {suggestions?.fallbackUsed && (
-          <p className="text-xs text-zinc-500">対象ジャンルの候補が少ないため、全体データから提案しています。</p>
-        )}
-      </PopCard>
+          </div>
+        </PopCard>
+      )}
 
       <PopCard tone="surface" className="space-y-1 text-sm">
-        <p className="font-semibold text-zinc-700 dark:text-zinc-200">ライブプレビュー</p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          mood {currentMoods.length}件 / 尺 {desiredRuntimeMin}-{desiredRuntimeMax}分 / with {watchingWith}
+        <p className="text-label">入力サマリー</p>
+        <p className="text-body">
+          ムード {currentMoods.map((mood) => MOOD_LABELS[mood]).join(" / ") || "未選択"} / 尺 {desiredRuntimeMin}-{desiredRuntimeMax}分
         </p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          監督 {preferredDirectors || "なし"} / 俳優 {preferredActors || "なし"} / 最低レビュー {minimumReviewScore > 0 ? minimumReviewScore : "指定なし"}
+        <p className="text-body">
+          文脈 {WATCH_CONTEXT_LABELS[watchingWith]} / warning {excludeContentWarnings.length ? excludeContentWarnings.join(", ") : "指定なし"}
         </p>
       </PopCard>
 
       {state === "error" && <p className="text-sm text-rose-600">{errorMessage}</p>}
-      <PopButton type="submit" disabled={state === "loading"} className="w-full">
-        {state === "loading" ? "計算中..." : "今夜の3本を提案"}
-      </PopButton>
+      <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[var(--color-bg-void)] via-[var(--color-bg-void)] to-transparent px-6 pb-7 pt-6">
+        <div className="mx-auto flex w-full max-w-5xl gap-2">
+          <PopButton type="button" variant="ghost" onClick={goBack} disabled={step === 1 || state === "loading"}>
+            戻る
+          </PopButton>
+          {step < 4 ? (
+            <PopButton type="button" className="flex-1" onClick={goNext} disabled={!canAdvance || state === "loading"}>
+              次へ
+            </PopButton>
+          ) : (
+            <PopButton type="submit" disabled={state === "loading"} className="flex-1">
+              {state === "loading" ? "計算中..." : "今夜の1本を見つける"}
+            </PopButton>
+          )}
+        </div>
+      </div>
     </form>
   );
 }

@@ -15,6 +15,7 @@ const errorMessageMap: Record<string, string> = {
   invalid_credentials: "メール・ユーザー名・パスワードの組み合わせが正しくありません。",
   credentials: "認証に失敗しました。入力内容を再確認してください。",
   configuration: "認証設定に問題があります。開発者に連絡してください。",
+  session_stale: "セッションが期限切れです。再ログインしてください。",
 };
 
 export default async function LoginPage({
@@ -28,7 +29,9 @@ export default async function LoginPage({
       where: { id: session.user.id },
       select: { onboardingCompletedAt: true },
     });
-    redirect(user?.onboardingCompletedAt ? "/recommend" : "/onboarding");
+    if (user) {
+      redirect(user.onboardingCompletedAt ? "/recommend" : "/onboarding");
+    }
   }
 
   const params = await searchParams;
@@ -41,15 +44,15 @@ export default async function LoginPage({
         description="メールアドレス・ユーザー名・パスワードでログインします。初回は新規登録してください。"
       />
       {errorMessage && (
-        <p className="mt-4 rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-800 dark:bg-rose-950 dark:text-rose-200">
+        <p className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-streaming)]">
           {errorMessage}
         </p>
       )}
 
       <LoginPanels loginAction={loginAction} registerAction={registerAction} />
 
-      <PopCard tone="muted" className="mt-5 text-xs text-zinc-600 dark:text-zinc-300">
-        <p className="font-medium text-zinc-800 dark:text-zinc-100">ローカル簡易ログイン</p>
+      <PopCard tone="muted" className="mt-5 text-xs text-[var(--color-text-secondary)]">
+        <p className="font-[500] text-[var(--color-text-primary)]">ローカル簡易ログイン</p>
         <ul className="mt-2 space-y-1">
           <li>- Google設定は不要です。</li>
           <li>- 右の「新規登録」でアカウント作成後、左の「ログイン」で入れます。</li>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { AvatarTrigger } from "@/components/account/avatar-trigger";
 import { ScreenHeader } from "@/components/screen-header";
 import { prisma } from "@/lib/db/prisma";
 import { RankingsGate } from "./rankings-gate";
@@ -19,27 +20,28 @@ export default async function TasteProfilePage() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-xl px-6 py-10">
+      <AvatarTrigger image={session.user.image} name={session.user.name} />
       <ScreenHeader
         title="あなたのTaste Profile"
         description="推薦で使う特徴量をシンプルに表示します。必要なら再構築できます。"
       />
 
       {!profile && (
-        <section className="mt-6 space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        <section className="mt-6 space-y-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-5">
+          <p className="text-sm text-[var(--color-text-secondary)]">
             まだプロファイルがありません。オンボーディングを完了するか、再構築してください。
           </p>
           <div className="flex gap-2">
             <Link
               href="/onboarding"
-              className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="rounded-[var(--radius-md)] bg-[var(--color-accent)] px-4 py-2 text-sm font-[500] text-[#080808]"
             >
               オンボーディングへ
             </Link>
             <form action="/api/taste-profile/rebuild" method="post">
               <button
                 type="submit"
-                className="rounded-xl border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+                className="rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text-primary)]"
               >
                 再構築を試す
               </button>
@@ -49,8 +51,8 @@ export default async function TasteProfilePage() {
       )}
 
       {profile && (
-        <section className="mt-6 space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">{profile.summary}</p>
+        <section className="mt-6 space-y-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-5">
+          <p className="text-sm text-[var(--color-text-secondary)]">{profile.summary}</p>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <p>calm: {(profile.moodCalm * 100).toFixed(0)}%</p>
             <p>dark: {(profile.moodDark * 100).toFixed(0)}%</p>
@@ -62,13 +64,13 @@ export default async function TasteProfilePage() {
           <div className="flex gap-2">
             <Link
               href="/onboarding"
-              className="rounded-xl border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+              className="rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 py-2 text-sm"
             >
               入力を編集
             </Link>
             <Link
               href="/recommend"
-              className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="rounded-[var(--radius-md)] bg-[var(--color-accent)] px-4 py-2 text-sm font-[500] text-[#080808]"
             >
               今夜の推薦を作る
             </Link>

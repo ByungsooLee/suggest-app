@@ -7,7 +7,6 @@ type Reason = { text: string; type?: "mood_match" | "context_match" | "runtime_f
 
 type MovieCardProps = {
   title: string;
-  score: number;
   reasons: Reason[];
   rank: number;
   primary?: boolean;
@@ -17,11 +16,11 @@ type MovieCardProps = {
   cast?: string[];
   reviewScore?: number | null;
   reviewSummary?: string | null;
+  onOpen?: () => void;
 };
 
 export function MovieCard({
   title,
-  score,
   reasons,
   rank,
   primary = false,
@@ -31,40 +30,63 @@ export function MovieCard({
   cast = [],
   reviewScore,
   reviewSummary,
+  onOpen,
 }: MovieCardProps) {
+  const rankLabel = rank === 1 ? "Top Pick" : `Backup ${rank - 1}`;
+  const metaLine = [
+    directors.length ? directors[0] : null,
+    typeof reviewScore === "number" && Number.isFinite(reviewScore) ? `${reviewScore.toFixed(1)}/10` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <PopCard tone={primary ? "highlight" : "surface"} className={primary ? "ring-2 ring-pink-400/40" : ""}>
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-          {rank === 1 ? "Tonight's Top Pick" : `Backup ${rank - 1}`}
-        </p>
-        <p className="rounded-full bg-white/70 px-2 py-0.5 text-xs font-bold text-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-200">
-          {(score * 100).toFixed(0)}% match
-        </p>
-      </div>
-      <h2 className="text-2xl font-extrabold tracking-tight">{title}</h2>
-      <div className="mt-3 grid gap-3 md:grid-cols-[104px_1fr]">
-        <div className="h-[148px] w-[104px] overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+    <PopCard tone={primary ? "highlight" : "surface"} className={primary ? "border-[var(--color-border-accent)]" : ""}>
+      <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+        <div className="relative aspect-[2/3] w-full overflow-hidden">
           {posterUrl ? (
-            <Image src={posterUrl} alt={`${title} poster`} width={104} height={148} className="h-full w-full object-cover" />
+            <Image
+              src={posterUrl}
+              alt={`${title} poster`}
+              fill
+              className="object-cover transition duration-300 hover:scale-[1.03] hover:brightness-110"
+              sizes="(max-width: 768px) 92vw, (max-width: 1200px) 60vw, 420px"
+            />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-500">No Image</div>
+            <div className="flex h-full w-full items-center justify-center text-xs text-[var(--color-text-secondary)]">No Image</div>
           )}
-        </div>
-        <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-          <p>{overview ?? "あらすじ情報は準備中です。"}</p>
-          <p>監督: {directors.length ? directors.join(", ") : "情報なし"}</p>
-          <p>主演: {cast.length ? cast.slice(0, 3).join(", ") : "情報なし"}</p>
-          <p>
-            レビュー: {reviewScore ? `${reviewScore.toFixed(1)}/10` : "未評価"}
-            {reviewSummary ? ` - ${reviewSummary}` : ""}
-          </p>
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--color-bg-void)] via-[rgba(8,8,8,0.88)] to-transparent" />
+          <div className="absolute left-3 top-3 rounded-full border border-[var(--color-border-accent)] bg-[var(--color-accent-dim)] px-3 py-1 text-[0.7rem] font-[500] tracking-[0.06em] text-[var(--color-accent)]">
+            {rankLabel}
+          </div>
+          <div className="absolute bottom-3 left-3 right-3">
+            <h2 className="text-movie-title line-clamp-2">{title}</h2>
+            <p className="mt-1 text-xs font-[500] text-[var(--color-text-secondary)]">
+              {metaLine || "今夜向けのバランス候補"}
+            </p>
+          </div>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {reasons.slice(0, 3).map((reason, idx) => (
-          <ReasonBadge key={`${title}-${idx}`} type={reason.type ?? "mood_match"} text={reason.text} />
-        ))}
+      <div className="mt-4 space-y-3">
+        <p className="text-body line-clamp-3">{overview ?? "あらすじ情報は準備中です。"}</p>
+        <div className="flex flex-wrap gap-2">
+          {reasons.slice(0, 3).map((reason, idx) => (
+            <ReasonBadge key={`${title}-${idx}`} type={reason.type ?? "mood_match"} text={`✓ ${reason.text}`} />
+          ))}
+        </div>
+        <div className="flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+          <span className="truncate">主演: {cast.length ? cast.slice(0, 2).join(", ") : "情報なし"}</span>
+          <button
+            type="button"
+            disabled={!onOpen}
+            aria-disabled={!onOpen}
+            onClick={onOpen}
+            className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-2 py-1 text-[var(--color-text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            観る ↗
+          </button>
+        </div>
+        {reviewSummary && <p className="text-xs text-[var(--color-text-secondary)] line-clamp-2">{reviewSummary}</p>}
       </div>
     </PopCard>
   );

@@ -18,11 +18,12 @@ const inferConfidenceLabel = (score: number): ConfidenceLabel => {
   return "low";
 };
 
-export async function GET(_request: Request, context: { params: Promise<{ sessionId: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ sessionId: string }> }) {
   const authResult = await requireUser();
   if (!authResult.ok) return authResult.response;
 
   const { sessionId } = await context.params;
+  const debugEnabled = new URL(request.url).searchParams.get("debug") === "1";
 
   const session = await prisma.recommendationSession.findFirst({
     where: { id: sessionId, userId: authResult.userId },
@@ -65,6 +66,15 @@ export async function GET(_request: Request, context: { params: Promise<{ sessio
         type: inferReasonType(idx),
         text,
       })),
+    debug: debugEnabled
+      ? {
+          baseScore: result.baseScore,
+          discoveryScore: result.discoveryScore,
+          repetitionPenalty: result.repetitionPenalty,
+          retrievalSupportScore: result.retrievalSupportScore,
+          retrievalChannels: Array.isArray(result.retrievalChannels) ? result.retrievalChannels : [],
+        }
+      : undefined,
   }));
 
   return Response.json({

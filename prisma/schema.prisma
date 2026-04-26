@@ -46,6 +46,100 @@ enum WatchedSource {
   manual
 }
 
+enum MbtiType {
+  INTJ
+  INTP
+  ENTJ
+  ENTP
+  INFJ
+  INFP
+  ENFJ
+  ENFP
+  ISTJ
+  ISFJ
+  ESTJ
+  ESFJ
+  ISTP
+  ISFP
+  ESTP
+  ESFP
+}
+
+enum UserMood {
+  want_healing
+  want_to_be_moved
+  want_excitement
+  want_to_laugh
+  want_tension
+  want_quiet_immersion
+  want_to_switch_off
+  okay_with_something_heavy
+}
+
+enum OnboardingReactionType {
+  liked
+  not_for_me
+  dont_know
+}
+
+enum WatchedContentType {
+  movie
+  drama
+}
+
+enum WatchedContentSource {
+  onboarding_known
+  onboarding_liked
+  recommend_like
+  manual
+}
+
+enum WatchedReaction {
+  like
+  normal
+  dislike
+}
+
+enum WatchedCatalogSource {
+  manual
+  onboarding
+  search_add
+  quick_classify
+  recommendation
+}
+
+enum QuickReactionAction {
+  seen
+  not_seen
+  liked
+  not_for_me
+  skip
+}
+
+enum WatchSource {
+  netflix
+  prime_video
+  cinema
+  other
+}
+
+enum PreferenceInfluenceStrength {
+  light
+  balanced
+  strong
+}
+
+enum RecommendationStyleMode {
+  safe
+  balanced
+  discovery_focused
+}
+
+enum WatchlistSource {
+  recommendation
+  manual
+}
+
 model User {
   id                    String   @id @default(cuid())
   name                  String?
@@ -57,6 +151,9 @@ model User {
   preferredDirectors    String[] @default([])
   preferredActors       String[] @default([])
   discoveryMode         String   @default("balanced")
+  useFavoritesInRecommendations Boolean @default(true)
+  preferenceInfluenceStrength PreferenceInfluenceStrength @default(balanced)
+  recommendationStyleMode RecommendationStyleMode @default(balanced)
   emailVerified         DateTime?
   image                 String?
   onboardingCompletedAt DateTime?
@@ -69,9 +166,13 @@ model User {
   tasteProfiles          UserTasteProfile[]
   recommendationSessions RecommendationSession[]
   feedbackLogs           FeedbackLog[]
-  onboardingProfiles     UserOnboardingProfile[]
+  onboardingProfile      UserOnboardingProfile?
   movieSwipes            UserMovieSwipe[]
   watchedMovies          UserWatchedMovie[]
+  watchedContents        UserWatchedContent[]
+  watchlistItems         UserWatchlistItem[]
+  onboardingReactions    OnboardingMovieReaction[]
+  quickReactionLogs      QuickReactionLog[]
 }
 
 model Account {
@@ -177,11 +278,15 @@ model Movie {
   moodCalm             Float
   moodDark             Float
   moodEmotional        Float
+  moodUplifting        Float
   toneStylish          Float
   toneFunny            Float
+  paceFast             Float
   paceSlowBurn         Float
   complexity           Float
   emotionalWeight      Float
+  tension              Float
+  accessibility        Float
   moodTags             String[]
   watchContexts        String[]
   contentWarnings      String[]
@@ -194,6 +299,10 @@ model Movie {
   availabilities        MovieAvailability[]
   swipes                UserMovieSwipe[]
   watchedByUsers        UserWatchedMovie[]
+  watchedContentByUsers UserWatchedContent[]
+  watchlistByUsers      UserWatchlistItem[]
+  onboardingReactions   OnboardingMovieReaction[]
+  quickReactions        QuickReactionLog[]
 
   @@unique([title, releaseYear])
   @@index([genrePrimary, releaseYear])
@@ -201,6 +310,75 @@ model Movie {
   @@index([reviewScore])
   @@index([directors], type: Gin)
   @@index([cast], type: Gin)
+}
+
+model UserWatchedContent {
+  id          String               @id @default(cuid())
+  userId      String
+  contentType WatchedContentType
+  title       String
+  posterUrl   String?
+  watched     Boolean              @default(true)
+  movieId     String?
+  source      WatchedContentSource @default(manual)
+  catalogSource WatchedCatalogSource @default(manual)
+  quickConfidence Int?
+  watchSource WatchSource?
+  watchedAt   DateTime?
+  ratingScore Int?
+  reaction    WatchedReaction?
+  memo        String?
+  rewatch     Boolean              @default(false)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie? @relation(fields: [movieId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, movieId, contentType])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([contentType, userId])
+  @@index([movieId])
+}
+
+model QuickReactionLog {
+  id           String              @id @default(cuid())
+  userId       String
+  movieId      String
+  shownAt      DateTime
+  action       QuickReactionAction
+  sessionToken String?
+  createdAt    DateTime            @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, movieId])
+  @@index([sessionToken, createdAt(sort: Desc)])
+}
+
+model UserWatchlistItem {
+  id                     String          @id @default(cuid())
+  userId                 String
+  contentType            WatchedContentType
+  title                  String
+  posterUrl              String?
+  movieId                String?
+  note                   String?
+  priority               Int?
+  source                 WatchlistSource @default(manual)
+  recommendedFromResultId String?
+  savedAt                DateTime        @default(now())
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie? @relation(fields: [movieId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, movieId, contentType])
+  @@index([userId, savedAt(sort: Desc)])
+  @@index([movieId])
 }
 
 model MovieAvailability {
@@ -243,15 +421,30 @@ model PersonProfileCache {
 
 model UserOnboardingProfile {
   id                String   @id @default(cuid())
-  userId            String
-  mbtiType          String
-  onboardingVersion Int      @default(2)
+  userId            String   @unique
+  mbtiType          MbtiType?
+  selectedMood      UserMood?
+  onboardingVersion Int      @default(1)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  @@index([userId, createdAt(sort: Desc)])
+model OnboardingMovieReaction {
+  id           String                 @id @default(cuid())
+  userId       String
+  movieId      String
+  reactionType OnboardingReactionType
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([userId, reactionType])
+  @@index([movieId])
 }
 
 model UserMovieSwipe {
@@ -310,19 +503,27 @@ model RecommendationSession {
 }
 
 model RecommendationResult {
-  id                String   @id @default(cuid())
-  sessionId         String
-  movieId           String
-  rank              Int
-  totalScore        Float
-  moodMatchScore    Float
-  contextMatchScore Float
-  runtimeFitScore   Float
-  styleMatchScore   Float
-  reason1           String
-  reason2           String?
-  reason3           String?
-  createdAt         DateTime @default(now())
+  id                   String   @id @default(cuid())
+  sessionId            String
+  movieId              String
+  rank                 Int
+  totalScore           Float
+  moodMatchScore       Float
+  contextMatchScore    Float
+  runtimeFitScore      Float
+  styleMatchScore      Float
+  knownTasteScore      Float   @default(0)
+  currentMoodScore     Float   @default(0)
+  mbtiAdjustmentScore  Float   @default(0)
+  baseScore            Float   @default(0)
+  discoveryScore       Float   @default(0)
+  repetitionPenalty    Float   @default(0)
+  retrievalSupportScore Float  @default(0)
+  retrievalChannels    Json?
+  reason1              String
+  reason2              String?
+  reason3              String?
+  createdAt            DateTime @default(now())
 
   session      RecommendationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   movie        Movie                 @relation(fields: [movieId], references: [id], onDelete: Restrict)

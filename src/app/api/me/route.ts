@@ -14,9 +14,20 @@ export async function GET() {
       id: true,
       name: true,
       email: true,
+      image: true,
       onboardingCompletedAt: true,
     },
   });
 
-  return Response.json({ user }, { status: 200 });
+  return Response.json(
+    {
+      user: user
+        ? {
+            ...user,
+            onboardingCompletedAt: user.onboardingCompletedAt?.toISOString() ?? null,
+          }
+        : null,
+    },
+    { status: 200 },
+  );
 }

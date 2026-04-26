@@ -7,8 +7,8 @@ export default function NotFound() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6">
       <PopCard tone="muted" className="space-y-4">
-        <h1 className="text-2xl font-semibold">ページが見つかりません</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        <h1 className="text-2xl font-[500]">ページが見つかりません</h1>
+        <p className="text-sm text-[var(--color-text-secondary)]">
           セッションが存在しないか、アクセス権がありません。
         </p>
         <Link href="/">

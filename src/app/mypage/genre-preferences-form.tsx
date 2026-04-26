@@ -145,7 +145,7 @@ export function GenrePreferencesForm() {
   if (state === "loading") {
     return (
       <PopCard tone="muted">
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">設定を読み込み中...</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">設定を読み込み中...</p>
       </PopCard>
     );
   }
@@ -153,7 +153,7 @@ export function GenrePreferencesForm() {
   return (
     <div className="space-y-4">
       <PopCard tone="surface" className="space-y-3">
-        <h2 className="text-sm font-semibold">好きなジャンル（優先したい）</h2>
+        <h2 className="text-sm font-[500]">好きなジャンル（優先したい）</h2>
         <div className="flex flex-wrap gap-2">
           {MOVIE_GENRES.map((genre) => (
             <MoodChip
@@ -167,7 +167,7 @@ export function GenrePreferencesForm() {
       </PopCard>
 
       <PopCard tone="muted" className="space-y-3">
-        <h2 className="text-sm font-semibold">避けたいジャンル</h2>
+        <h2 className="text-sm font-[500]">避けたいジャンル</h2>
         <div className="flex flex-wrap gap-2">
           {MOVIE_GENRES.map((genre) => (
             <MoodChip
@@ -181,7 +181,7 @@ export function GenrePreferencesForm() {
       </PopCard>
 
       <PopCard tone="highlight" className="space-y-3">
-        <h2 className="text-sm font-semibold">提案の広がり</h2>
+        <h2 className="text-sm font-[500]">提案の広がり</h2>
         <div className="grid grid-cols-3 gap-2">
           {[
             { id: "focused", label: "絞る" },
@@ -192,10 +192,10 @@ export function GenrePreferencesForm() {
               key={mode.id}
               type="button"
               onClick={() => setDiscoveryMode(mode.id as DiscoveryMode)}
-              className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
+              className={`rounded-[var(--radius-md)] px-3 py-2 text-xs font-[500] transition ${
                 discoveryMode === mode.id
-                  ? "bg-pink-500 text-white shadow-md shadow-pink-500/30"
-                  : "border border-zinc-300 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+                  ? "border border-[var(--color-border-accent)] bg-[var(--color-accent-dim)] text-[var(--color-accent)]"
+                  : "border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)]"
               }`}
             >
               {mode.label}
@@ -205,12 +205,12 @@ export function GenrePreferencesForm() {
       </PopCard>
 
       <PopCard tone="surface" className="space-y-2">
-        <h2 className="text-sm font-semibold">推し監督（カンマ区切り）</h2>
+        <h2 className="text-sm font-[500]">推し監督（カンマ区切り）</h2>
         <div className="flex flex-wrap gap-2">
-          {suggestionState === "loading" && <p className="text-xs text-zinc-500">候補を読み込み中...</p>}
-          {suggestionState === "error" && <p className="text-xs text-rose-600">候補の取得に失敗しました。</p>}
+          {suggestionState === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">候補を読み込み中...</p>}
+          {suggestionState === "error" && <p className="text-xs text-[var(--color-streaming)]">候補の取得に失敗しました。</p>}
           {suggestionState === "idle" && suggestions?.directors.length === 0 && (
-            <p className="text-xs text-zinc-500">このジャンルでは監督候補がまだありません。</p>
+            <p className="text-xs text-[var(--color-text-secondary)]">このジャンルでは監督候補がまだありません。</p>
           )}
           {suggestions?.directors.map((director) => {
             const selected = selectedDirectorSet.has(director.name);
@@ -229,18 +229,18 @@ export function GenrePreferencesForm() {
         <input
           value={preferredDirectors}
           onChange={(event) => setPreferredDirectors(event.target.value)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
           placeholder="Christopher Nolan, Greta Gerwig"
         />
       </PopCard>
 
       <PopCard tone="surface" className="space-y-2">
-        <h2 className="text-sm font-semibold">推し俳優（カンマ区切り）</h2>
+        <h2 className="text-sm font-[500]">推し俳優（カンマ区切り）</h2>
         <div className="flex flex-wrap gap-2">
-          {suggestionState === "loading" && <p className="text-xs text-zinc-500">候補を読み込み中...</p>}
-          {suggestionState === "error" && <p className="text-xs text-rose-600">候補の取得に失敗しました。</p>}
+          {suggestionState === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">候補を読み込み中...</p>}
+          {suggestionState === "error" && <p className="text-xs text-[var(--color-streaming)]">候補の取得に失敗しました。</p>}
           {suggestionState === "idle" && suggestions?.actors.length === 0 && (
-            <p className="text-xs text-zinc-500">このジャンルでは俳優候補がまだありません。</p>
+            <p className="text-xs text-[var(--color-text-secondary)]">このジャンルでは俳優候補がまだありません。</p>
           )}
           {suggestions?.actors.map((actor) => {
             const selected = selectedActorSet.has(actor.name);
@@ -259,18 +259,18 @@ export function GenrePreferencesForm() {
         <input
           value={preferredActors}
           onChange={(event) => setPreferredActors(event.target.value)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)]"
           placeholder="Ryan Gosling, Emma Stone"
         />
       </PopCard>
 
       {message && (
-        <p className={`text-sm ${state === "error" ? "text-rose-600" : "text-emerald-600"}`}>
+        <p className={`text-sm ${state === "error" ? "text-[var(--color-streaming)]" : "text-[var(--color-match-high)]"}`}>
           {message}
         </p>
       )}
       {suggestions?.fallbackUsed && (
-        <p className="text-xs text-zinc-500">選択ジャンルの候補が少ないため、全体データから候補を提案しています。</p>
+        <p className="text-xs text-[var(--color-text-secondary)]">選択ジャンルの候補が少ないため、全体データから候補を提案しています。</p>
       )}
 
       <PopButton type="button" onClick={save} disabled={state === "saving"} className="w-full">

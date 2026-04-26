@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test src/lib/recommendation/__tests__/*.test.ts",
     "db:seed": "tsx prisma/seed.ts",
     "db:backfill-metadata": "tsx prisma/backfill-movie-metadata.ts"
   },

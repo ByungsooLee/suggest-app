@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 
 import { auth } from "@/auth";
+import { AvatarTrigger } from "@/components/account/avatar-trigger";
 import { prisma } from "@/lib/db/prisma";
 import { ScreenHeader } from "@/components/screen-header";
 import { PopCard } from "@/components/ui/pop-card";
@@ -17,7 +18,7 @@ export default async function RecommendPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { onboardingCompletedAt: true },
+    select: { onboardingCompletedAt: true, name: true, image: true },
   });
   if (!user?.onboardingCompletedAt) {
     redirect("/onboarding");
@@ -33,48 +34,34 @@ export default async function RecommendPage() {
     select: {
       favoriteGenres: true,
       excludedGenres: true,
-      preferredDirectors: true,
-      preferredActors: true,
-      discoveryMode: true,
     },
   });
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-xl px-6 py-10">
+    <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10">
+      <AvatarTrigger image={user?.image} name={user?.name} />
       <ScreenHeader
         title="今夜の推薦条件"
-        description="気分・尺・同伴者を選ぶだけで、最大3本を返します。"
+        description="4ステップで条件を決めると、今夜向けの3本を返します。"
       />
-      <Link href="/mypage" className="mt-3 inline-block">
-        <PopButton variant="ghost">マイページでジャンルを調整</PopButton>
-      </Link>
-      <PopCard tone="surface" className="mt-4 space-y-2 text-sm">
-        <p className="font-semibold text-zinc-700 dark:text-zinc-200">現在のジャンル設定</p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          好き:{" "}
-          {mypagePreferences?.favoriteGenres?.length
-            ? mypagePreferences.favoriteGenres.join(", ")
-            : "未設定"}
+      <PopCard tone="muted" className="mt-4 space-y-2">
+        <p className="text-label">マイページ設定</p>
+        <p className="text-body">
+          好みジャンル: {mypagePreferences?.favoriteGenres?.length ? mypagePreferences.favoriteGenres.join(" / ") : "未設定"}
         </p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          除外:{" "}
-          {mypagePreferences?.excludedGenres?.length
-            ? mypagePreferences.excludedGenres.join(", ")
-            : "なし"}
+        <p className="text-body">
+          除外ジャンル: {mypagePreferences?.excludedGenres?.length ? mypagePreferences.excludedGenres.join(" / ") : "なし"}
         </p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          提案モード: {mypagePreferences?.discoveryMode ?? "balanced"}
+        <p className="text-body">
+          お気に入り反映: マイページでいつでも変更できます
         </p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          推し監督: {mypagePreferences?.preferredDirectors?.length ? mypagePreferences.preferredDirectors.join(", ") : "未設定"}
-        </p>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          推し俳優: {mypagePreferences?.preferredActors?.length ? mypagePreferences.preferredActors.join(", ") : "未設定"}
-        </p>
+        <Link href="/mypage" className="inline-block">
+          <PopButton variant="secondary">マイページで詳細を編集</PopButton>
+        </Link>
       </PopCard>
       {!profile ? (
-        <PopCard tone="muted" className="mt-6 text-sm text-zinc-600 dark:text-zinc-300">
-          <p>Taste profileがまだありません。オンボーディングを完了してから再度お試しください。</p>
+        <PopCard tone="muted" className="mt-6">
+          <p className="text-body">Taste profileがまだありません。オンボーディングを完了してから再度お試しください。</p>
           <Link href="/onboarding" className="mt-3 inline-block">
             <PopButton variant="secondary">オンボーディングへ戻る</PopButton>
           </Link>

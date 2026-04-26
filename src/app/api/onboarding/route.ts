@@ -1,8 +1,9 @@
 import { buildTasteProfile } from "@/lib/taste-profile/buildTasteProfile";
 import { requireUser } from "@/lib/auth/require-user";
 import { prisma } from "@/lib/db/prisma";
+import { type UserMood } from "@/lib/onboarding/mood-map";
 import { parseJson } from "@/lib/validation/http";
-import { OnboardingFastPathSchema, OnboardingRequestSchema, OnboardingSubmitSchema } from "@/lib/validation/schemas";
+import { OnboardingSubmitSchema } from "@/lib/validation/schemas";
 
 function topNames(names: string[], limit: number) {
   const counts = new Map<string, number>();
@@ -18,166 +19,168 @@ function topNames(names: string[], limit: number) {
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
+  try {
+    const authResult = await requireUser();
+    if (!authResult.ok) return authResult.response;
 
-  const parsed = await parseJson(request, OnboardingSubmitSchema);
-  if (!parsed.ok) return parsed.response;
+    const parsed = await parseJson(request, OnboardingSubmitSchema);
+    if (!parsed.ok) return parsed.response;
 
-  const maybeFastPath = OnboardingFastPathSchema.safeParse(parsed.data);
-  const fastPathData = maybeFastPath.success ? maybeFastPath.data : null;
-  const legacyData = OnboardingRequestSchema.safeParse(parsed.data).success ? OnboardingRequestSchema.parse(parsed.data) : null;
-  const movieIds = fastPathData ? Array.from(new Set(fastPathData.swipeEvents.map((event) => event.movieId))) : [];
-  const movieRows =
-    movieIds.length > 0
-      ? await prisma.movie.findMany({
-          where: { id: { in: movieIds } },
-          select: { id: true, title: true, genrePrimary: true, directors: true, cast: true },
-        })
-      : [];
-  const movieMap = new Map(movieRows.map((movie) => [movie.id, movie]));
+    const moodToTags: Record<UserMood, Array<"calm" | "emotional" | "dark" | "funny" | "tense" | "uplifting" | "melancholic">> = {
+      want_healing: ["calm", "uplifting"],
+      want_to_be_moved: ["emotional", "melancholic"],
+      want_excitement: ["tense", "uplifting"],
+      want_to_laugh: ["funny", "uplifting"],
+      want_tension: ["dark", "tense"],
+      want_quiet_immersion: ["calm", "melancholic"],
+      want_to_switch_off: ["calm", "uplifting"],
+      okay_with_something_heavy: ["dark", "emotional"],
+    };
 
-  const result = await prisma.$transaction(async (tx) => {
-    const normalizedInput = fastPathData
-      ? (() => {
-          const likedKnown = fastPathData.swipeEvents.filter(
-            (event) => event.knownState === "known" && (event.rating ?? (event.action === "liked" ? 4 : 2)) >= 4,
-          );
-          const known = fastPathData.swipeEvents.filter((event) => event.knownState === "known");
-          const favoriteMovies = topNames(
-            likedKnown.map((event) => movieMap.get(event.movieId)?.title ?? "").filter(Boolean),
-            3,
-          );
-          const favoriteArtists = topNames(
-            likedKnown
-              .flatMap((event) => {
-                const movie = movieMap.get(event.movieId);
-                return [...(movie?.directors ?? []), ...(movie?.cast ?? []).slice(0, 2)];
-              })
-              .filter(Boolean),
-            3,
-          );
-          const likedGenres = likedKnown
-            .map((event) => movieMap.get(event.movieId)?.genrePrimary)
-            .filter((value): value is string => Boolean(value));
-
-          return {
-            favoriteArtists: favoriteArtists.length > 0 ? favoriteArtists : ["No Artist Data"],
-            favoriteMovies: favoriteMovies.length > 0 ? favoriteMovies : ["No Movie Data"],
-            preferredMoods: fastPathData.preferredMoods,
-            dislikedElements: fastPathData.dislikedElements,
-            mbtiType: fastPathData.mbtiType,
-            onboardingVersion: fastPathData.onboardingVersion,
-            swipeEvents: fastPathData.swipeEvents,
-            swipeInsights: {
-              total: fastPathData.swipeEvents.length,
-              likedCount: fastPathData.swipeEvents.filter(
-                (event) => event.knownState === "known" && (event.rating ?? (event.action === "liked" ? 4 : 2)) >= 4,
-              ).length,
-              knownCount: known.length,
-              likedGenres,
-            },
-          };
-        })()
-      : {
-          favoriteArtists: legacyData?.favoriteArtists ?? ["No Artist Data"],
-          favoriteMovies: legacyData?.favoriteMovies ?? ["No Movie Data"],
-          preferredMoods: legacyData?.preferredMoods ?? ["calm"],
-          dislikedElements: legacyData?.dislikedElements ?? [],
-          mbtiType: undefined,
-          onboardingVersion: 1,
-          swipeEvents: [],
-          swipeInsights: undefined,
-        };
-
-    const preference = await tx.userPreference.create({
-      data: {
-        userId: authResult.userId,
-        favoriteArtists: normalizedInput.favoriteArtists,
-        favoriteMovies: normalizedInput.favoriteMovies,
-        preferredMoods: normalizedInput.preferredMoods,
-        dislikedElements: normalizedInput.dislikedElements,
-      },
+    const movieIds = parsed.data.reactions.map((reaction) => reaction.movieId);
+    const movieRows = await prisma.movie.findMany({
+      where: { id: { in: movieIds } },
+      select: { id: true, title: true, genrePrimary: true, directors: true, cast: true },
     });
 
-    const latestProfile = await tx.userTasteProfile.findFirst({
-      where: { userId: authResult.userId },
-      orderBy: { profileVersion: "desc" },
-      select: { profileVersion: true },
-    });
+    if (movieRows.length !== 14) {
+      return Response.json(
+        {
+          code: "INVALID_ONBOARDING_MOVIES",
+          message: "One or more onboarding movieIds are invalid.",
+        },
+        { status: 400 },
+      );
+    }
 
-    const vector = buildTasteProfile({
-      favoriteArtists: normalizedInput.favoriteArtists,
-      favoriteMovies: normalizedInput.favoriteMovies,
-      preferredMoods: normalizedInput.preferredMoods,
-      dislikedElements: normalizedInput.dislikedElements,
-      mbtiType: normalizedInput.mbtiType,
-      swipeInsights: normalizedInput.swipeInsights,
-    });
+    const movieMap = new Map(movieRows.map((movie) => [movie.id, movie]));
+    const likedReactions = parsed.data.reactions.filter((reaction) => reaction.reactionType === "liked");
+    const rejectedReactions = parsed.data.reactions.filter((reaction) => reaction.reactionType === "not_for_me");
 
-    const tasteProfile = await tx.userTasteProfile.create({
-      data: {
-        userId: authResult.userId,
-        sourcePreferenceId: preference.id,
-        profileVersion: (latestProfile?.profileVersion ?? 0) + 1,
-        ...vector,
-      },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const favoriteMovies = topNames(
+        likedReactions.map((reaction) => movieMap.get(reaction.movieId)?.title ?? "").filter(Boolean),
+        3,
+      );
 
-    if (fastPathData) {
-      await tx.userOnboardingProfile.create({
+      const favoriteArtists = topNames(
+        likedReactions
+          .flatMap((reaction) => {
+            const movie = movieMap.get(reaction.movieId);
+            return [...(movie?.directors ?? []), ...(movie?.cast ?? []).slice(0, 2)];
+          })
+          .filter(Boolean),
+        3,
+      );
+
+      const dislikedElements = topNames(
+        rejectedReactions.map((reaction) => movieMap.get(reaction.movieId)?.genrePrimary ?? "").filter(Boolean),
+        5,
+      );
+      const likedGenres = likedReactions
+        .map((reaction) => movieMap.get(reaction.movieId)?.genrePrimary)
+        .filter((value): value is string => Boolean(value));
+      const preferredMoods = moodToTags[parsed.data.selectedMood];
+
+      const preference = await tx.userPreference.create({
         data: {
           userId: authResult.userId,
-          mbtiType: fastPathData.mbtiType,
-          onboardingVersion: fastPathData.onboardingVersion,
+          favoriteArtists: favoriteArtists.length > 0 ? favoriteArtists : ["No Artist Data"],
+          favoriteMovies: favoriteMovies.length > 0 ? favoriteMovies : ["No Movie Data"],
+          preferredMoods,
+          dislikedElements,
         },
       });
 
-      if (normalizedInput.swipeEvents.length > 0) {
-        await tx.userMovieSwipe.createMany({
-          data: normalizedInput.swipeEvents.map((event) => ({
-            userId: authResult.userId,
-            movieId: event.movieId,
-            knownState: event.knownState,
-            swipeAction: event.action,
-            ratingScore: event.rating ?? null,
-          })),
-        });
-      }
+      const latestProfile = await tx.userTasteProfile.findFirst({
+        where: { userId: authResult.userId },
+        orderBy: { profileVersion: "desc" },
+        select: { profileVersion: true },
+      });
 
-      const watchedRows: Array<{
-        userId: string;
-        movieId: string;
-        source: "onboarding_liked" | "onboarding_known";
-      }> = normalizedInput.swipeEvents
-        .filter((event) => event.knownState === "known")
-        .map((event) => ({
+      const vector = buildTasteProfile({
+        favoriteArtists: favoriteArtists.length > 0 ? favoriteArtists : ["No Artist Data"],
+        favoriteMovies: favoriteMovies.length > 0 ? favoriteMovies : ["No Movie Data"],
+        preferredMoods,
+        dislikedElements,
+        mbtiType: parsed.data.mbtiType,
+        swipeInsights: {
+          total: parsed.data.reactions.length,
+          likedCount: likedReactions.length,
+          knownCount: likedReactions.length + rejectedReactions.length,
+          likedGenres,
+        },
+      });
+
+      const tasteProfile = await tx.userTasteProfile.create({
+        data: {
           userId: authResult.userId,
-          movieId: event.movieId,
-          source: (event.rating ?? 0) >= 4 || event.action === "liked" ? "onboarding_liked" : "onboarding_known",
-        }));
-      if (watchedRows.length > 0) {
-        await tx.userWatchedMovie.createMany({
-          data: watchedRows,
-          skipDuplicates: true,
+          sourcePreferenceId: preference.id,
+          profileVersion: (latestProfile?.profileVersion ?? 0) + 1,
+          ...vector,
+        },
+      });
+
+      const existingOnboarding = await tx.userOnboardingProfile.findFirst({
+        where: { userId: authResult.userId },
+        orderBy: { updatedAt: "desc" },
+        select: { id: true },
+      });
+      if (existingOnboarding) {
+        await tx.userOnboardingProfile.update({
+          where: { id: existingOnboarding.id },
+          data: {
+            mbtiType: parsed.data.mbtiType,
+            selectedMood: parsed.data.selectedMood,
+            onboardingVersion: parsed.data.onboardingVersion,
+          },
+        });
+      } else {
+        await tx.userOnboardingProfile.create({
+          data: {
+            userId: authResult.userId,
+            mbtiType: parsed.data.mbtiType,
+            selectedMood: parsed.data.selectedMood,
+            onboardingVersion: parsed.data.onboardingVersion,
+          },
         });
       }
-    }
 
-    await tx.user.update({
-      where: { id: authResult.userId },
-      data: { onboardingCompletedAt: new Date() },
+      await tx.onboardingMovieReaction.deleteMany({
+        where: { userId: authResult.userId },
+      });
+      await tx.onboardingMovieReaction.createMany({
+        data: parsed.data.reactions.map((reaction) => ({
+          userId: authResult.userId,
+          movieId: reaction.movieId,
+          reactionType: reaction.reactionType,
+        })),
+      });
+
+      await tx.user.update({
+        where: { id: authResult.userId },
+        data: { onboardingCompletedAt: new Date() },
+      });
+
+      return { preferenceId: preference.id, tasteProfileId: tasteProfile.id };
     });
 
-    return { preferenceId: preference.id, tasteProfileId: tasteProfile.id };
-  });
-
-  return Response.json(
-    {
-      ok: true,
-      userPreferenceId: result.preferenceId,
-      tasteProfileId: result.tasteProfileId,
-    },
-    { status: 201 },
-  );
+    return Response.json(
+      {
+        ok: true,
+        userPreferenceId: result.preferenceId,
+        tasteProfileId: result.tasteProfileId,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error(error);
+    return Response.json(
+      {
+        code: "ONBOARDING_SAVE_FAILED",
+        message: "Failed to save onboarding. Please try again.",
+      },
+      { status: 500 },
+    );
+  }
 }
