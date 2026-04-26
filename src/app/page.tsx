@@ -1,19 +1,30 @@
 import Link from "next/link";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/db/prisma";
 import { AvatarTrigger } from "@/components/account/avatar-trigger";
+import { CinemaBg } from "@/components/cinema-bg";
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
 
 export default async function Home() {
   const session = await auth();
 
+  const bgTitles = session?.user?.id
+    ? await prisma.movie
+        .findMany({
+          select: { title: true },
+          orderBy: { reviewScore: "desc" },
+          take: 30,
+        })
+        .then((r) => r.map((m) => m.title))
+    : [];
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col justify-center px-6 py-16">
+      {bgTitles.length > 0 && <CinemaBg titles={bgTitles} />}
       <AvatarTrigger image={session?.user?.image} name={session?.user?.name} />
       <PopCard tone="highlight" className="space-y-5">
-        <p className="text-heading">
-          movie tonight
-        </p>
+        <p className="text-heading">movie tonight</p>
         <h1 className="text-movie-title text-4xl leading-tight">
           迷う夜を、
           <br />
@@ -39,6 +50,14 @@ export default async function Home() {
         <PopCard tone="surface">最大3本だけ提案</PopCard>
         <PopCard tone="surface">理由は短く明確</PopCard>
       </div>
+      <nav className="mt-6 flex justify-center gap-6">
+        <Link href="/browse" className="credits-label transition hover:text-[var(--color-text-primary)]">
+          Browse
+        </Link>
+        <Link href="/discover" className="credits-label transition hover:text-[var(--color-text-primary)]">
+          Discover
+        </Link>
+      </nav>
     </main>
   );
 }
