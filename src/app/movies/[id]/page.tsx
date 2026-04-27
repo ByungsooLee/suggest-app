@@ -153,25 +153,28 @@ export default async function MovieDetailPage({
           </>
         )}
 
-        {/* Mood Profile (Task 3-A) */}
+        {/* Mood Profile */}
         <div className="credits-divider mb-10" />
         <section className="credits-section mb-10">
           <p className="credits-label mb-6">Mood Profile</p>
-          <div className="mx-auto max-w-xs space-y-3">
-            {moodProfile.map(({ label, value }) => (
-              <div key={label} className="credits-score-bar">
-                <span className="credits-label w-20 shrink-0 text-right">{label}</span>
-                <div className="relative h-px flex-1 bg-[var(--color-border)]">
-                  <div
-                    className="credits-score-fill absolute inset-y-0 left-0"
-                    style={{ width: `${Math.round(value * 100)}%` }}
-                  />
+          <div className="mx-auto max-w-xs space-y-4">
+            {moodProfile.map(({ label, value }) => {
+              const pct = Math.round(value * 100);
+              return (
+                <div key={label}>
+                  <div className="credits-score-bar mb-1">
+                    <span className="credits-label w-20 shrink-0 text-right">{label}</span>
+                    <div className="credits-score-track">
+                      <div className="credits-score-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="credits-label w-8 shrink-0 text-left"
+                      style={{ color: "var(--color-accent)" }}>
+                      {pct}
+                    </span>
+                  </div>
                 </div>
-                <span className="credits-label w-8 shrink-0 text-left">
-                  {Math.round(value * 10)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

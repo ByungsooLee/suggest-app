@@ -24,8 +24,6 @@ export default async function BrowsePage() {
 
   return (
     <main className="film-grain min-h-screen bg-[var(--color-bg-void)]">
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-32 bg-gradient-to-b from-[var(--color-bg-void)] to-transparent" />
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-[var(--color-bg-void)] to-transparent" />
       <CreditsBrowser movies={movies} genres={[...MOVIE_GENRES]} />
     </main>
   );
