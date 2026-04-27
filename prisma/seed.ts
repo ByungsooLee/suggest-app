@@ -87,6 +87,105 @@ const realPersonMetadata: Record<
   "Heat": { directors: ["Michael Mann"], cast: ["Al Pacino", "Robert De Niro"] },
   "Edge of Tomorrow": { directors: ["Doug Liman"], cast: ["Tom Cruise", "Emily Blunt"] },
   "School of Rock": { directors: ["Richard Linklater"], cast: ["Jack Black", "Joan Cusack"] },
+
+  // Anime / Animation
+  "Spirited Away": { directors: ["Hayao Miyazaki"], cast: ["Daveigh Chase", "Suzanne Pleshette"] },
+  "Princess Mononoke": { directors: ["Hayao Miyazaki"], cast: ["Gillian Anderson", "Billy Crudup"] },
+  "My Neighbor Totoro": { directors: ["Hayao Miyazaki"], cast: ["Dakota Fanning", "Elle Fanning"] },
+  "Howl's Moving Castle": { directors: ["Hayao Miyazaki"], cast: ["Christian Bale", "Emily Mortimer"] },
+  "The Wind Rises": { directors: ["Hayao Miyazaki"], cast: ["Joseph Gordon-Levitt", "Emily Blunt"] },
+  "Grave of the Fireflies": { directors: ["Isao Takahata"], cast: ["Tsutomu Tatsumi", "Ayano Shiraishi"] },
+  "The Tale of the Princess Kaguya": { directors: ["Isao Takahata"], cast: ["Chloe Grace Moretz", "James Caan"] },
+  "Your Name": { directors: ["Makoto Shinkai"], cast: ["Ryunosuke Kamiki", "Mone Kamishiraishi"] },
+  "Weathering with You": { directors: ["Makoto Shinkai"], cast: ["Kotaro Daigo", "Nana Mori"] },
+  "A Silent Voice": { directors: ["Naoko Yamada"], cast: ["Miyu Irino", "Saori Hayami"] },
+  "Perfect Blue": { directors: ["Satoshi Kon"], cast: ["Junko Iwao", "Rica Matsumoto"] },
+  "Millennium Actress": { directors: ["Satoshi Kon"], cast: ["Miyoko Shoji", "Shozo Iizuka"] },
+  "Paprika": { directors: ["Satoshi Kon"], cast: ["Megumi Hayashibara", "Toru Furuya"] },
+  "Ghost in the Shell": { directors: ["Mamoru Oshii"], cast: ["Atsuko Tanaka", "Akio Otsuka"] },
+  "Akira": { directors: ["Katsuhiro Otomo"], cast: ["Mitsuo Iwata", "Nozomu Sasaki"] },
+  "Wolf Children": { directors: ["Mamoru Hosoda"], cast: ["Aoi Miyazaki", "Takao Osawa"] },
+  "The Boy and the Heron": { directors: ["Hayao Miyazaki"], cast: ["Soma Santoki", "Masaki Suda"] },
+  "Belle": { directors: ["Mamoru Hosoda"], cast: ["Kaho Nakamura", "Ryo Narita"] },
+  "Nausicaa of the Valley of the Wind": { directors: ["Hayao Miyazaki"], cast: ["Sumi Shimamoto", "Goro Naya"] },
+  "Castle in the Sky": { directors: ["Hayao Miyazaki"], cast: ["Anna Paquin", "James Van Der Beek"] },
+
+  // Korean Films
+  "Oldboy": { directors: ["Park Chan-wook"], cast: ["Choi Min-sik", "Yoo Ji-tae"] },
+  "The Handmaiden": { directors: ["Park Chan-wook"], cast: ["Kim Min-hee", "Ha Jung-woo"] },
+  "Burning": { directors: ["Lee Chang-dong"], cast: ["Yoo Ah-in", "Steven Yeun", "Jeon Jong-seo"] },
+  "A Bittersweet Life": { directors: ["Kim Jee-woon"], cast: ["Lee Byung-hun", "Kim Young-cheol"] },
+  "I Saw the Devil": { directors: ["Kim Jee-woon"], cast: ["Lee Byung-hun", "Choi Min-sik"] },
+  "Train to Busan": { directors: ["Yeon Sang-ho"], cast: ["Gong Yoo", "Ma Dong-seok"] },
+  "The Wailing": { directors: ["Na Hong-jin"], cast: ["Kwak Do-won", "Hwang Jung-min"] },
+  "A Tale of Two Sisters": { directors: ["Kim Jee-woon"], cast: ["Im Soo-jung", "Moon Geun-young"] },
+  "Spring Summer Fall Winter and Spring": { directors: ["Kim Ki-duk"], cast: ["Oh Young-soo", "Kim Ki-duk"] },
+  "The Man from Nowhere": { directors: ["Lee Jeong-beom"], cast: ["Won Bin", "Kim Sae-ron"] },
+
+  // Japanese Live-Action
+  "Drive My Car": { directors: ["Ryusuke Hamaguchi"], cast: ["Hidetoshi Nishijima", "Toko Miura"] },
+  "Wheel of Fortune and Fantasy": { directors: ["Ryusuke Hamaguchi"], cast: ["Kotone Furukawa", "Ayumu Nakajima"] },
+  "Shoplifters": { directors: ["Hirokazu Koreeda"], cast: ["Lily Franky", "Sakura Ando"] },
+  "Still Walking": { directors: ["Hirokazu Koreeda"], cast: ["Hiroshi Abe", "Yui Natsukawa"] },
+  "Departures": { directors: ["Yojiro Takita"], cast: ["Masahiro Motoki", "Ryoko Hirosue"] },
+  "After Life": { directors: ["Hirokazu Koreeda"], cast: ["Arata Iura", "Erika Oda"] },
+  "Portrait of a Lady on Fire": { directors: ["Celine Sciamma"], cast: ["Noemie Merlant", "Adele Haenel"] },
+  "Our Little Sister": { directors: ["Hirokazu Koreeda"], cast: ["Haruka Ayase", "Masami Nagasawa"] },
+
+  // Classic / World Cinema
+  "2001: A Space Odyssey": { directors: ["Stanley Kubrick"], cast: ["Keir Dullea", "Gary Lockwood"] },
+  "Apocalypse Now": { directors: ["Francis Ford Coppola"], cast: ["Martin Sheen", "Marlon Brando"] },
+  "Goodfellas": { directors: ["Martin Scorsese"], cast: ["Ray Liotta", "Robert De Niro", "Joe Pesci"] },
+  "Taxi Driver": { directors: ["Martin Scorsese"], cast: ["Robert De Niro", "Jodie Foster"] },
+  "The Godfather": { directors: ["Francis Ford Coppola"], cast: ["Marlon Brando", "Al Pacino"] },
+  "Rashomon": { directors: ["Akira Kurosawa"], cast: ["Toshiro Mifune", "Machiko Kyo"] },
+  "Tokyo Story": { directors: ["Yasujiro Ozu"], cast: ["Chishu Ryu", "Chieko Higashiyama"] },
+  "8½": { directors: ["Federico Fellini"], cast: ["Marcello Mastroianni", "Claudia Cardinale"] },
+  "Mulholland Drive": { directors: ["David Lynch"], cast: ["Naomi Watts", "Laura Harring"] },
+  "The Shining": { directors: ["Stanley Kubrick"], cast: ["Jack Nicholson", "Shelley Duvall"] },
+
+  // Drama
+  "Marriage Story": { directors: ["Noah Baumbach"], cast: ["Adam Driver", "Scarlett Johansson"] },
+  "Manchester by the Sea": { directors: ["Kenneth Lonergan"], cast: ["Casey Affleck", "Michelle Williams"] },
+  "Room": { directors: ["Lenny Abrahamson"], cast: ["Brie Larson", "Jacob Tremblay"] },
+  "Spotlight": { directors: ["Tom McCarthy"], cast: ["Mark Ruffalo", "Michael Keaton"] },
+  "The Shawshank Redemption": { directors: ["Frank Darabont"], cast: ["Tim Robbins", "Morgan Freeman"] },
+  "Good Will Hunting": { directors: ["Gus Van Sant"], cast: ["Matt Damon", "Robin Williams"] },
+  "Eternal Sunshine of the Spotless Mind": { directors: ["Michel Gondry"], cast: ["Jim Carrey", "Kate Winslet"] },
+  "Carol": { directors: ["Todd Haynes"], cast: ["Cate Blanchett", "Rooney Mara"] },
+  "Blue Valentine": { directors: ["Derek Cianfrance"], cast: ["Ryan Gosling", "Michelle Williams"] },
+  "The Killing of a Sacred Deer": { directors: ["Yorgos Lanthimos"], cast: ["Colin Farrell", "Nicole Kidman"] },
+  "Wild": { directors: ["Jean-Marc Vallee"], cast: ["Reese Witherspoon", "Laura Dern"] },
+  "Hereditary": { directors: ["Ari Aster"], cast: ["Toni Collette", "Alex Wolff"] },
+
+  // Action / Blockbuster
+  "The Dark Knight": { directors: ["Christopher Nolan"], cast: ["Christian Bale", "Heath Ledger"] },
+  "Mad Max: Fury Road": { directors: ["George Miller"], cast: ["Tom Hardy", "Charlize Theron"] },
+  "John Wick": { directors: ["Chad Stahelski"], cast: ["Keanu Reeves", "Ian McShane"] },
+  "Top Gun: Maverick": { directors: ["Joseph Kosinski"], cast: ["Tom Cruise", "Miles Teller"] },
+  "Everything Everywhere All at Once": { directors: ["Daniel Kwan", "Daniel Scheinert"], cast: ["Michelle Yeoh", "Ke Huy Quan"] },
+  "Mission: Impossible - Fallout": { directors: ["Christopher McQuarrie"], cast: ["Tom Cruise", "Henry Cavill"] },
+  "Dune": { directors: ["Denis Villeneuve"], cast: ["Timothee Chalamet", "Zendaya"] },
+  "1917": { directors: ["Sam Mendes"], cast: ["George MacKay", "Dean-Charles Chapman"] },
+
+  // Sci-Fi / Spec Fiction
+  "Annihilation": { directors: ["Alex Garland"], cast: ["Natalie Portman", "Jennifer Jason Leigh"] },
+  "Moon": { directors: ["Duncan Jones"], cast: ["Sam Rockwell", "Kevin Spacey"] },
+  "Children of Men": { directors: ["Alfonso Cuaron"], cast: ["Clive Owen", "Julianne Moore"] },
+
+  // Horror
+  "Get Out": { directors: ["Jordan Peele"], cast: ["Daniel Kaluuya", "Allison Williams"] },
+  "Midsommar": { directors: ["Ari Aster"], cast: ["Florence Pugh", "Jack Reynor"] },
+  "The Witch": { directors: ["Robert Eggers"], cast: ["Anya Taylor-Joy", "Ralph Ineson"] },
+  "A Quiet Place": { directors: ["John Krasinski"], cast: ["Emily Blunt", "John Krasinski"] },
+  "Suspiria": { directors: ["Luca Guadagnino"], cast: ["Dakota Johnson", "Tilda Swinton"] },
+
+  // Comedy / Feel-good
+  "Superbad": { directors: ["Greg Mottola"], cast: ["Michael Cera", "Jonah Hill"] },
+  "The Intouchables": { directors: ["Olivier Nakache", "Eric Toledano"], cast: ["Francois Cluzet", "Omar Sy"] },
+  "Hunt for the Wilderpeople": { directors: ["Taika Waititi"], cast: ["Sam Neill", "Julian Dennison"] },
+  "What We Do in the Shadows": { directors: ["Taika Waititi", "Jemaine Clement"], cast: ["Taika Waititi", "Jemaine Clement"] },
+  "The Big Lebowski": { directors: ["Joel Coen", "Ethan Coen"], cast: ["Jeff Bridges", "John Goodman"] },
 };
 
 const moodSet = new Set(MOOD_TAGS);
@@ -259,6 +358,107 @@ const movieSeeds: MovieSeed[] = [
   { title: "Edge of Tomorrow", releaseYear: 2014, runtimeMinutes: 113, genrePrimary: "sci-fi", genreSecondary: "action", preset: "balanced", moodTags: ["tense", "easy_to_watch"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence"] },
   { title: "School of Rock", releaseYear: 2003, runtimeMinutes: 109, genrePrimary: "comedy", genreSecondary: "music", preset: "fun_light", moodTags: ["funny", "uplifting", "easy_to_watch"], watchContexts: ["family_time", "friends_hangout"], contentWarnings: [] },
   { title: "The Secret Life of Walter Mitty", releaseYear: 2013, runtimeMinutes: 114, genrePrimary: "adventure", genreSecondary: "drama", preset: "balanced", moodTags: ["uplifting", "easy_to_watch"], watchContexts: ["solo_watch", "family_time"], contentWarnings: [] },
+
+  // Anime / Ghibli / Japanese Animation
+  { title: "Spirited Away", releaseYear: 2001, runtimeMinutes: 125, genrePrimary: "animation", genreSecondary: "fantasy", preset: "calm_emotional", moodTags: ["emotional", "stylish", "visual_masterpiece"], watchContexts: ["family_time", "date_friendly", "solo_watch"], contentWarnings: [], reviewScore: 8.6 },
+  { title: "Princess Mononoke", releaseYear: 1997, runtimeMinutes: 134, genrePrimary: "animation", genreSecondary: "fantasy", preset: "balanced", moodTags: ["dark", "emotional", "visual_masterpiece"], watchContexts: ["solo_watch", "friends_hangout"], contentWarnings: ["violence"], reviewScore: 8.4 },
+  { title: "My Neighbor Totoro", releaseYear: 1988, runtimeMinutes: 86, genrePrimary: "animation", genreSecondary: "family", preset: "fun_light", moodTags: ["calm", "uplifting", "easy_to_watch"], watchContexts: ["family_time", "date_friendly"], contentWarnings: [], reviewScore: 8.1 },
+  { title: "Howl's Moving Castle", releaseYear: 2004, runtimeMinutes: 119, genrePrimary: "animation", genreSecondary: "fantasy", preset: "calm_emotional", moodTags: ["emotional", "stylish", "visual_masterpiece"], watchContexts: ["date_friendly", "family_time", "solo_watch"], contentWarnings: [], reviewScore: 8.2 },
+  { title: "The Wind Rises", releaseYear: 2013, runtimeMinutes: 126, genrePrimary: "animation", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["calm", "emotional", "melancholic"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["sad_ending"], reviewScore: 7.8 },
+  { title: "Grave of the Fireflies", releaseYear: 1988, runtimeMinutes: 89, genrePrimary: "animation", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["dark", "emotional", "melancholic"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["sad_ending", "disturbing"], reviewScore: 8.5 },
+  { title: "The Tale of the Princess Kaguya", releaseYear: 2013, runtimeMinutes: 137, genrePrimary: "animation", genreSecondary: "fantasy", preset: "calm_emotional", moodTags: ["calm", "emotional", "visual_masterpiece", "melancholic"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["sad_ending"], reviewScore: 8.1 },
+  { title: "Your Name", releaseYear: 2016, runtimeMinutes: 106, genrePrimary: "animation", genreSecondary: "romance", preset: "calm_emotional", moodTags: ["emotional", "uplifting", "stylish"], watchContexts: ["date_friendly", "friends_hangout", "solo_watch"], contentWarnings: [], reviewScore: 8.4 },
+  { title: "Weathering with You", releaseYear: 2019, runtimeMinutes: 112, genrePrimary: "animation", genreSecondary: "romance", preset: "balanced", moodTags: ["emotional", "stylish", "uplifting"], watchContexts: ["date_friendly", "solo_watch"], contentWarnings: [], reviewScore: 7.5 },
+  { title: "A Silent Voice", releaseYear: 2016, runtimeMinutes: 130, genrePrimary: "animation", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["emotional", "melancholic", "slow_burn"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["sad_ending", "disturbing"], reviewScore: 8.1 },
+  { title: "Perfect Blue", releaseYear: 1997, runtimeMinutes: 81, genrePrimary: "animation", genreSecondary: "thriller", preset: "dark_stylish", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence"], reviewScore: 8.0 },
+  { title: "Millennium Actress", releaseYear: 2001, runtimeMinutes: 87, genrePrimary: "animation", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["emotional", "stylish", "complex_plot"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: [], reviewScore: 7.9 },
+  { title: "Paprika", releaseYear: 2006, runtimeMinutes: 90, genrePrimary: "animation", genreSecondary: "sci-fi", preset: "dark_stylish", moodTags: ["stylish", "complex_plot", "visual_masterpiece"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing"], reviewScore: 7.7 },
+  { title: "Ghost in the Shell", releaseYear: 1995, runtimeMinutes: 83, genrePrimary: "animation", genreSecondary: "sci-fi", preset: "dark_stylish", moodTags: ["dark", "stylish", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence"], reviewScore: 8.0 },
+  { title: "Akira", releaseYear: 1988, runtimeMinutes: 124, genrePrimary: "animation", genreSecondary: "sci-fi", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot", "visual_masterpiece"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 8.0 },
+  { title: "Wolf Children", releaseYear: 2012, runtimeMinutes: 117, genrePrimary: "animation", genreSecondary: "fantasy", preset: "calm_emotional", moodTags: ["emotional", "uplifting", "melancholic"], watchContexts: ["family_time", "date_friendly", "solo_watch"], contentWarnings: ["sad_ending"], reviewScore: 7.7 },
+  { title: "The Boy and the Heron", releaseYear: 2023, runtimeMinutes: 124, genrePrimary: "animation", genreSecondary: "fantasy", preset: "balanced", moodTags: ["emotional", "stylish", "visual_masterpiece", "complex_plot"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: [], reviewScore: 7.6 },
+  { title: "Belle", releaseYear: 2021, runtimeMinutes: 124, genrePrimary: "animation", genreSecondary: "musical", preset: "balanced", moodTags: ["emotional", "uplifting", "stylish"], watchContexts: ["date_friendly", "friends_hangout", "solo_watch"], contentWarnings: [], reviewScore: 7.3 },
+  { title: "Nausicaa of the Valley of the Wind", releaseYear: 1984, runtimeMinutes: 117, genrePrimary: "animation", genreSecondary: "fantasy", preset: "balanced", moodTags: ["uplifting", "emotional", "visual_masterpiece"], watchContexts: ["family_time", "friends_hangout"], contentWarnings: ["violence"], reviewScore: 8.1 },
+  { title: "Castle in the Sky", releaseYear: 1986, runtimeMinutes: 124, genrePrimary: "animation", genreSecondary: "adventure", preset: "fun_light", moodTags: ["uplifting", "easy_to_watch", "stylish"], watchContexts: ["family_time", "friends_hangout", "date_friendly"], contentWarnings: ["violence"], reviewScore: 8.0 },
+
+  // Korean Films
+  { title: "Oldboy", releaseYear: 2003, runtimeMinutes: 120, genrePrimary: "thriller", genreSecondary: "mystery", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 8.4 },
+  { title: "The Handmaiden", releaseYear: 2016, runtimeMinutes: 145, genrePrimary: "thriller", genreSecondary: "drama", preset: "dark_stylish", moodTags: ["dark", "stylish", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence"], reviewScore: 8.1 },
+  { title: "Burning", releaseYear: 2018, runtimeMinutes: 148, genrePrimary: "drama", genreSecondary: "mystery", preset: "dark_stylish", moodTags: ["dark", "slow_burn", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing"], reviewScore: 7.5 },
+  { title: "A Bittersweet Life", releaseYear: 2005, runtimeMinutes: 120, genrePrimary: "crime", genreSecondary: "action", preset: "dark_stylish", moodTags: ["dark", "stylish", "tense"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence"], reviewScore: 7.8 },
+  { title: "I Saw the Devil", releaseYear: 2010, runtimeMinutes: 144, genrePrimary: "thriller", genreSecondary: "crime", preset: "tense_complex", moodTags: ["dark", "tense"], watchContexts: ["solo_watch"], contentWarnings: ["violence", "disturbing", "gore"], reviewScore: 7.8 },
+  { title: "Train to Busan", releaseYear: 2016, runtimeMinutes: 118, genrePrimary: "horror", genreSecondary: "action", preset: "balanced", moodTags: ["tense", "emotional", "easy_to_watch"], watchContexts: ["friends_hangout", "solo_watch", "late_night_fit"], contentWarnings: ["violence", "sad_ending"], reviewScore: 7.6 },
+  { title: "The Wailing", releaseYear: 2016, runtimeMinutes: 156, genrePrimary: "horror", genreSecondary: "mystery", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 7.5 },
+  { title: "A Tale of Two Sisters", releaseYear: 2003, runtimeMinutes: 115, genrePrimary: "horror", genreSecondary: "drama", preset: "dark_stylish", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing"], reviewScore: 7.4 },
+  { title: "Spring Summer Fall Winter and Spring", releaseYear: 2003, runtimeMinutes: 103, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["calm", "slow_burn", "melancholic"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: [], reviewScore: 8.0 },
+  { title: "The Man from Nowhere", releaseYear: 2010, runtimeMinutes: 119, genrePrimary: "action", genreSecondary: "crime", preset: "dark_stylish", moodTags: ["dark", "emotional", "tense"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence"], reviewScore: 7.8 },
+
+  // Japanese Live-Action
+  { title: "Drive My Car", releaseYear: 2021, runtimeMinutes: 179, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["calm", "emotional", "slow_burn", "melancholic"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: [], reviewScore: 7.6 },
+  { title: "Wheel of Fortune and Fantasy", releaseYear: 2021, runtimeMinutes: 121, genrePrimary: "drama", genreSecondary: "romance", preset: "calm_emotional", moodTags: ["calm", "emotional", "slow_burn"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: [], reviewScore: 7.3 },
+  { title: "Shoplifters", releaseYear: 2018, runtimeMinutes: 121, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["emotional", "slow_burn", "melancholic"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["sad_ending"], reviewScore: 7.9 },
+  { title: "Still Walking", releaseYear: 2008, runtimeMinutes: 114, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["calm", "emotional", "slow_burn"], watchContexts: ["solo_watch", "family_time"], contentWarnings: [], reviewScore: 7.8 },
+  { title: "Departures", releaseYear: 2008, runtimeMinutes: 130, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["emotional", "uplifting", "melancholic"], watchContexts: ["solo_watch", "family_time"], contentWarnings: [], reviewScore: 8.1 },
+  { title: "After Life", releaseYear: 1998, runtimeMinutes: 118, genrePrimary: "drama", genreSecondary: "fantasy", preset: "calm_emotional", moodTags: ["calm", "emotional", "slow_burn"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: [], reviewScore: 7.8 },
+  { title: "Our Little Sister", releaseYear: 2015, runtimeMinutes: 128, genrePrimary: "drama", genreSecondary: "family", preset: "calm_emotional", moodTags: ["calm", "emotional", "uplifting"], watchContexts: ["family_time", "solo_watch", "date_friendly"], contentWarnings: [], reviewScore: 7.7 },
+
+  // World Cinema / French
+  { title: "Portrait of a Lady on Fire", releaseYear: 2019, runtimeMinutes: 122, genrePrimary: "romance", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["emotional", "stylish", "slow_burn", "visual_masterpiece"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["sad_ending"], reviewScore: 8.1 },
+
+  // Classic Cinema
+  { title: "2001: A Space Odyssey", releaseYear: 1968, runtimeMinutes: 149, genrePrimary: "sci-fi", preset: "dark_stylish", moodTags: ["calm", "stylish", "complex_plot", "slow_burn", "visual_masterpiece"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: [], reviewScore: 8.3 },
+  { title: "Apocalypse Now", releaseYear: 1979, runtimeMinutes: 153, genrePrimary: "drama", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 8.4 },
+  { title: "Goodfellas", releaseYear: 1990, runtimeMinutes: 146, genrePrimary: "crime", genreSecondary: "drama", preset: "dark_stylish", moodTags: ["dark", "stylish", "complex_plot"], watchContexts: ["solo_watch", "friends_hangout", "late_night_fit"], contentWarnings: ["violence"], reviewScore: 8.7 },
+  { title: "Taxi Driver", releaseYear: 1976, runtimeMinutes: 114, genrePrimary: "crime", genreSecondary: "drama", preset: "tense_complex", moodTags: ["dark", "tense", "melancholic"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 8.2 },
+  { title: "The Godfather", releaseYear: 1972, runtimeMinutes: 175, genrePrimary: "crime", genreSecondary: "drama", preset: "tense_complex", moodTags: ["dark", "stylish", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "friends_hangout"], contentWarnings: ["violence"], reviewScore: 9.2 },
+  { title: "Rashomon", releaseYear: 1950, runtimeMinutes: 88, genrePrimary: "drama", genreSecondary: "mystery", preset: "balanced", moodTags: ["complex_plot", "slow_burn", "stylish"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence"], reviewScore: 8.2 },
+  { title: "Tokyo Story", releaseYear: 1953, runtimeMinutes: 136, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["calm", "emotional", "slow_burn", "melancholic"], watchContexts: ["solo_watch"], contentWarnings: [], reviewScore: 8.1 },
+  { title: "8½", releaseYear: 1963, runtimeMinutes: 138, genrePrimary: "drama", preset: "dark_stylish", moodTags: ["stylish", "complex_plot", "visual_masterpiece"], watchContexts: ["solo_watch"], contentWarnings: [], reviewScore: 8.0 },
+  { title: "Mulholland Drive", releaseYear: 2001, runtimeMinutes: 147, genrePrimary: "mystery", genreSecondary: "thriller", preset: "dark_stylish", moodTags: ["dark", "complex_plot", "visual_masterpiece", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing"], reviewScore: 7.9 },
+  { title: "The Shining", releaseYear: 1980, runtimeMinutes: 146, genrePrimary: "horror", preset: "tense_complex", moodTags: ["dark", "tense", "visual_masterpiece"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 8.4 },
+
+  // Drama
+  { title: "Marriage Story", releaseYear: 2019, runtimeMinutes: 137, genrePrimary: "drama", genreSecondary: "romance", preset: "calm_emotional", moodTags: ["emotional", "tense", "melancholic"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["sad_ending"], reviewScore: 7.9 },
+  { title: "Manchester by the Sea", releaseYear: 2016, runtimeMinutes: 137, genrePrimary: "drama", preset: "calm_emotional", moodTags: ["dark", "emotional", "slow_burn", "melancholic"], watchContexts: ["solo_watch"], contentWarnings: ["sad_ending", "disturbing"], reviewScore: 7.8 },
+  { title: "Room", releaseYear: 2015, runtimeMinutes: 118, genrePrimary: "drama", genreSecondary: "thriller", preset: "tense_complex", moodTags: ["dark", "emotional", "tense"], watchContexts: ["solo_watch"], contentWarnings: ["disturbing", "sad_ending"], reviewScore: 8.1 },
+  { title: "Spotlight", releaseYear: 2015, runtimeMinutes: 128, genrePrimary: "drama", genreSecondary: "mystery", preset: "tense_complex", moodTags: ["tense", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "friends_hangout"], contentWarnings: ["disturbing"], reviewScore: 8.1 },
+  { title: "The Shawshank Redemption", releaseYear: 1994, runtimeMinutes: 142, genrePrimary: "drama", preset: "balanced", moodTags: ["emotional", "uplifting", "slow_burn"], watchContexts: ["solo_watch", "friends_hangout", "family_time"], contentWarnings: ["violence", "disturbing"], reviewScore: 9.3 },
+  { title: "Good Will Hunting", releaseYear: 1997, runtimeMinutes: 126, genrePrimary: "drama", genreSecondary: "romance", preset: "calm_emotional", moodTags: ["emotional", "uplifting", "easy_to_watch"], watchContexts: ["solo_watch", "date_friendly", "friends_hangout"], contentWarnings: [], reviewScore: 8.3 },
+  { title: "Eternal Sunshine of the Spotless Mind", releaseYear: 2004, runtimeMinutes: 108, genrePrimary: "romance", genreSecondary: "sci-fi", preset: "calm_emotional", moodTags: ["emotional", "melancholic", "complex_plot"], watchContexts: ["solo_watch", "date_friendly", "late_night_fit"], contentWarnings: ["sad_ending"], reviewScore: 8.3 },
+  { title: "Carol", releaseYear: 2015, runtimeMinutes: 118, genrePrimary: "romance", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["emotional", "stylish", "slow_burn", "melancholic"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: [], reviewScore: 7.2 },
+  { title: "Blue Valentine", releaseYear: 2010, runtimeMinutes: 112, genrePrimary: "romance", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["dark", "emotional", "melancholic", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["sad_ending", "disturbing"], reviewScore: 7.4 },
+  { title: "The Killing of a Sacred Deer", releaseYear: 2017, runtimeMinutes: 121, genrePrimary: "thriller", genreSecondary: "horror", preset: "dark_stylish", moodTags: ["dark", "tense", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence"], reviewScore: 7.0 },
+  { title: "Wild", releaseYear: 2014, runtimeMinutes: 115, genrePrimary: "drama", genreSecondary: "adventure", preset: "calm_emotional", moodTags: ["emotional", "uplifting", "slow_burn"], watchContexts: ["solo_watch", "date_friendly"], contentWarnings: ["disturbing"], reviewScore: 7.1 },
+  { title: "Hereditary", releaseYear: 2018, runtimeMinutes: 127, genrePrimary: "horror", genreSecondary: "drama", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence", "gore"], reviewScore: 7.3 },
+
+  // Action / Blockbuster
+  { title: "The Dark Knight", releaseYear: 2008, runtimeMinutes: 152, genrePrimary: "action", genreSecondary: "crime", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence"], reviewScore: 9.0 },
+  { title: "Mad Max: Fury Road", releaseYear: 2015, runtimeMinutes: 120, genrePrimary: "action", genreSecondary: "adventure", preset: "balanced", moodTags: ["tense", "stylish", "visual_masterpiece"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence"], reviewScore: 8.1 },
+  { title: "John Wick", releaseYear: 2014, runtimeMinutes: 101, genrePrimary: "action", genreSecondary: "crime", preset: "dark_stylish", moodTags: ["dark", "stylish", "tense"], watchContexts: ["friends_hangout", "solo_watch", "late_night_fit"], contentWarnings: ["violence"], reviewScore: 7.4 },
+  { title: "Top Gun: Maverick", releaseYear: 2022, runtimeMinutes: 137, genrePrimary: "action", genreSecondary: "drama", preset: "fun_light", moodTags: ["uplifting", "tense", "easy_to_watch"], watchContexts: ["friends_hangout", "family_time", "date_friendly"], contentWarnings: ["violence"], reviewScore: 8.3 },
+  { title: "Everything Everywhere All at Once", releaseYear: 2022, runtimeMinutes: 139, genrePrimary: "sci-fi", genreSecondary: "comedy", preset: "balanced", moodTags: ["funny", "emotional", "complex_plot", "stylish"], watchContexts: ["friends_hangout", "solo_watch", "date_friendly"], contentWarnings: ["violence"], reviewScore: 7.8 },
+  { title: "Mission: Impossible - Fallout", releaseYear: 2018, runtimeMinutes: 147, genrePrimary: "action", genreSecondary: "thriller", preset: "balanced", moodTags: ["tense", "easy_to_watch"], watchContexts: ["friends_hangout", "date_friendly"], contentWarnings: ["violence"], reviewScore: 7.7 },
+  { title: "Dune", releaseYear: 2021, runtimeMinutes: 155, genrePrimary: "sci-fi", genreSecondary: "adventure", preset: "dark_stylish", moodTags: ["dark", "stylish", "slow_burn", "visual_masterpiece"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence"], reviewScore: 8.0 },
+  { title: "1917", releaseYear: 2019, runtimeMinutes: 119, genrePrimary: "drama", genreSecondary: "action", preset: "tense_complex", moodTags: ["tense", "visual_masterpiece", "slow_burn"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence", "disturbing"], reviewScore: 8.3 },
+
+  // Sci-Fi
+  { title: "Annihilation", releaseYear: 2018, runtimeMinutes: 115, genrePrimary: "sci-fi", genreSecondary: "horror", preset: "dark_stylish", moodTags: ["dark", "tense", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence"], reviewScore: 6.8 },
+  { title: "Moon", releaseYear: 2009, runtimeMinutes: 97, genrePrimary: "sci-fi", genreSecondary: "drama", preset: "calm_emotional", moodTags: ["calm", "emotional", "complex_plot", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: [], reviewScore: 7.9 },
+  { title: "Children of Men", releaseYear: 2006, runtimeMinutes: 109, genrePrimary: "sci-fi", genreSecondary: "drama", preset: "tense_complex", moodTags: ["dark", "tense", "emotional", "visual_masterpiece"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 7.9 },
+
+  // Horror
+  { title: "Get Out", releaseYear: 2017, runtimeMinutes: 104, genrePrimary: "horror", genreSecondary: "thriller", preset: "tense_complex", moodTags: ["dark", "tense", "complex_plot"], watchContexts: ["friends_hangout", "solo_watch", "late_night_fit"], contentWarnings: ["violence", "disturbing"], reviewScore: 7.7 },
+  { title: "Midsommar", releaseYear: 2019, runtimeMinutes: 148, genrePrimary: "horror", preset: "dark_stylish", moodTags: ["dark", "tense", "visual_masterpiece", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence", "gore"], reviewScore: 7.1 },
+  { title: "The Witch", releaseYear: 2015, runtimeMinutes: 92, genrePrimary: "horror", genreSecondary: "mystery", preset: "dark_stylish", moodTags: ["dark", "tense", "slow_burn"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence"], reviewScore: 6.9 },
+  { title: "A Quiet Place", releaseYear: 2018, runtimeMinutes: 90, genrePrimary: "horror", genreSecondary: "thriller", preset: "balanced", moodTags: ["tense", "emotional", "easy_to_watch"], watchContexts: ["friends_hangout", "solo_watch", "date_friendly"], contentWarnings: ["violence", "sad_ending"], reviewScore: 7.5 },
+  { title: "Suspiria", releaseYear: 2018, runtimeMinutes: 152, genrePrimary: "horror", preset: "dark_stylish", moodTags: ["dark", "tense", "visual_masterpiece", "complex_plot"], watchContexts: ["solo_watch", "late_night_fit"], contentWarnings: ["disturbing", "violence", "gore"], reviewScore: 6.8 },
+
+  // Comedy / Feel-good
+  { title: "Superbad", releaseYear: 2007, runtimeMinutes: 113, genrePrimary: "comedy", preset: "fun_light", moodTags: ["funny", "uplifting", "easy_to_watch"], watchContexts: ["friends_hangout"], contentWarnings: [], reviewScore: 7.6 },
+  { title: "The Intouchables", releaseYear: 2011, runtimeMinutes: 112, genrePrimary: "comedy", genreSecondary: "drama", preset: "fun_light", moodTags: ["funny", "emotional", "uplifting", "easy_to_watch"], watchContexts: ["friends_hangout", "date_friendly", "family_time"], contentWarnings: [], reviewScore: 8.5 },
+  { title: "Hunt for the Wilderpeople", releaseYear: 2016, runtimeMinutes: 101, genrePrimary: "comedy", genreSecondary: "adventure", preset: "fun_light", moodTags: ["funny", "uplifting", "easy_to_watch"], watchContexts: ["friends_hangout", "family_time", "date_friendly"], contentWarnings: [], reviewScore: 7.9 },
+  { title: "What We Do in the Shadows", releaseYear: 2014, runtimeMinutes: 86, genrePrimary: "comedy", genreSecondary: "horror", preset: "fun_light", moodTags: ["funny", "easy_to_watch"], watchContexts: ["friends_hangout", "date_friendly"], contentWarnings: [], reviewScore: 7.6 },
+  { title: "The Big Lebowski", releaseYear: 1998, runtimeMinutes: 117, genrePrimary: "comedy", genreSecondary: "crime", preset: "fun_light", moodTags: ["funny", "easy_to_watch", "stylish"], watchContexts: ["friends_hangout", "solo_watch"], contentWarnings: ["violence"], reviewScore: 8.1 },
 ];
 
 function validateSeed(seed: MovieSeed) {
