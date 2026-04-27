@@ -10,7 +10,7 @@ export default async function BrowsePage() {
 
   const movies = await prisma.movie.findMany({
     orderBy: [{ reviewScore: "desc" }],
-    take: 200,
+    take: 500,
     select: {
       id: true,
       title: true,
@@ -19,6 +19,7 @@ export default async function BrowsePage() {
       posterUrl: true,
       directors: true,
       reviewScore: true,
+      localizedTitles: true,
     },
   });
 

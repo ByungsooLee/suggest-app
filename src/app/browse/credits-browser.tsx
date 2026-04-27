@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 
+type LocalizedTitles = Record<string, string>;
+
 type Movie = {
   id: string;
   title: string;
@@ -12,12 +14,17 @@ type Movie = {
   posterUrl: string | null;
   directors: string[];
   reviewScore: number | null;
+  localizedTitles: unknown;
 };
 
 type Props = {
   movies: Movie[];
   genres: string[];
 };
+
+type Lang = "en" | "ja" | "ko";
+
+const LANG_LABELS: Record<Lang, string> = { en: "EN", ja: "日本語", ko: "한국어" };
 
 const genreLabel: Record<string, string> = {
   action: "アクション",
@@ -35,6 +42,17 @@ const genreLabel: Record<string, string> = {
   "sci-fi": "SF",
   thriller: "スリラー",
 };
+
+function getLocalizedTitle(movie: Movie, lang: Lang): string {
+  const raw = movie.localizedTitles;
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const titles = raw as LocalizedTitles;
+    if ("_notFound" in titles) return movie.title;
+    const localized = titles[lang];
+    if (localized && localized.trim()) return localized;
+  }
+  return movie.title;
+}
 
 function ScoreRing({ score }: { score: number }) {
   const radius = 13;
@@ -54,8 +72,10 @@ function ScoreRing({ score }: { score: number }) {
           strokeLinecap="round"
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center"
-        style={{ fontSize: "9px", fontWeight: 600, color: "var(--color-accent)", fontFamily: "var(--font-dm-sans)" }}>
+      <span
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ fontSize: "9px", fontWeight: 600, color: "var(--color-accent)", fontFamily: "var(--font-dm-sans)" }}
+      >
         {score.toFixed(1)}
       </span>
     </div>
@@ -66,22 +86,25 @@ export function CreditsBrowser({ movies, genres }: Props) {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"score" | "year">("score");
+  const [lang, setLang] = useState<Lang>("ja");
 
   const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase();
     return movies
       .filter(
         (m) =>
           (!selectedGenre || m.genrePrimary === selectedGenre) &&
-          (!searchQuery ||
-            m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            m.directors.some((d) => d.toLowerCase().includes(searchQuery.toLowerCase()))),
+          (!q ||
+            getLocalizedTitle(m, lang).toLowerCase().includes(q) ||
+            m.title.toLowerCase().includes(q) ||
+            m.directors.some((d) => d.toLowerCase().includes(q))),
       )
       .sort((a, b) =>
         sortBy === "score"
           ? (b.reviewScore ?? 0) - (a.reviewScore ?? 0)
           : b.releaseYear - a.releaseYear,
       );
-  }, [movies, selectedGenre, searchQuery, sortBy]);
+  }, [movies, selectedGenre, searchQuery, sortBy, lang]);
 
   return (
     <div className="min-h-screen">
@@ -90,10 +113,33 @@ export function CreditsBrowser({ movies, genres }: Props) {
         className="sticky top-0 z-20 border-b border-[var(--color-border)]"
         style={{ background: "rgba(8,8,8,0.96)", backdropFilter: "blur(12px)" }}
       >
-        <div className="mx-auto max-w-5xl px-4 pt-4 pb-3">
-          {/* Row 1: label + search + sort */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="credits-label shrink-0 text-[var(--color-accent)]">BROWSE</span>
+        <div className="mx-auto max-w-5xl px-4 pt-4 pb-3 space-y-3">
+
+          {/* Row 1: title + language selector */}
+          <div className="flex items-center gap-3">
+            <span className="credits-label shrink-0" style={{ color: "var(--color-accent)" }}>BROWSE</span>
+            <div className="flex-1" />
+            {/* Language toggle */}
+            <div className="flex rounded-full border border-[var(--color-border)] overflow-hidden">
+              {(["ja", "ko", "en"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className="credits-label px-3 py-1.5 transition"
+                  style={
+                    lang === l
+                      ? { background: "var(--color-accent)", color: "#080808" }
+                      : { color: "var(--color-text-muted)" }
+                  }
+                >
+                  {LANG_LABELS[l]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 2: search + sort */}
+          <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <input
                 value={searchQuery}
@@ -118,7 +164,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
             </button>
           </div>
 
-          {/* Row 2: genre chips */}
+          {/* Row 3: genre chips */}
           <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
             {[null, ...genres].map((g) => (
               <button
@@ -127,11 +173,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
                 className="credits-label shrink-0 rounded-full border px-3 py-1 transition"
                 style={
                   selectedGenre === g
-                    ? {
-                        borderColor: "var(--color-border-accent)",
-                        color: "var(--color-accent)",
-                        background: "rgba(232,201,122,0.08)",
-                      }
+                    ? { borderColor: "var(--color-border-accent)", color: "var(--color-accent)", background: "rgba(232,201,122,0.08)" }
                     : { borderColor: "var(--color-border)" }
                 }
               >
@@ -155,77 +197,67 @@ export function CreditsBrowser({ movies, genres }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {filtered.map((movie) => (
-              <Link key={movie.id} href={`/movies/${movie.id}`} className="group block">
-                {/* Poster card */}
-                <div
-                  className="relative overflow-hidden rounded-lg border border-[var(--color-border)] transition-all duration-200 group-hover:border-[var(--color-border-accent)]"
-                  style={{ aspectRatio: "2/3", background: "var(--color-bg-elevated)" }}
-                >
-                  {movie.posterUrl ? (
-                    <Image
-                      src={movie.posterUrl}
-                      alt={movie.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 20vw"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <span
-                        style={{
-                          fontFamily: "var(--font-dm-serif)",
-                          fontSize: "2.5rem",
-                          opacity: 0.15,
-                          color: "var(--color-text-primary)",
-                        }}
+            {filtered.map((movie) => {
+              const displayTitle = getLocalizedTitle(movie, lang);
+              return (
+                <Link key={movie.id} href={`/movies/${movie.id}`} className="group block">
+                  {/* Poster card */}
+                  <div
+                    className="relative overflow-hidden rounded-lg border border-[var(--color-border)] transition-all duration-200 group-hover:border-[var(--color-border-accent)]"
+                    style={{ aspectRatio: "2/3", background: "var(--color-bg-elevated)" }}
+                  >
+                    {movie.posterUrl ? (
+                      <Image
+                        src={movie.posterUrl}
+                        alt={displayTitle}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 20vw"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <span style={{ fontFamily: "var(--font-dm-serif)", fontSize: "2.5rem", opacity: 0.15, color: "var(--color-text-primary)" }}>
+                          {displayTitle[0]}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+
+                    {/* Score ring */}
+                    {movie.reviewScore != null && (
+                      <div className="absolute right-1.5 top-1.5">
+                        <ScoreRing score={movie.reviewScore} />
+                      </div>
+                    )}
+
+                    {/* Bottom info */}
+                    <div className="absolute bottom-0 left-0 right-0 p-2">
+                      <p
+                        className="line-clamp-2 leading-tight"
+                        style={{ fontFamily: "var(--font-dm-serif)", fontSize: "0.8rem", color: "var(--color-text-primary)" }}
                       >
-                        {movie.title[0]}
-                      </span>
+                        {displayTitle}
+                      </p>
+                      <p className="credits-label mt-0.5 opacity-70">{movie.releaseYear}</p>
                     </div>
-                  )}
-
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
-
-                  {/* Score ring top-right */}
-                  {movie.reviewScore != null && (
-                    <div className="absolute right-1.5 top-1.5">
-                      <ScoreRing score={movie.reviewScore} />
-                    </div>
-                  )}
-
-                  {/* Bottom info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <p
-                      className="leading-tight line-clamp-2"
-                      style={{
-                        fontFamily: "var(--font-dm-serif)",
-                        fontSize: "0.8rem",
-                        color: "var(--color-text-primary)",
-                      }}
-                    >
-                      {movie.title}
-                    </p>
-                    <p className="credits-label mt-0.5 opacity-70">
-                      {movie.releaseYear}
-                    </p>
                   </div>
-                </div>
 
-                {/* Genre + director below card */}
-                <div className="mt-1.5 px-0.5">
-                  <p className="credits-label text-center" style={{ color: "var(--color-accent)", opacity: 0.8 }}>
-                    {genreLabel[movie.genrePrimary] ?? movie.genrePrimary}
-                  </p>
-                  {movie.directors[0] && (
-                    <p className="credits-label text-center mt-0.5 truncate opacity-60">
-                      {movie.directors[0]}
+                  {/* Genre + director below card */}
+                  <div className="mt-1.5 px-0.5">
+                    <p className="credits-label text-center" style={{ color: "var(--color-accent)", opacity: 0.8 }}>
+                      {genreLabel[movie.genrePrimary] ?? movie.genrePrimary}
                     </p>
-                  )}
-                </div>
-              </Link>
-            ))}
+                    {movie.directors[0] && (
+                      <p className="credits-label mt-0.5 truncate text-center opacity-60">
+                        {movie.directors[0]}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

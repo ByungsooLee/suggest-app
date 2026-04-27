@@ -292,6 +292,8 @@ model Movie {
   contentWarnings      String[]
   availabilityNote     String?
   metadata             Json?
+  tmdbId               Int?     @unique
+  localizedTitles      Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

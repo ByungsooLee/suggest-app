@@ -9,6 +9,8 @@
     "lint": "eslint",
     "test": "tsx --test src/lib/recommendation/__tests__/*.test.ts",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:tmdb": "tsx scripts/seed-tmdb.ts",
+    "db:backfill:titles": "tsx scripts/backfill-localized-titles.ts",
     "db:backfill-metadata": "tsx prisma/backfill-movie-metadata.ts"
   },
   "dependencies": {
