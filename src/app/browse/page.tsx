@@ -20,6 +20,7 @@ export default async function BrowsePage() {
       directors: true,
       reviewScore: true,
       localizedTitles: true,
+      localizedData: true,
     },
   });
 

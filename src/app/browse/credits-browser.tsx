@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
-
-type LocalizedTitles = Record<string, string>;
+import { useLang, type LocalizedData } from "@/lib/i18n/lang-context";
+import { LangSelector } from "@/components/lang-selector";
 
 type Movie = {
   id: string;
@@ -15,16 +15,13 @@ type Movie = {
   directors: string[];
   reviewScore: number | null;
   localizedTitles: unknown;
+  localizedData: unknown;
 };
 
 type Props = {
   movies: Movie[];
   genres: string[];
 };
-
-type Lang = "en" | "ja" | "ko";
-
-const LANG_LABELS: Record<Lang, string> = { en: "EN", ja: "日本語", ko: "한국어" };
 
 const genreLabel: Record<string, string> = {
   action: "アクション",
@@ -43,13 +40,25 @@ const genreLabel: Record<string, string> = {
   thriller: "スリラー",
 };
 
+type Lang = "en" | "ja" | "ko";
+
 function getLocalizedTitle(movie: Movie, lang: Lang): string {
+  // Prefer rich localizedData
+  const data = movie.localizedData as LocalizedData | null;
+  if (data && typeof data === "object") {
+    const t = data[lang]?.title;
+    if (t?.trim()) return t;
+    const jaT = data["ja"]?.title;
+    if (jaT?.trim()) return jaT;
+  }
+  // Fall back to simple localizedTitles
   const raw = movie.localizedTitles;
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    const titles = raw as LocalizedTitles;
-    if ("_notFound" in titles) return movie.title;
-    const localized = titles[lang];
-    if (localized && localized.trim()) return localized;
+    const titles = raw as Record<string, string>;
+    if (!("_notFound" in titles)) {
+      const localized = titles[lang];
+      if (localized?.trim()) return localized;
+    }
   }
   return movie.title;
 }
@@ -86,7 +95,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"score" | "year">("score");
-  const [lang, setLang] = useState<Lang>("ja");
+  const { lang } = useLang();
 
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -119,23 +128,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
           <div className="flex items-center gap-3">
             <span className="credits-label shrink-0" style={{ color: "var(--color-accent)" }}>BROWSE</span>
             <div className="flex-1" />
-            {/* Language toggle */}
-            <div className="flex rounded-full border border-[var(--color-border)] overflow-hidden">
-              {(["ja", "ko", "en"] as Lang[]).map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setLang(l)}
-                  className="credits-label px-3 py-1.5 transition"
-                  style={
-                    lang === l
-                      ? { background: "var(--color-accent)", color: "#080808" }
-                      : { color: "var(--color-text-muted)" }
-                  }
-                >
-                  {LANG_LABELS[l]}
-                </button>
-              ))}
-            </div>
+            <LangSelector />
           </div>
 
           {/* Row 2: search + sort */}

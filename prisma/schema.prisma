@@ -294,6 +294,7 @@ model Movie {
   metadata             Json?
   tmdbId               Int?     @unique
   localizedTitles      Json?
+  localizedData        Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

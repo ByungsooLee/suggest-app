@@ -11,6 +11,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:tmdb": "tsx scripts/seed-tmdb.ts",
     "db:backfill:titles": "tsx scripts/backfill-localized-titles.ts",
+    "db:backfill:i18n": "tsx scripts/backfill-localized-data.ts",
     "db:backfill-metadata": "tsx prisma/backfill-movie-metadata.ts"
   },
   "dependencies": {
