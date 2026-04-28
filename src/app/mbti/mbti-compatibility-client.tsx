@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   getCompatibility,
   getGroupCompatibility,
   type MBTIType,
   type CompatibilityScore,
+  type CompatibilityData,
 } from "@/lib/mbti/compatibility";
 
 const MBTI_TYPES: MBTIType[] = [
@@ -26,7 +28,23 @@ const SCORE_CONFIG: Record<CompatibilityScore, { label: string; color: string; b
 
 type Props = { myMbti: string | null };
 
+function saveMbtiContext(types: string[], compat: CompatibilityData, watchingWith: "pair" | "group") {
+  sessionStorage.setItem(
+    "mbtiRecommendContext",
+    JSON.stringify({
+      types,
+      score: compat.score,
+      chemistry: compat.chemistry,
+      movieGenres: compat.movieGenres,
+      decisionHook: compat.decisionHook,
+      exampleMovies: compat.exampleMovies,
+      watchingWith,
+    }),
+  );
+}
+
 export function MbtiCompatibilityClient({ myMbti }: Props) {
+  const router = useRouter();
   const [typeA, setTypeA] = useState<MBTIType | "">(
     (myMbti as MBTIType | null) ?? ""
   );
@@ -131,16 +149,19 @@ export function MbtiCompatibilityClient({ myMbti }: Props) {
                 </div>
 
                 {/* CTA */}
-                <Link
-                  href="/recommend"
+                <button
+                  onClick={() => {
+                    saveMbtiContext([typeA, typeB], pairResult, "pair");
+                    router.push("/recommend?from=mbti");
+                  }}
                   style={{
-                    display: "block", marginTop: "24px", padding: "14px", borderRadius: "10px",
+                    display: "block", width: "100%", marginTop: "24px", padding: "14px", borderRadius: "10px",
                     background: "#E8C97A", color: "#080808", fontWeight: 600, fontSize: "14px",
-                    textAlign: "center", textDecoration: "none", letterSpacing: "0.05em",
+                    textAlign: "center", letterSpacing: "0.05em", border: "none", cursor: "pointer",
                   }}
                 >
                   今夜の1本を探す →
-                </Link>
+                </button>
               </div>
             )}
 
@@ -220,16 +241,20 @@ export function MbtiCompatibilityClient({ myMbti }: Props) {
                   })}
                 </div>
 
-                <Link
-                  href="/recommend"
+                <button
+                  onClick={() => {
+                    const avgCompat = getCompatibility(groupTypes[0], groupTypes[1]);
+                    saveMbtiContext(groupTypes, avgCompat, "group");
+                    router.push("/recommend?from=mbti");
+                  }}
                   style={{
-                    display: "block", marginTop: "20px", padding: "14px", borderRadius: "10px",
+                    display: "block", width: "100%", marginTop: "20px", padding: "14px", borderRadius: "10px",
                     background: "#E8C97A", color: "#080808", fontWeight: 600, fontSize: "14px",
-                    textAlign: "center", textDecoration: "none", letterSpacing: "0.05em",
+                    textAlign: "center", letterSpacing: "0.05em", border: "none", cursor: "pointer",
                   }}
                 >
                   グループで観る映画を探す →
-                </Link>
+                </button>
               </div>
             )}
 

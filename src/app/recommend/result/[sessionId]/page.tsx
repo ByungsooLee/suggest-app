@@ -10,6 +10,7 @@ import { ScreenHeader } from "@/components/screen-header";
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
 import { prisma } from "@/lib/db/prisma";
+import { MbtiResultBanner } from "./mbti-result-banner";
 
 export default async function RecommendResultPage({
   params,
@@ -63,6 +64,7 @@ export default async function RecommendResultPage({
     <main className="mx-auto min-h-screen w-full max-w-6xl space-y-5 px-6 py-10">
       <AvatarTrigger image={session.user.image} name={session.user.name} />
       <ScreenHeader title="今夜のおすすめ" description="主推薦1本を中心に、最大2本のバックアップを提案します。" />
+      <MbtiResultBanner />
       <Link href="/" className="inline-block">
         <PopButton variant="ghost">トップページに戻る</PopButton>
       </Link>

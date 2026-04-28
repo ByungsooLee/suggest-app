@@ -95,6 +95,16 @@ export type RetrievalTrace = {
 
 export type RecentSessionInput = { movieIdsByRank: string[] };
 
+export type MBTIRecommendContext = {
+  types: string[];
+  score: number;
+  chemistry: string;
+  movieGenres: string[];
+  decisionHook: string;
+  exampleMovies: string[];
+  watchingWith: "pair" | "group";
+};
+
 export type RecommendMoviesArgs = {
   movies: CandidateMovie[];
   reactions: ReactionInput[];
@@ -102,6 +112,7 @@ export type RecommendMoviesArgs = {
   selectedMbti: MbtiType | null;
   recentSessions: RecentSessionInput[];
   contextInput: RecommendationContextInput;
+  mbtiContext?: MBTIRecommendContext;
 };
 
 export type RecommendationOutput = {

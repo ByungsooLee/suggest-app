@@ -215,6 +215,7 @@ export async function POST(request: Request) {
     recentSessions: recentSessions.map((session) => ({
       movieIdsByRank: session.results.map((result) => result.movieId),
     })),
+    mbtiContext: parsed.data.mbtiContext,
     contextInput: {
       currentMoods: parsed.data.currentMoods,
       desiredRuntimeMin: parsed.data.desiredRuntimeMin,

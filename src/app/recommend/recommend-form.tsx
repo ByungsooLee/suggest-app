@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { MoodChip } from "@/components/ui/mood-chip";
 import { PopButton } from "@/components/ui/pop-button";
@@ -42,6 +42,16 @@ const RUNTIME_PRESETS = [
   { id: "long", label: "じっくり (150分)", value: 150 },
 ] as const;
 
+type MbtiContext = {
+  types: string[];
+  score: number;
+  chemistry: string;
+  movieGenres: string[];
+  decisionHook: string;
+  exampleMovies: string[];
+  watchingWith: "pair" | "group";
+} | null;
+
 export function RecommendForm() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -53,7 +63,24 @@ export function RecommendForm() {
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedPreset, setSelectedPreset] = useState<(typeof RUNTIME_PRESETS)[number]["id"]>("standard");
+  const [mbtiContext, setMbtiContext] = useState<MbtiContext>(null);
   const stepProgress = Math.round((step / STEP_COUNT) * 100);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("from") !== "mbti") return;
+    const raw = sessionStorage.getItem("mbtiRecommendContext");
+    if (!raw) return;
+    try {
+      const ctx = JSON.parse(raw) as MbtiContext;
+      if (!ctx) return;
+      setMbtiContext(ctx);
+      setWatchingWith(ctx.watchingWith === "group" ? "friends_hangout" : "date_friendly");
+      setStep(2);
+    } catch {
+      // ignore malformed data
+    }
+  }, []);
 
   const desiredRuntimeMin = useMemo(() => Math.max(60, runtimeTarget - 20), [runtimeTarget]);
   const desiredRuntimeMax = useMemo(() => Math.min(240, runtimeTarget + 20), [runtimeTarget]);
@@ -93,6 +120,7 @@ export function RecommendForm() {
           preferredDirectors: [],
           preferredActors: [],
           minimumReviewScore: undefined,
+          mbtiContext: mbtiContext ?? undefined,
         }),
       });
 

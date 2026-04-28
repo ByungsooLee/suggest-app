@@ -12,7 +12,20 @@ import { buildRecentRecommendationIndex, computeRepetitionPenalty } from "@/lib/
 import { rerankTopPicks } from "@/lib/recommendation/rerank-top-picks";
 import { scoreBaseRelevance } from "@/lib/recommendation/score-base";
 import { scoreNovelty } from "@/lib/recommendation/score-novelty";
-import { type CandidateMovie, type RecommendMoviesArgs, type RecommendationOutput } from "@/lib/recommendation/types";
+import { type CandidateMovie, type MBTIRecommendContext, type RecommendMoviesArgs, type RecommendationOutput } from "@/lib/recommendation/types";
+
+function applyMBTIBonus(baseScore: number, movie: CandidateMovie, mbtiContext: MBTIRecommendContext): number {
+  let bonus = 0;
+  const movieText = [movie.genrePrimary, movie.genreSecondary, ...(movie.moodTags ?? [])]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const genreMatches = mbtiContext.movieGenres.filter((genre) => movieText.includes(genre.toLowerCase()));
+  bonus += genreMatches.length * 0.15;
+  if (mbtiContext.score >= 4 && movie.complexity != null) bonus += movie.complexity * 0.1;
+  if (mbtiContext.score <= 2 && movie.complexity != null) bonus -= movie.complexity * 0.1;
+  return Math.min(baseScore + bonus, 1.0);
+}
 
 export function toConfidenceLabel(score: number): "very_high" | "high" | "medium" | "low" {
   if (score >= 0.88) return "very_high";
@@ -112,7 +125,9 @@ export function recommendMovies(args: RecommendMoviesArgs): RecommendationOutput
         repetitionPenalty,
         recommendationStyleMode: args.contextInput.recommendationStyleMode,
       });
-      const totalScore = preRerankScore;
+      const totalScore = args.mbtiContext
+        ? applyMBTIBonus(preRerankScore, movie.movie, args.mbtiContext)
+        : preRerankScore;
       const trace = buildRecommendationTrace({
         candidateVector: vector,
         referenceVector: knownTasteVector ?? moodVector,

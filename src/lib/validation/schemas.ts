@@ -146,6 +146,16 @@ export const RebuildTasteProfileResponseSchema = z.object({
   profileVersion: z.number().int().min(1),
 });
 
+export const MBTIRecommendContextSchema = z.object({
+  types: z.array(z.string().min(4).max(4)).min(2).max(6),
+  score: z.number().int().min(1).max(5),
+  chemistry: z.string().max(200),
+  movieGenres: z.array(z.string().max(40)).max(8),
+  decisionHook: z.string().max(200),
+  exampleMovies: z.array(z.string().max(100)).max(5),
+  watchingWith: z.enum(["pair", "group"]),
+});
+
 export const RecommendationsRequestSchema = z
   .object({
     currentMoods: z.array(MoodTagSchema).min(1).max(3),
@@ -158,6 +168,7 @@ export const RecommendationsRequestSchema = z
     preferredDirectors: uniqueNameArray(10).default([]),
     preferredActors: uniqueNameArray(10).default([]),
     minimumReviewScore: z.number().min(0).max(10).optional(),
+    mbtiContext: MBTIRecommendContextSchema.optional(),
   })
   .refine((v) => v.desiredRuntimeMin <= v.desiredRuntimeMax, {
     message: "desiredRuntimeMin must be <= desiredRuntimeMax",
