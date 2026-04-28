@@ -105,6 +105,11 @@ export type MBTIRecommendContext = {
   watchingWith: "pair" | "group";
 };
 
+export type DiscoverProfileInput = {
+  genreWeights: Record<string, number>;
+  directorAffinity: Record<string, number>;
+};
+
 export type RecommendMoviesArgs = {
   movies: CandidateMovie[];
   reactions: ReactionInput[];
@@ -113,6 +118,7 @@ export type RecommendMoviesArgs = {
   recentSessions: RecentSessionInput[];
   contextInput: RecommendationContextInput;
   mbtiContext?: MBTIRecommendContext;
+  discoverProfile?: DiscoverProfileInput;
 };
 
 export type RecommendationOutput = {

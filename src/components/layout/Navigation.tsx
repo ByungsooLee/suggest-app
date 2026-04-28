@@ -38,7 +38,7 @@ function NavItem({ href, icon, label, badge }: { href: string; icon: string; lab
       style={{
         position: "relative",
         display: "flex", flexDirection: "column", alignItems: "center", gap: "3px",
-        textDecoration: "none", color: "rgba(232,227,216,0.4)", padding: "4px 16px",
+        textDecoration: "none", color: "rgba(232,227,216,0.55)", padding: "4px 16px",
         fontSize: "10px", letterSpacing: "0.08em",
       }}
     >

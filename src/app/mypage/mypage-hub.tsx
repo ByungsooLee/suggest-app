@@ -27,6 +27,8 @@ type WatchedResponse = { items: WatchedItem[] };
 type WatchlistResponse = { items: WatchlistItem[] };
 type RecommendationHistoryResponse = { items: RecommendationHistoryItem[] };
 
+type MovieProfileData = { totalSwipes: number; personalityLabel: string | null };
+
 export function MyPageHub() {
   const [profile, setProfile] = useState<MeProfile | null>(null);
   const [preferences, setPreferences] = useState<Preferences | null>(null);
@@ -35,6 +37,7 @@ export function MyPageHub() {
   const [history, setHistory] = useState<RecommendationHistoryItem[]>([]);
   const [stats, setStats] = useState<PersonalStats | null>(null);
   const [tasteSummary, setTasteSummary] = useState<TasteSummary | null>(null);
+  const [movieProfile, setMovieProfile] = useState<MovieProfileData | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -43,7 +46,7 @@ export function MyPageHub() {
       setState("loading");
       setErrorMessage("");
       try {
-        const [profileRes, prefsRes, watchedRes, watchlistRes, statsRes, tasteRes, historyRes] = await Promise.all([
+        const [profileRes, prefsRes, watchedRes, watchlistRes, statsRes, tasteRes, historyRes, movieProfileRes] = await Promise.all([
           fetch("/api/me/profile", { cache: "no-store" }),
           fetch("/api/me/preferences", { cache: "no-store" }),
           fetch("/api/me/watched?type=all", { cache: "no-store" }),
@@ -51,6 +54,7 @@ export function MyPageHub() {
           fetch("/api/me/stats", { cache: "no-store" }),
           fetch("/api/me/taste-summary", { cache: "no-store" }),
           fetch("/api/me/recommendation-history", { cache: "no-store" }),
+          fetch("/api/me/movie-profile", { cache: "no-store" }),
         ]);
         if (!profileRes.ok || !prefsRes.ok || !watchedRes.ok) {
           throw new Error("My Pageデータの取得に失敗しました。");
@@ -85,6 +89,7 @@ export function MyPageHub() {
         setHistory(historyData.items);
         setStats(statsData);
         setTasteSummary(tasteData);
+        if (movieProfileRes.ok) setMovieProfile((await movieProfileRes.json()) as MovieProfileData);
         setState("ready");
       } catch (error) {
         setState("error");
@@ -113,6 +118,33 @@ export function MyPageHub() {
   return (
     <div className="space-y-5">
       <ProfileSection profile={profile} onProfileSaved={setProfile} />
+
+      {/* Movie personality label */}
+      {movieProfile && (
+        <Link
+          href="/discover"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "14px 16px", borderRadius: "10px", textDecoration: "none",
+            background: "rgba(127,119,221,0.05)", border: "1px solid rgba(127,119,221,0.15)",
+          }}
+        >
+          <div>
+            <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(127,119,221,0.55)", margin: "0 0 3px" }}>DISCOVER</p>
+            {movieProfile.personalityLabel ? (
+              <p style={{ fontSize: "15px", color: "#9F99E8", margin: 0, fontWeight: 500 }}>
+                ✦ {movieProfile.personalityLabel}
+              </p>
+            ) : (
+              <p style={{ fontSize: "14px", color: "#9F99E8", margin: 0 }}>
+                あと {Math.max(0, 100 - movieProfile.totalSwipes)} 本で映画人格が生成されます
+              </p>
+            )}
+          </div>
+          <span style={{ fontSize: "18px", color: "rgba(127,119,221,0.45)" }}>→</span>
+        </Link>
+      )}
+
       <Link
         href="/mbti"
         style={{

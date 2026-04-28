@@ -10,11 +10,12 @@ export default async function Home() {
   // Fetch personalized data for logged-in users
   let recentPosters: { id: string; title: string; posterUrl: string | null; movieId: string | null }[] = [];
   let stats: { total: number; thisMonth: number } | null = null;
+  let discoverTotalSwipes = 0;
 
   if (session?.user?.id) {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const [recent, total, thisMonth] = await Promise.all([
+    const [recent, total, thisMonth, movieProfile] = await Promise.all([
       prisma.userWatchedContent.findMany({
         where: { userId: session.user.id, contentType: "movie", posterUrl: { not: null } },
         orderBy: { createdAt: "desc" },
@@ -27,9 +28,14 @@ export default async function Home() {
       prisma.userWatchedContent.count({
         where: { userId: session.user.id, contentType: "movie", watched: true, watchedAt: { gte: startOfMonth } },
       }),
+      prisma.userMovieProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { totalSwipes: true },
+      }),
     ]);
     recentPosters = recent;
     stats = { total, thisMonth };
+    discoverTotalSwipes = movieProfile?.totalSwipes ?? 0;
   }
 
   return (
@@ -161,8 +167,33 @@ export default async function Home() {
               </section>
             )}
 
-            {/* ── MBTI shortcut ── */}
+            {/* ── Discover banner ── */}
             <section style={{ marginTop: "20px" }}>
+              <Link
+                href="/discover"
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "14px 16px", borderRadius: "10px", textDecoration: "none",
+                  background: "rgba(127,119,221,0.05)", border: "1px solid rgba(127,119,221,0.15)",
+                }}
+              >
+                <div>
+                  <p style={{ fontSize: "11px", color: "rgba(127,119,221,0.55)", margin: "0 0 2px", letterSpacing: "0.08em" }}>
+                    DISCOVER
+                  </p>
+                  <p style={{ fontSize: "14px", color: "#9F99E8", margin: 0, fontWeight: 500 }}>
+                    好みの映画を育てる
+                  </p>
+                  <p style={{ fontSize: "11px", color: "rgba(127,119,221,0.45)", margin: "3px 0 0" }}>
+                    {discoverTotalSwipes} / 100本で映画人格が生成されます
+                  </p>
+                </div>
+                <span style={{ color: "rgba(127,119,221,0.45)", fontSize: "16px" }}>→</span>
+              </Link>
+            </section>
+
+            {/* ── MBTI shortcut ── */}
+            <section style={{ marginTop: "12px" }}>
               <Link
                 href="/mbti"
                 style={{

@@ -200,6 +200,11 @@ export async function POST(request: Request) {
     })
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
+  const discoverMovieProfile = await prisma.userMovieProfile.findUnique({
+    where: { userId: authResult.userId },
+    select: { genreWeights: true, directorAffinity: true },
+  });
+
   const recommendations = recommendMovies({
     movies,
     reactions: [
@@ -216,6 +221,12 @@ export async function POST(request: Request) {
       movieIdsByRank: session.results.map((result) => result.movieId),
     })),
     mbtiContext: parsed.data.mbtiContext,
+    discoverProfile: discoverMovieProfile
+      ? {
+          genreWeights: discoverMovieProfile.genreWeights as Record<string, number>,
+          directorAffinity: discoverMovieProfile.directorAffinity as Record<string, number>,
+        }
+      : undefined,
     contextInput: {
       currentMoods: parsed.data.currentMoods,
       desiredRuntimeMin: parsed.data.desiredRuntimeMin,

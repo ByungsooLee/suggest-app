@@ -37,9 +37,9 @@ export function MbtiResultBanner() {
       }}
     >
       <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-        {ctx.types.map((t) => (
+        {ctx.types.map((t, i) => (
           <span
-            key={t}
+            key={`${t}-${i}`}
             style={{
               fontSize: "11px", fontWeight: 600, letterSpacing: "0.08em",
               padding: "2px 8px", borderRadius: "999px",

@@ -12,7 +12,18 @@ import { buildRecentRecommendationIndex, computeRepetitionPenalty } from "@/lib/
 import { rerankTopPicks } from "@/lib/recommendation/rerank-top-picks";
 import { scoreBaseRelevance } from "@/lib/recommendation/score-base";
 import { scoreNovelty } from "@/lib/recommendation/score-novelty";
-import { type CandidateMovie, type MBTIRecommendContext, type RecommendMoviesArgs, type RecommendationOutput } from "@/lib/recommendation/types";
+import { type CandidateMovie, type DiscoverProfileInput, type MBTIRecommendContext, type RecommendMoviesArgs, type RecommendationOutput } from "@/lib/recommendation/types";
+
+function applyDiscoverProfileBonus(baseScore: number, movie: CandidateMovie, profile: DiscoverProfileInput): number {
+  const gw = profile.genreWeights[movie.genrePrimary ?? ""] ?? 0.5;
+  let bonus = (gw - 0.5) * 0.4;
+  for (const director of movie.directors ?? []) {
+    const key = director.toLowerCase().replace(/\s+/g, "_");
+    const dw = profile.directorAffinity[key] ?? 0.5;
+    bonus += (dw - 0.5) * 0.3;
+  }
+  return Math.max(0, Math.min(1, baseScore + bonus));
+}
 
 function applyMBTIBonus(baseScore: number, movie: CandidateMovie, mbtiContext: MBTIRecommendContext): number {
   let bonus = 0;
@@ -125,9 +136,12 @@ export function recommendMovies(args: RecommendMoviesArgs): RecommendationOutput
         repetitionPenalty,
         recommendationStyleMode: args.contextInput.recommendationStyleMode,
       });
-      const totalScore = args.mbtiContext
-        ? applyMBTIBonus(preRerankScore, movie.movie, args.mbtiContext)
+      const profileAdjusted = args.discoverProfile
+        ? applyDiscoverProfileBonus(preRerankScore, movie.movie, args.discoverProfile)
         : preRerankScore;
+      const totalScore = args.mbtiContext
+        ? applyMBTIBonus(profileAdjusted, movie.movie, args.mbtiContext)
+        : profileAdjusted;
       const trace = buildRecommendationTrace({
         candidateVector: vector,
         referenceVector: knownTasteVector ?? moodVector,
