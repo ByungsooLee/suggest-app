@@ -68,17 +68,28 @@ export function RecommendForm() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("from") !== "mbti") return;
-    const raw = sessionStorage.getItem("mbtiRecommendContext");
-    if (!raw) return;
-    try {
-      const ctx = JSON.parse(raw) as MbtiContext;
-      if (!ctx) return;
-      setMbtiContext(ctx);
-      setWatchingWith(ctx.watchingWith === "group" ? "friends_hangout" : "date_friendly");
-      setStep(2);
-    } catch {
-      // ignore malformed data
+    const from = params.get("from");
+
+    if (from === "mbti") {
+      const raw = sessionStorage.getItem("mbtiRecommendContext");
+      if (!raw) return;
+      try {
+        const ctx = JSON.parse(raw) as MbtiContext;
+        if (!ctx) return;
+        setMbtiContext(ctx);
+        setWatchingWith(ctx.watchingWith === "group" ? "friends_hangout" : "date_friendly");
+        setStep(2);
+      } catch { /* ignore */ }
+      return;
+    }
+
+    if (from === "mood") {
+      const mood = sessionStorage.getItem("presetMood");
+      sessionStorage.removeItem("presetMood");
+      if (mood && ["calm", "emotional", "stylish", "dark", "funny", "tense", "uplifting", "melancholic"].includes(mood)) {
+        setCurrentMoods([mood as typeof currentMoods[number]]);
+        setStep(2);
+      }
     }
   }, []);
 

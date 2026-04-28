@@ -6,6 +6,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useLang, resolveField, type LocalizedData } from "@/lib/i18n/lang-context";
 import { LangSelector } from "@/components/lang-selector";
 import { generateMoviePrompt, type PromptType } from "@/lib/prompts/movie-prompt-generator";
+import { useDominantColor } from "@/hooks/useDominantColor";
 
 const EMOTION_CONFIG = [
   { key: "excited",  label: "excited",  color: "#E8C97A" },
@@ -117,9 +118,16 @@ export function MovieDetailClient({
   };
 
   const activeEmotion = EMOTION_CONFIG.find((e) => e.key === emotion);
+  const dominantColor = useDominantColor(posterUrl);
 
   return (
-    <div style={{ background: "#0e0e0f", minHeight: "100vh", color: "#e8e3d8", fontFamily: "var(--font-dm-sans)" }}>
+    <div style={{
+      background: dominantColor
+        ? `linear-gradient(to bottom, ${dominantColor} 0%, #0e0e0f 40%)`
+        : "#0e0e0f",
+      minHeight: "100vh", color: "#e8e3d8", fontFamily: "var(--font-dm-sans)",
+      transition: "background 800ms ease",
+    }}>
       {/* TopBar */}
       <div style={{ display: "flex", alignItems: "center", padding: "12px 16px", borderBottom: "1px solid rgba(232,227,216,0.08)" }}>
         <Link href="/techo" style={{ color: "rgba(232,227,216,0.55)", fontSize: "13px", letterSpacing: "0.08em", textDecoration: "none" }}>
