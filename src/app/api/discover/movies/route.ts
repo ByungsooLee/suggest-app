@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import type { DiscoverMovie } from "@/components/discover/DiscoverSwipeCard";
@@ -70,12 +71,26 @@ export async function GET(req: NextRequest) {
     reviewScore: m.reviewScore,
     overview: m.overview,
     cast: m.cast,
+    localizedTitles: m.localizedTitles,
+    localizedData: m.localizedData,
+    credits:
+      m.credits.length > 0
+        ? m.credits.map((credit) => ({
+            personId: credit.person.id,
+            tmdbId: credit.person.tmdbId,
+            name: credit.person.name,
+            role: credit.role,
+          }))
+        : [
+            ...m.directors.map((name) => ({ name, role: "director" as const })),
+            ...m.cast.map((name) => ({ name, role: "actor" as const })),
+          ],
   }));
 
   return NextResponse.json(result);
 }
 
-const movieSelect = {
+const movieSelect = Prisma.validator<Prisma.MovieSelect>()({
   id: true,
   title: true,
   releaseYear: true,
@@ -86,4 +101,19 @@ const movieSelect = {
   reviewScore: true,
   overview: true,
   cast: true,
-} as const;
+  localizedTitles: true,
+  localizedData: true,
+  credits: {
+    select: {
+      role: true,
+      person: {
+        select: {
+          id: true,
+          name: true,
+          tmdbId: true,
+        },
+      },
+    },
+    orderBy: [{ role: "asc" }, { creditOrder: "asc" }],
+  },
+});

@@ -21,7 +21,24 @@ export async function POST(req: NextRequest) {
 
   const movie = await prisma.movie.findUnique({
     where: { id: movieId },
-    select: { id: true, genrePrimary: true, directors: true, paceSlowBurn: true, complexity: true, moodDark: true },
+    select: {
+      id: true,
+      genrePrimary: true,
+      directors: true,
+      paceSlowBurn: true,
+      complexity: true,
+      moodDark: true,
+      credits: {
+        select: {
+          role: true,
+          person: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
   });
   if (!movie) return NextResponse.json({ error: "Movie not found" }, { status: 404 });
 

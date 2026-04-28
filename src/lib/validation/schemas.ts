@@ -190,6 +190,12 @@ export const RecommendationItemSchema = z.object({
   overview: z.string().nullable().optional(),
   directors: z.array(z.string()).optional(),
   cast: z.array(z.string()).optional(),
+  credits: z.array(z.object({
+    personId: z.string().min(1).optional(),
+    tmdbId: z.number().int().nullable().optional(),
+    name: z.string().min(1),
+    role: z.enum(["director", "actor", "writer"]),
+  })).optional(),
   reviewScore: z.number().min(0).max(10).nullable().optional(),
   reviewSummary: z.string().nullable().optional(),
   reasons: z.array(RecommendationReasonSchema).min(1).max(3),

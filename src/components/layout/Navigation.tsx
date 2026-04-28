@@ -1,10 +1,12 @@
-import Link from "next/link";
 import { auth } from "@/auth";
+import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { getTranslations } from "next-intl/server";
 
 export async function Navigation() {
   const session = await auth();
   if (!session?.user?.id) return null;
+  const t = await getTranslations("nav");
 
   // Check if MBTI is set (for badge)
   const profile = await prisma.userOnboardingProfile.findUnique({
@@ -23,10 +25,10 @@ export async function Navigation() {
         padding: "8px 0 calc(8px + env(safe-area-inset-bottom))",
       }}
     >
-      <NavItem href="/browse" icon="⊞" label="探す" />
-      <NavItem href="/techo" icon="📖" label="手帳" />
-      <NavItemTonight href="/" />
-      <NavItem href="/mypage" icon="○" label="私" badge={mbtiUnset} />
+      <NavItem href="/browse" icon="⊞" label={t("browse")} />
+      <NavItem href="/techo" icon="📖" label={t("techo")} />
+      <NavItemTonight href="/" label={t("tonight")} />
+      <NavItem href="/mypage" icon="○" label={t("mypage")} badge={mbtiUnset} />
     </nav>
   );
 }
@@ -35,6 +37,7 @@ function NavItem({ href, icon, label, badge }: { href: string; icon: string; lab
   return (
     <Link
       href={href}
+      suppressHydrationWarning
       style={{
         position: "relative",
         display: "flex", flexDirection: "column", alignItems: "center", gap: "3px",
@@ -55,11 +58,12 @@ function NavItem({ href, icon, label, badge }: { href: string; icon: string; lab
   );
 }
 
-function NavItemTonight({ href }: { href: string }) {
+function NavItemTonight({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
       className="pulse-gold"
+      suppressHydrationWarning
       style={{
         display: "flex", flexDirection: "column", alignItems: "center", gap: "3px",
         textDecoration: "none", color: "#E8C97A", padding: "4px 16px",
@@ -68,7 +72,7 @@ function NavItemTonight({ href }: { href: string }) {
       }}
     >
       <span style={{ fontSize: "18px" }}>✦</span>
-      <span style={{ fontWeight: 600 }}>今夜</span>
+      <span style={{ fontWeight: 600 }}>{label}</span>
     </Link>
   );
 }

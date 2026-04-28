@@ -1,15 +1,19 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 const MILESTONES = [
-  { count: 10,  message: "最初の10本！傾向が見えてきた" },
-  { count: 25,  message: "だいぶわかってきた。好みに近い映画が増えます" },
-  { count: 50,  message: "半分！あなたの映画センスが形になってきた" },
-  { count: 100, message: "映画人格が生成されました ✦" },
+  { count: 10, key: "10" },
+  { count: 25, key: "25" },
+  { count: 50, key: "50" },
+  { count: 100, key: "100" },
 ];
 
 type Props = { totalSwipes: number; personalityLabel: string | null };
 
 export function DiscoverProgress({ totalSwipes, personalityLabel }: Props) {
+  const discoverT = useTranslations("discover");
+  const mypageT = useTranslations("mypage.personality");
   const inCycle = totalSwipes % 100;
   const progress = inCycle / 100;
   const milestone = [...MILESTONES].reverse().find((m) => totalSwipes >= m.count);
@@ -23,12 +27,14 @@ export function DiscoverProgress({ totalSwipes, personalityLabel }: Props) {
         </div>
       ) : totalSwipes < 100 ? (
         <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.4)", margin: "0 0 8px" }}>
-          あと {100 - totalSwipes} 本で映画人格が生成されます
+          {mypageT("progress", { remaining: 100 - totalSwipes })}
         </p>
       ) : null}
 
       {milestone && milestone.count === totalSwipes && (
-        <p style={{ fontSize: "12px", color: "#5DCAA5", margin: "0 0 8px" }}>{milestone.message}</p>
+        <p style={{ fontSize: "12px", color: "#5DCAA5", margin: "0 0 8px" }}>
+          {discoverT(`milestone.${milestone.key}`)}
+        </p>
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

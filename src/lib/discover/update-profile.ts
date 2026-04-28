@@ -3,6 +3,12 @@ import { prisma } from "@/lib/db/prisma";
 type Movie = {
   genrePrimary: string;
   directors: string[];
+  credits?: Array<{
+    role: "director" | "actor" | "writer";
+    person: {
+      name: string;
+    };
+  }>;
   paceSlowBurn: number;
   complexity: number;
   moodDark: number;
@@ -22,6 +28,7 @@ export async function updateUserMovieProfile(
 
   const weights = profile.genreWeights as Record<string, number>;
   const directors = profile.directorAffinity as Record<string, number>;
+  const writers = profile.writerAffinity as Record<string, number>;
 
   const delta = action === "like" ? 0.05 : action === "watchlist" ? 0.08 : -0.02;
   const reasonBonus = reasons.includes("genre") ? 0.03 : 0;
@@ -35,6 +42,18 @@ export async function updateUserMovieProfile(
     directors[key] = Math.max(0, Math.min(1, (directors[key] ?? 0.5) + delta + directorBonus));
   }
 
+  if (action !== "pass") {
+    const writerBonus = reasons.includes("story") ? 0.06 : 0.03;
+    const movieWriters = (movie.credits ?? [])
+      .filter((credit) => credit.role === "writer")
+      .map((credit) => credit.person.name);
+
+    for (const writer of movieWriters) {
+      const key = writer.toLowerCase().replace(/\s+/g, "_");
+      writers[key] = Math.max(0, Math.min(1, (writers[key] ?? 0.5) + writerBonus));
+    }
+  }
+
   // Pace/complexity/dark attribute nudges (only on positive actions)
   const attrDelta = action === "pass" ? -0.01 : 0.02;
   const newSlowPace = Math.max(0, Math.min(1, profile.preferSlowPace + (movie.paceSlowBurn > 0.6 ? attrDelta : -attrDelta * 0.5)));
@@ -46,6 +65,7 @@ export async function updateUserMovieProfile(
     data: {
       genreWeights:     weights,
       directorAffinity: directors,
+      writerAffinity:   writers,
       preferSlowPace:   newSlowPace,
       preferComplex:    newComplex,
       preferDark:       newDark,

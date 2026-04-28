@@ -22,6 +22,14 @@ function applyDiscoverProfileBonus(baseScore: number, movie: CandidateMovie, pro
     const dw = profile.directorAffinity[key] ?? 0.5;
     bonus += (dw - 0.5) * 0.3;
   }
+  const writers = (movie.credits ?? [])
+    .filter((credit) => credit.role === "writer")
+    .map((credit) => credit.person.name);
+  for (const writer of writers) {
+    const key = writer.toLowerCase().replace(/\s+/g, "_");
+    const ww = profile.writerAffinity[key] ?? 0.5;
+    bonus += (ww - 0.5) * 0.24;
+  }
   return Math.max(0, Math.min(1, baseScore + bonus));
 }
 

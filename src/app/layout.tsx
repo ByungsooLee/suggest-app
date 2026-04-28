@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import Script from "next/script";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
-import { LangProvider } from "@/lib/i18n/lang-context";
-import { Navigation } from "@/components/layout/Navigation";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -21,22 +21,30 @@ export const metadata: Metadata = {
   description: "Decide tonight's pick quickly with personalized recommendations.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
+  const htmlLang = cookieLocale === "en" || cookieLocale === "ko" || cookieLocale === "ja" ? cookieLocale : "ja";
+
   return (
     <html
-      lang="ja"
+      lang={htmlLang}
       suppressHydrationWarning
       className={`${dmSans.variable} ${dmSerifDisplay.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full bg-[var(--color-bg-void)] text-[var(--color-text-primary)]">
-        <LangProvider>
-          {children}
-          <Navigation />
-        </LangProvider>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            id="strip-cursor-browser-refs"
+            src="/strip-cursor-browser-refs.js"
+            strategy="beforeInteractive"
+          />
+        )}
+        {children}
       </body>
     </html>
   );

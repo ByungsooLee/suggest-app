@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 export type Lang = "ja" | "ko" | "en";
+const MOVIE_TITLE_LANG_STORAGE_KEY = "movie-title-lang";
 
 export type LocalizedEntry = {
   title?: string;
@@ -20,16 +21,17 @@ type LangContextValue = {
 
 const LangContext = createContext<LangContextValue>({ lang: "ja", setLang: () => {} });
 
-export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("ja");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("app-lang");
-    if (stored === "ja" || stored === "ko" || stored === "en") setLangState(stored);
-  }, []);
+export function LangProvider({ children, initialLang = "ja" }: { children: ReactNode; initialLang?: string }) {
+  const normalizedInitialLang: Lang =
+    initialLang === "ko" || initialLang === "en" || initialLang === "ja" ? initialLang : "ja";
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window === "undefined") return normalizedInitialLang;
+    const stored = window.localStorage.getItem(MOVIE_TITLE_LANG_STORAGE_KEY);
+    return stored === "ja" || stored === "ko" || stored === "en" ? stored : normalizedInitialLang;
+  });
 
   const setLang = (l: Lang) => {
-    localStorage.setItem("app-lang", l);
+    localStorage.setItem(MOVIE_TITLE_LANG_STORAGE_KEY, l);
     setLangState(l);
   };
 
@@ -38,6 +40,14 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
 export function useLang() {
   return useContext(LangContext);
+}
+
+export function useMovieTitleLang() {
+  return useLang();
+}
+
+export function persistMovieTitleLang(lang: Lang) {
+  localStorage.setItem(MOVIE_TITLE_LANG_STORAGE_KEY, lang);
 }
 
 export function resolveField(

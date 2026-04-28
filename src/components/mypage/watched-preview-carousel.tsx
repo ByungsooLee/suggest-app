@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";

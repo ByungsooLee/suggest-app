@@ -1,15 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-
-const REASON_TAGS = [
-  { id: "director", label: "監督が好き" },
-  { id: "visual",   label: "映像が好き" },
-  { id: "genre",    label: "ジャンルが好き" },
-  { id: "story",    label: "設定・脚本が面白そう" },
-  { id: "actor",    label: "俳優が好き" },
-  { id: "mood",     label: "今の気分に合う" },
-];
 
 type Props = {
   onConfirm: (reasons: string[]) => void;
@@ -17,7 +9,16 @@ type Props = {
 };
 
 export function ReasonTagPicker({ onConfirm, onSkip }: Props) {
+  const t = useTranslations("discover");
   const [selected, setSelected] = useState<string[]>([]);
+  const reasonTags = [
+    { id: "director", label: t("reasons.director") },
+    { id: "visual", label: t("reasons.visual") },
+    { id: "genre", label: t("reasons.genre") },
+    { id: "story", label: t("reasons.story") },
+    { id: "actor", label: t("reasons.actor") },
+    { id: "mood", label: t("reasons.mood") },
+  ];
 
   const toggle = (id: string) =>
     setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
@@ -30,10 +31,10 @@ export function ReasonTagPicker({ onConfirm, onSkip }: Props) {
     }}>
       <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
       <p style={{ fontSize: "13px", color: "rgba(232,227,216,0.55)", margin: "0 0 14px", textAlign: "center" }}>
-        なぜ気になった？<span style={{ fontSize: "11px" }}>（スキップ可）</span>
+        {t("reasonTitle")}
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
-        {REASON_TAGS.map(({ id, label }) => {
+        {reasonTags.map(({ id, label }) => {
           const active = selected.includes(id);
           return (
             <button
@@ -59,7 +60,7 @@ export function ReasonTagPicker({ onConfirm, onSkip }: Props) {
             background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.1)",
             color: "rgba(232,227,216,0.45)", fontSize: "13px", cursor: "pointer",
           }}
-        >スキップ</button>
+        >{t("reasonSkip")}</button>
         <button
           onClick={() => onConfirm(selected)}
           style={{
@@ -67,7 +68,7 @@ export function ReasonTagPicker({ onConfirm, onSkip }: Props) {
             background: "rgba(232,201,122,0.12)", border: "1px solid rgba(232,201,122,0.35)",
             color: "#E8C97A", fontSize: "13px", fontWeight: 600, cursor: "pointer",
           }}
-        >記録する</button>
+        >{t("reasonSave")}</button>
       </div>
     </div>
   );

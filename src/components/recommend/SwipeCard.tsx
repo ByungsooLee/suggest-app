@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import type { PersonChipData } from "@/components/person/types";
 
 const GENRE_GRADIENTS: Record<string, string> = {
   スリラー: "linear-gradient(135deg, #1a1020 0%, #2d1a3d 100%)",
@@ -21,6 +22,9 @@ export type SwipeCardMovie = {
   score: number | null;
   posterUrl: string | null;
   overview: string | null;
+  credits?: PersonChipData[];
+  localizedTitles?: unknown;
+  localizedData?: unknown;
 };
 
 type Props = {

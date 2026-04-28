@@ -28,6 +28,7 @@ enum ReactionType {
 enum PersonRole {
   director
   actor
+  writer
 }
 
 enum MovieKnownState {
@@ -151,6 +152,7 @@ model User {
   preferredDirectors    String[] @default([])
   preferredActors       String[] @default([])
   discoveryMode         String   @default("balanced")
+  locale                String   @default("ja")
   useFavoritesInRecommendations Boolean @default(true)
   preferenceInfluenceStrength PreferenceInfluenceStrength @default(balanced)
   recommendationStyleMode RecommendationStyleMode @default(balanced)
@@ -303,6 +305,7 @@ model Movie {
 
   recommendationResults RecommendationResult[]
   availabilities        MovieAvailability[]
+  credits               MovieCredit[]
   swipes                UserMovieSwipe[]
   discoverSwipes        MovieSwipe[]
   watchedByUsers        UserWatchedMovie[]
@@ -318,6 +321,43 @@ model Movie {
   @@index([reviewScore])
   @@index([directors], type: Gin)
   @@index([cast], type: Gin)
+}
+
+model Person {
+  id                 String      @id @default(cuid())
+  name               String
+  normalizedName     String
+  tmdbId             Int?        @unique
+  profilePath        String?
+  biography          String?
+  knownForDepartment String?
+  metadata           Json?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  credits MovieCredit[]
+
+  @@index([normalizedName])
+  @@unique([normalizedName, tmdbId])
+}
+
+model MovieCredit {
+  id          String     @id @default(cuid())
+  movieId      String
+  personId     String
+  role         PersonRole
+  creditOrder  Int?
+  character    String?
+  job          String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person  Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, personId, role])
+  @@index([movieId, role, creditOrder])
+  @@index([personId, role, creditOrder])
 }
 
 model WatchLog {
@@ -604,6 +644,7 @@ model UserMovieProfile {
   totalLikes       Int      @default(0)
   genreWeights     Json     @default("{}")
   directorAffinity Json     @default("{}")
+  writerAffinity   Json     @default("{}")
   preferSlowPace   Float    @default(0.5)
   preferComplex    Float    @default(0.5)
   preferDark       Float    @default(0.5)

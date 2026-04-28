@@ -1,0 +1,219 @@
+{
+  "nav": {
+    "browse": "Browse",
+    "techo": "Journal",
+    "tonight": "Tonight",
+    "mypage": "My"
+  },
+  "home": {
+    "tagline": "Tonight's movie, decided in 3 seconds.",
+    "sub": "Matched by mood × company × MBTI",
+    "cta": "Find tonight's pick →",
+    "ctaSub": "4 steps · about 1 min",
+    "moodLabel": "Current mood",
+    "discoverBanner": "Discover movies you'll love",
+    "discoverProgress": "{current} / 100"
+  },
+  "mood": {
+    "excited": "Thrilling",
+    "laugh": "Funny",
+    "think": "Thought-provoking",
+    "cry": "Emotional",
+    "surprised": "Surprising",
+    "relaxed": "Relaxing"
+  },
+  "watchWith": {
+    "solo": "Solo",
+    "partner": "With partner",
+    "friends": "With friends",
+    "family": "With family"
+  },
+  "recommend": {
+    "title": "Tonight's picks",
+    "decided": "Tonight's pick is locked in!",
+    "count": "{count} films",
+    "pickThis": "This is the one →",
+    "pickThisShort": "Pick this",
+    "retry": "Changed your mind? → Search again",
+    "retryShort": "Start over",
+    "backup": "Backup",
+    "topPick": "Top Pick",
+    "details": "View details",
+    "loading": {
+      "0": "Searching for films...",
+      "1": "Analyzing your mood...",
+      "2": "Finding the perfect pick for tonight...",
+      "3": "Checking MBTI compatibility...",
+      "4": "Almost there..."
+    },
+    "mbtiReason": "Because {types}"
+  },
+  "discover": {
+    "title": "Discover",
+    "sub": "Find films you love",
+    "progress": "{current} / 100",
+    "hint": {
+      "left": "← Pass",
+      "right": "Interested →",
+      "up": "↑ Watchlist"
+    },
+    "tapHint": "Tap for details",
+    "loading": "Loading movies...",
+    "fetchError": "Couldn't load movies",
+    "deckDoneTitle": "You've reached the end for now",
+    "deckDoneBody": "More films will appear when new titles are added.",
+    "continue": "Continue",
+    "reasonTitle": "What caught your eye? (optional)",
+    "reasonSkip": "Skip",
+    "reasonSave": "Save",
+    "reasons": {
+      "director": "Love the director",
+      "visual": "Love the visuals",
+      "genre": "Love the genre",
+      "story": "Interesting premise",
+      "actor": "Love the cast",
+      "mood": "Matches my mood"
+    },
+    "milestone": {
+      "10": "First 10! Patterns are emerging",
+      "25": "Getting clearer. More tailored picks coming",
+      "50": "Halfway! Your film taste is taking shape",
+      "100": "Your film personality has been generated"
+    },
+    "empty": "Loading new films..."
+  },
+  "movieDetail": {
+    "watchedOn": "Watched on {date}",
+    "runtime": "{min} min",
+    "score": "Score",
+    "overview": "Overview",
+    "director": "Director",
+    "writer": "Writer",
+    "cast": "Cast",
+    "similarMovies": "Similar films",
+    "directorFilmography": "More from this director",
+    "promptTitle": "Choose who to talk with",
+    "promptFree": "1 free",
+    "promptCopy": "Copy to ChatGPT / Claude",
+    "promptCopied": "Copied!",
+    "promptNote": "※ These prompts are researched and designed by suggest-app. Your usage helps us improve them.",
+    "promptUpgrade": "{count} more types with Premium ¥380/mo",
+    "promptTypes": {
+      "director": "Director's perspective",
+      "actor": "Actor's testimony",
+      "critic": "Film critic",
+      "trivia": "Behind the scenes"
+    },
+    "promptDescs": {
+      "director": "Hear the director's intent",
+      "actor": "Hear about the actor's preparation",
+      "critic": "Context and cultural significance",
+      "trivia": "Secrets, trivia, and legends"
+    },
+    "tabs": {
+      "prompt": "Prompt",
+      "memo": "Notes",
+      "info": "Info"
+    },
+    "memo": {
+      "label": "Post-watch notes",
+      "placeholder": "Write your thoughts...",
+      "chatSummaryLabel": "AI conversation summary",
+      "chatSummaryEmpty": "Paste your AI conversation here to auto-extract a summary and emotion tags (Premium)",
+      "chatSummarize": "Summarize"
+    },
+    "emotion": {
+      "excited": "Excited / Energized",
+      "moved": "Moved / Lingering",
+      "thinking": "Thought-provoking",
+      "thrilled": "Thrilled / Unsettled",
+      "relaxed": "Relaxed / Soothed"
+    }
+  },
+  "techo": {
+    "title": "Film Journal",
+    "subtitle": "Movie diary",
+    "stats": {
+      "totalCount": "This year",
+      "avgScore": "Avg score",
+      "topGenre": "Top genre",
+      "promptUsed": "Chats"
+    },
+    "unit": {
+      "count": "films",
+      "score": "/ 10"
+    },
+    "shelf": {
+      "addMovie": "Add film"
+    },
+    "promptBanner": "Finished {title}? A prompt is ready for you.",
+    "promptBannerCta": "Copy prompt",
+    "side": {
+      "genreDistribution": "Genre breakdown",
+      "emotionLog": "Emotion log",
+      "monthlyPace": "Monthly pace"
+    }
+  },
+  "mbti": {
+    "title": "MBTI compatibility",
+    "pairMode": "Watch as a pair",
+    "groupMode": "Watch as a group",
+    "personA": "Person A",
+    "personB": "Person B",
+    "compatibility": {
+      "5": "Legendary pair",
+      "4": "Great match",
+      "3": "Solid",
+      "2": "Proceed with care",
+      "1": "Challenging"
+    },
+    "findMovie": "Find tonight's movie →",
+    "atmosphere": "Watching atmosphere",
+    "afterTalk": "After-film conversation",
+    "genreLabel": "Matching genres",
+    "moviesLabel": "Films that work for this pair"
+  },
+  "mypage": {
+    "title": "My Page",
+    "description": "Manage your profile, watch history, and recommendation settings in one place.",
+    "backHome": "Back to home",
+    "helper": "If your watch history is still small, adding a few titles from onboarding or recommendation results will improve accuracy.",
+    "personality": {
+      "label": "Film personality",
+      "progress": "{remaining} more films to generate your personality"
+    },
+    "settings": {
+      "title": "Settings",
+      "language": "App language",
+      "titleLanguage": "Film title language",
+      "plan": "Plan",
+      "free": "Free",
+      "premium": "Premium",
+      "upgrade": "Upgrade to Premium"
+    },
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "continueWithGoogle": "Continue with Google"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "readMore": "Read more",
+    "showLess": "Show less",
+    "done": "Done",
+    "free": "Free",
+    "premium": "Premium"
+  }
+}

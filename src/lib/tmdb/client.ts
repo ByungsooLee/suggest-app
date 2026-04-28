@@ -107,6 +107,36 @@ export async function getTmdbPersonBiography(personId: number) {
   };
 }
 
+export async function getTmdbPersonDetails(personId: number) {
+  const result = await fetchJson<{
+    name?: string;
+    biography?: string;
+    profile_path?: string | null;
+    known_for_department?: string;
+    also_known_as?: string[];
+  }>(`/person/${personId}`, {
+    language: "en-US",
+  });
+
+  if (!result.ok || !result.data) {
+    return {
+      name: null,
+      biography: null,
+      profilePath: null,
+      knownForDepartment: null,
+      alsoKnownAs: [],
+    };
+  }
+
+  return {
+    name: result.data.name?.trim() || null,
+    biography: result.data.biography?.trim() || null,
+    profilePath: result.data.profile_path ?? null,
+    knownForDepartment: result.data.known_for_department?.trim() || null,
+    alsoKnownAs: Array.isArray(result.data.also_known_as) ? result.data.also_known_as.filter(Boolean) : [],
+  };
+}
+
 export async function searchTmdbMovieByTitleYear(title: string, year: number) {
   const result = await fetchJson<{ results: TmdbMovieSearchResult[] }>("/search/movie", {
     query: title,

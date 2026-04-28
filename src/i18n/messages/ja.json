@@ -1,0 +1,219 @@
+{
+  "nav": {
+    "browse": "探す",
+    "techo": "手帳",
+    "tonight": "今夜",
+    "mypage": "マイ"
+  },
+  "home": {
+    "tagline": "今夜の映画、3秒で決める。",
+    "sub": "気分 × 誰と × MBTIで最適な1本を",
+    "cta": "今夜の1本を探す →",
+    "ctaSub": "4ステップ · 約1分",
+    "moodLabel": "今の気分",
+    "discoverBanner": "好みの映画を発見する",
+    "discoverProgress": "{current} / 100枚"
+  },
+  "mood": {
+    "excited": "ドキドキしたい",
+    "laugh": "笑いたい",
+    "think": "考えたい",
+    "cry": "泣きたい",
+    "surprised": "驚きたい",
+    "relaxed": "まったりしたい"
+  },
+  "watchWith": {
+    "solo": "1人で",
+    "partner": "パートナーと",
+    "friends": "友達と",
+    "family": "家族と"
+  },
+  "recommend": {
+    "title": "今夜の推薦",
+    "decided": "今夜の1本、決定！",
+    "count": "{count}本",
+    "pickThis": "今夜これにする →",
+    "pickThisShort": "これにする",
+    "retry": "気分が変わったら → もう一度探す",
+    "retryShort": "やり直す",
+    "backup": "他の候補",
+    "topPick": "本命",
+    "details": "詳細を見る",
+    "loading": {
+      "0": "映画を探しています...",
+      "1": "あなたの気分を分析中...",
+      "2": "今夜最適な1本を選んでいます...",
+      "3": "MBTIとの相性を確認中...",
+      "4": "もうすぐです..."
+    },
+    "mbtiReason": "{types} だから"
+  },
+  "discover": {
+    "title": "発見",
+    "sub": "好みの映画を見つけよう",
+    "progress": "{current} / 100",
+    "hint": {
+      "left": "← パス",
+      "right": "興味あり →",
+      "up": "↑ ウォッチリスト"
+    },
+    "tapHint": "タップして詳細を見る",
+    "loading": "映画を読み込んでいます...",
+    "fetchError": "映画を読み込めませんでした",
+    "deckDoneTitle": "ひとまず全部見ました",
+    "deckDoneBody": "新しい映画が追加されるとまた表示されます",
+    "continue": "続ける",
+    "reasonTitle": "なぜ気になった？（スキップ可）",
+    "reasonSkip": "スキップ",
+    "reasonSave": "記録する",
+    "reasons": {
+      "director": "監督が好き",
+      "visual": "映像が好き",
+      "genre": "ジャンルが好き",
+      "story": "設定・脚本が面白そう",
+      "actor": "俳優が好き",
+      "mood": "今の気分に合う"
+    },
+    "milestone": {
+      "10": "最初の10本！傾向が見えてきた",
+      "25": "だいぶわかってきた。好みに近い映画が増えてきます",
+      "50": "半分！あなたの映画センスが形になってきた",
+      "100": "映画人格が生成されました"
+    },
+    "empty": "新しい映画を読み込んでいます..."
+  },
+  "movieDetail": {
+    "watchedOn": "{date}に鑑賞",
+    "runtime": "{min}分",
+    "score": "スコア",
+    "overview": "あらすじ",
+    "director": "監督",
+    "writer": "脚本",
+    "cast": "キャスト",
+    "similarMovies": "似た映画",
+    "directorFilmography": "この監督の作品",
+    "promptTitle": "話す相手を選ぶ",
+    "promptFree": "1種類無料",
+    "promptCopy": "ChatGPT / Claudeにコピーして使う",
+    "promptCopied": "コピーしました",
+    "promptNote": "※ このプロンプトはsuggest-appが研究・設計しています。皆さまのご利用が、より良いプロンプトの向上につながります。",
+    "promptUpgrade": "残り{count}種類は プレミアム ¥380/月 で解放",
+    "promptTypes": {
+      "director": "監督の視点",
+      "actor": "俳優の証言",
+      "critic": "映画評論家",
+      "trivia": "小ネタ案内人"
+    },
+    "promptDescs": {
+      "director": "監督として演出の意図を語る",
+      "actor": "俳優の役作りの話",
+      "critic": "作品の文脈・社会的意義を解説",
+      "trivia": "撮影秘話・トリビア・都市伝説"
+    },
+    "tabs": {
+      "prompt": "プロンプト",
+      "memo": "メモ",
+      "info": "映画情報"
+    },
+    "memo": {
+      "label": "観た後のメモ",
+      "placeholder": "感想を書く...",
+      "chatSummaryLabel": "AIとの会話サマリー",
+      "chatSummaryEmpty": "外部AIとの会話内容をここに貼り付けると、要約・感情タグを自動抽出して記録できます（プレミアム機能）",
+      "chatSummarize": "要約する"
+    },
+    "emotion": {
+      "excited": "高揚 / 興奮",
+      "moved": "感動 / 余韻",
+      "thinking": "考えさせられる",
+      "thrilled": "ゾクゾク / 不安",
+      "relaxed": "癒し"
+    }
+  },
+  "techo": {
+    "title": "映画手帳",
+    "subtitle": "映画日記",
+    "stats": {
+      "totalCount": "今年の本数",
+      "avgScore": "平均スコア",
+      "topGenre": "最多ジャンル",
+      "promptUsed": "会話した映画"
+    },
+    "unit": {
+      "count": "本",
+      "score": "/ 10"
+    },
+    "shelf": {
+      "addMovie": "映画を追加"
+    },
+    "promptBanner": "{title}を観終わりましたか？プロンプトが用意されています",
+    "promptBannerCta": "プロンプトをコピー",
+    "side": {
+      "genreDistribution": "ジャンル分布",
+      "emotionLog": "感情ログ",
+      "monthlyPace": "月別ペース"
+    }
+  },
+  "mbti": {
+    "title": "MBTI相性",
+    "pairMode": "2人で観る",
+    "groupMode": "グループで観る",
+    "personA": "人物A",
+    "personB": "人物B",
+    "compatibility": {
+      "5": "伝説的ペア",
+      "4": "相性良好",
+      "3": "無難",
+      "2": "要注意",
+      "1": "難易度高"
+    },
+    "findMovie": "今夜の映画を探す →",
+    "atmosphere": "観る時の空気",
+    "afterTalk": "観た後の会話",
+    "genreLabel": "合うジャンル",
+    "moviesLabel": "この組み合わせに刺さる映画"
+  },
+  "mypage": {
+    "title": "マイページ",
+    "description": "プロフィール、視聴履歴、推薦設定をまとめて管理できます。",
+    "backHome": "トップページに戻る",
+    "helper": "視聴履歴が少ない場合は、まずオンボーディングや推薦結果から作品を追加すると精度が上がります。",
+    "personality": {
+      "label": "映画人格",
+      "progress": "あと{remaining}枚で映画人格が生成されます"
+    },
+    "settings": {
+      "title": "設定",
+      "language": "アプリの表示言語",
+      "titleLanguage": "映画タイトルの表示言語",
+      "plan": "プラン",
+      "free": "無料",
+      "premium": "プレミアム",
+      "upgrade": "プレミアムにアップグレード"
+    },
+    "signOut": "サインアウト"
+  },
+  "auth": {
+    "signIn": "サインイン",
+    "signUp": "新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "continueWithGoogle": "Googleで続ける"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "retry": "もう一度試す",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "skip": "スキップ",
+    "next": "次へ",
+    "back": "戻る",
+    "readMore": "続きを読む",
+    "showLess": "折りたたむ",
+    "done": "完了",
+    "free": "無料",
+    "premium": "プレミアム"
+  }
+}

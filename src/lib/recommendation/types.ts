@@ -1,9 +1,8 @@
-import { type MbtiType, type Movie } from "@prisma/client";
+import { type MbtiType, type Movie, type PersonRole } from "@prisma/client";
 
 import { type MoodTag, type WatchContext } from "@/lib/constants/taxonomy";
 import { type UserMood } from "@/lib/onboarding/mood-map";
 import { type FeatureVector } from "@/lib/recommendation/feature-vector";
-
 export type RecommendationContextInput = {
   desiredRuntimeMin: number;
   desiredRuntimeMax: number;
@@ -68,7 +67,16 @@ export type CandidateMovie = Pick<
   | "emotionalWeight"
   | "tension"
   | "accessibility"
->;
+> & {
+  credits?: Array<{
+    role: PersonRole;
+    person: {
+      id: string;
+      name: string;
+      tmdbId: number | null;
+    };
+  }>;
+};
 
 export type RetrievalChannel =
   | "taste_nearest"
@@ -108,6 +116,7 @@ export type MBTIRecommendContext = {
 export type DiscoverProfileInput = {
   genreWeights: Record<string, number>;
   directorAffinity: Record<string, number>;
+  writerAffinity: Record<string, number>;
 };
 
 export type RecommendMoviesArgs = {

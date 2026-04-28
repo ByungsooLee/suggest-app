@@ -146,6 +146,18 @@ export async function POST(request: Request) {
       posterUrl: true,
       overview: true,
       releaseYear: true,
+      credits: {
+        select: {
+          role: true,
+          person: {
+            select: {
+              id: true,
+              name: true,
+              tmdbId: true,
+            },
+          },
+        },
+      },
       moodCalm: true,
       moodDark: true,
       moodEmotional: true,
@@ -202,7 +214,7 @@ export async function POST(request: Request) {
 
   const discoverMovieProfile = await prisma.userMovieProfile.findUnique({
     where: { userId: authResult.userId },
-    select: { genreWeights: true, directorAffinity: true },
+    select: { genreWeights: true, directorAffinity: true, writerAffinity: true },
   });
 
   const recommendations = recommendMovies({
@@ -225,6 +237,7 @@ export async function POST(request: Request) {
       ? {
           genreWeights: discoverMovieProfile.genreWeights as Record<string, number>,
           directorAffinity: discoverMovieProfile.directorAffinity as Record<string, number>,
+          writerAffinity: discoverMovieProfile.writerAffinity as Record<string, number>,
         }
       : undefined,
     contextInput: {
@@ -362,6 +375,13 @@ export async function POST(request: Request) {
         overview: movieById.get(topPick.movieId)?.overview ?? null,
         directors: movieById.get(topPick.movieId)?.directors ?? [],
         cast: movieById.get(topPick.movieId)?.cast ?? [],
+        credits:
+          movieById.get(topPick.movieId)?.credits?.map((credit) => ({
+            personId: credit.person.id,
+            tmdbId: credit.person.tmdbId,
+            name: credit.person.name,
+            role: credit.role,
+          })) ?? [],
         reviewScore: movieById.get(topPick.movieId)?.reviewScore ?? null,
         reviewSummary: movieById.get(topPick.movieId)?.reviewSummary ?? null,
         reasons: topPick.reasons,
@@ -376,6 +396,13 @@ export async function POST(request: Request) {
         overview: movieById.get(item.movieId)?.overview ?? null,
         directors: movieById.get(item.movieId)?.directors ?? [],
         cast: movieById.get(item.movieId)?.cast ?? [],
+        credits:
+          movieById.get(item.movieId)?.credits?.map((credit) => ({
+            personId: credit.person.id,
+            tmdbId: credit.person.tmdbId,
+            name: credit.person.name,
+            role: credit.role,
+          })) ?? [],
         reviewScore: movieById.get(item.movieId)?.reviewScore ?? null,
         reviewSummary: movieById.get(item.movieId)?.reviewSummary ?? null,
         reasons: item.reasons,
