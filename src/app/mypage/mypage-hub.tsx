@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { PersonalStatsSection } from "@/components/mypage/personal-stats-section";
@@ -112,6 +113,20 @@ export function MyPageHub() {
   return (
     <div className="space-y-5">
       <ProfileSection profile={profile} onProfileSaved={setProfile} />
+      <Link
+        href="/mbti"
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "14px 16px", borderRadius: "10px", textDecoration: "none",
+          background: "rgba(232,201,122,0.06)", border: "1px solid rgba(232,201,122,0.2)",
+        }}
+      >
+        <div>
+          <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", margin: "0 0 3px" }}>MBTI</p>
+          <p style={{ fontSize: "14px", color: "#E8C97A", margin: 0, fontWeight: 500 }}>映画相性チェック</p>
+        </div>
+        <span style={{ fontSize: "18px", color: "rgba(232,201,122,0.5)" }}>→</span>
+      </Link>
       <WatchedPreviewCarousel items={watched} />
       <WatchlistSection
         items={watchlist}

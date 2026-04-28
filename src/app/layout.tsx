@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import { LangProvider } from "@/lib/i18n/lang-context";
+import { Navigation } from "@/components/layout/Navigation";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -32,7 +33,10 @@ export default function RootLayout({
       className={`${dmSans.variable} ${dmSerifDisplay.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full bg-[var(--color-bg-void)] text-[var(--color-text-primary)]">
-        <LangProvider>{children}</LangProvider>
+        <LangProvider>
+          {children}
+          <Navigation />
+        </LangProvider>
       </body>
     </html>
   );

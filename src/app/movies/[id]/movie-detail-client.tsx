@@ -1,0 +1,404 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useLang, resolveField, type LocalizedData } from "@/lib/i18n/lang-context";
+import { LangSelector } from "@/components/lang-selector";
+import { generateMoviePrompt, type PromptType } from "@/lib/prompts/movie-prompt-generator";
+
+const EMOTION_CONFIG = [
+  { key: "excited",  label: "excited",  color: "#E8C97A" },
+  { key: "moved",    label: "moved",    color: "#D4537E" },
+  { key: "thinking", label: "thinking", color: "#7F77DD" },
+  { key: "thrilled", label: "thrilled", color: "#D85A30" },
+  { key: "relaxed",  label: "relaxed",  color: "#5DCAA5" },
+] as const;
+
+const PROMPT_CARDS = [
+  { type: "director" as PromptType, icon: "🎬", label: "監督の視点",   premium: false },
+  { type: "actor"    as PromptType, icon: "🎭", label: "俳優の証言",   premium: true  },
+  { type: "critic"   as PromptType, icon: "📽", label: "映画評論家",   premium: true  },
+  { type: "trivia"   as PromptType, icon: "✨", label: "小ネタ案内人", premium: true  },
+];
+
+type MoodEntry = { label: string; value: number };
+
+type WatchLogData = {
+  emotion: string | null;
+  memo: string | null;
+  score: number | null;
+  chatSummary: string | null;
+  watchedAt: string;
+} | null;
+
+type Props = {
+  movieId: string;
+  fallbackTitle: string;
+  fallbackOverview: string | null;
+  fallbackDirectors: string[];
+  fallbackCast: string[];
+  localizedData: LocalizedData | null;
+  releaseYear: number;
+  runtimeMinutes: number;
+  genrePrimary: string;
+  genreSecondary: string | null;
+  reviewScore: number | null;
+  reviewSummary: string | null;
+  moodProfile: MoodEntry[];
+  similar: { id: string; title: string; releaseYear: number }[];
+  posterUrl: string | null;
+  watchLog: WatchLogData;
+};
+
+export function MovieDetailClient({
+  movieId,
+  fallbackTitle,
+  fallbackOverview,
+  fallbackDirectors,
+  fallbackCast,
+  localizedData,
+  releaseYear,
+  runtimeMinutes,
+  genrePrimary,
+  genreSecondary,
+  reviewScore,
+  reviewSummary,
+  moodProfile,
+  similar,
+  posterUrl,
+  watchLog,
+}: Props) {
+  const { lang } = useLang();
+  const title = (resolveField(localizedData, lang, "title", fallbackTitle) as string) || fallbackTitle;
+  const overview = (resolveField(localizedData, lang, "overview", fallbackOverview) as string) || fallbackOverview;
+  const directors = (resolveField(localizedData, lang, "directors", fallbackDirectors) as string[]) || fallbackDirectors;
+  const cast = (resolveField(localizedData, lang, "cast", fallbackCast) as string[]) || fallbackCast;
+
+  const [activeTab, setActiveTab] = useState<"prompt" | "memo" | "info">("prompt");
+  const [emotion, setEmotion] = useState<string | null>(watchLog?.emotion ?? null);
+  const [memo, setMemo] = useState(watchLog?.memo ?? "");
+  const [selectedPrompt, setSelectedPrompt] = useState<PromptType>("director");
+  const [copied, setCopied] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const saveField = useCallback(async (data: Record<string, unknown>) => {
+    await fetch(`/api/watch-log/${movieId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  }, [movieId]);
+
+  const handleEmotion = (key: string) => {
+    const next = emotion === key ? null : key;
+    setEmotion(next);
+    saveField({ emotion: next });
+  };
+
+  const handleMemo = (val: string) => {
+    setMemo(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => saveField({ memo: val }), 800);
+  };
+
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+
+  const promptText = generateMoviePrompt(
+    { title: fallbackTitle, releaseYear, directors: fallbackDirectors, cast: fallbackCast, overview: fallbackOverview ?? undefined, genrePrimary },
+    selectedPrompt,
+  );
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(promptText);
+    await saveField({ promptUsed: selectedPrompt });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const activeEmotion = EMOTION_CONFIG.find((e) => e.key === emotion);
+
+  return (
+    <div style={{ background: "#0e0e0f", minHeight: "100vh", color: "#e8e3d8", fontFamily: "var(--font-dm-sans)" }}>
+      {/* TopBar */}
+      <div style={{ display: "flex", alignItems: "center", padding: "12px 16px", borderBottom: "1px solid rgba(232,227,216,0.08)" }}>
+        <Link href="/techo" style={{ color: "rgba(232,227,216,0.55)", fontSize: "13px", letterSpacing: "0.08em", textDecoration: "none" }}>
+          ← 映画手帳
+        </Link>
+        <div style={{ flex: 1 }} />
+        <LangSelector />
+      </div>
+
+      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "24px 16px 48px" }}>
+        {/* Hero */}
+        <div style={{ display: "flex", gap: "20px", marginBottom: "28px" }}>
+          {/* Poster */}
+          <div style={{ flexShrink: 0, width: "120px", height: "180px", borderRadius: "8px", overflow: "hidden", background: "rgba(232,227,216,0.06)", position: "relative" }}>
+            {posterUrl ? (
+              <Image src={posterUrl} alt={title} fill className="object-cover" />
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: "2rem", opacity: 0.2 }}>
+                {title[0]}
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {[genrePrimary, genreSecondary].filter(Boolean).map((g) => (
+                <span key={g} style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>{g}</span>
+              ))}
+              <span style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>{runtimeMinutes}min</span>
+            </div>
+            <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "22px", lineHeight: 1.2, margin: 0 }}>{title}</h1>
+            {directors.length > 0 && (
+              <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.55)", margin: 0 }}>{directors[0]}</p>
+            )}
+            {reviewScore != null && (
+              <p style={{ fontFamily: "var(--font-dm-serif)", fontSize: "28px", color: "#E8C97A", margin: 0, lineHeight: 1 }}>
+                {reviewScore.toFixed(1)}
+                <span style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", marginLeft: "4px" }}>/10</span>
+              </p>
+            )}
+            {watchLog?.watchedAt && (
+              <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.35)", margin: 0 }}>
+                {new Date(watchLog.watchedAt).toLocaleDateString(lang === "ja" ? "ja-JP" : lang === "ko" ? "ko-KR" : "en-US")} 鑑賞
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Emotion bar */}
+        <div style={{ marginBottom: "28px" }}>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            {EMOTION_CONFIG.map((e) => (
+              <button
+                key={e.key}
+                onClick={() => handleEmotion(e.key)}
+                style={{
+                  width: "32px", height: "32px", borderRadius: "50%",
+                  background: e.color,
+                  border: emotion === e.key ? "2px solid #fff" : "2px solid transparent",
+                  cursor: "pointer", flexShrink: 0,
+                  transform: emotion === e.key ? "scale(1.15)" : "scale(1)",
+                  transition: "all 0.15s",
+                }}
+                title={e.label}
+              />
+            ))}
+            {activeEmotion && (
+              <span style={{ fontSize: "12px", color: "rgba(232,227,216,0.65)", marginLeft: "4px" }}>
+                {activeEmotion.label}
+              </span>
+            )}
+          </div>
+          {!watchLog && (
+            <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", marginTop: "10px" }}>
+              まだ視聴記録がありません。観たら記録しよう！
+            </p>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: "0", borderBottom: "1px solid rgba(232,227,216,0.12)", marginBottom: "24px" }}>
+          {(["prompt", "memo", "info"] as const).map((t) => {
+            const labels = { prompt: "プロンプト", memo: "メモ", info: "映画情報" };
+            return (
+              <button
+                key={t}
+                onClick={() => setActiveTab(t)}
+                style={{
+                  padding: "8px 16px", fontSize: "12px", letterSpacing: "0.08em",
+                  background: "none", border: "none", cursor: "pointer",
+                  color: activeTab === t ? "#E8C97A" : "rgba(232,227,216,0.45)",
+                  borderBottom: activeTab === t ? "2px solid #E8C97A" : "2px solid transparent",
+                  marginBottom: "-1px", transition: "color 0.15s",
+                }}
+              >
+                {labels[t]}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab: プロンプト */}
+        {activeTab === "prompt" && (
+          <div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+              {PROMPT_CARDS.map((card) => (
+                <button
+                  key={card.type}
+                  onClick={() => !card.premium && setSelectedPrompt(card.type)}
+                  style={{
+                    padding: "16px", borderRadius: "10px", textAlign: "left", cursor: card.premium ? "default" : "pointer",
+                    background: selectedPrompt === card.type && !card.premium ? "rgba(232,201,122,0.1)" : "rgba(232,227,216,0.04)",
+                    border: selectedPrompt === card.type && !card.premium ? "1px solid rgba(232,201,122,0.4)" : "1px solid rgba(232,227,216,0.1)",
+                    opacity: card.premium ? 0.5 : 1,
+                    transition: "all 0.15s",
+                    position: "relative",
+                  }}
+                >
+                  {card.premium && (
+                    <span style={{ position: "absolute", top: "8px", right: "8px", fontSize: "12px" }}>🔒</span>
+                  )}
+                  <div style={{ fontSize: "20px", marginBottom: "6px" }}>{card.icon}</div>
+                  <div style={{ fontSize: "12px", letterSpacing: "0.05em", color: card.premium ? "rgba(232,227,216,0.5)" : "rgba(232,227,216,0.85)" }}>
+                    {card.label}
+                  </div>
+                  {!card.premium && (
+                    <div style={{ fontSize: "10px", color: "rgba(232,201,122,0.7)", marginTop: "4px" }}>無料</div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Prompt preview */}
+            <div style={{ background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.1)", borderRadius: "10px", padding: "16px", marginBottom: "12px" }}>
+              <p style={{ fontFamily: "var(--font-dm-serif)", fontStyle: "italic", fontSize: "13px", lineHeight: 1.7, color: "rgba(232,227,216,0.8)", margin: 0 }}>
+                {promptText}
+              </p>
+            </div>
+
+            {/* Premium nudge */}
+            <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.35)", textAlign: "center", marginBottom: "16px" }}>
+              残り3種類は <Link href="/pricing" style={{ color: "#E8C97A", textDecoration: "none" }}>プレミアム ¥380/月</Link> で解放
+            </p>
+
+            {/* Copy button */}
+            <button
+              onClick={handleCopy}
+              style={{
+                width: "100%", padding: "14px", borderRadius: "10px", border: "none", cursor: "pointer",
+                background: copied ? "#5DCAA5" : "#E8C97A",
+                color: "#080808", fontWeight: 600, fontSize: "14px", letterSpacing: "0.05em",
+                transition: "background 0.2s",
+              }}
+            >
+              {copied ? "コピーしました ✓" : "プロンプトをコピーして使う"}
+            </button>
+
+            <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", textAlign: "center", marginTop: "8px" }}>
+              ※ このプロンプトはsuggest-appが研究・設計しています。<br />
+              皆さまのご利用が、より良いプロンプトの向上につながります。
+            </p>
+          </div>
+        )}
+
+        {/* Tab: メモ */}
+        {activeTab === "memo" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div>
+              <label style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", display: "block", marginBottom: "8px" }}>
+                視聴後メモ
+              </label>
+              <textarea
+                value={memo}
+                onChange={(e) => handleMemo(e.target.value)}
+                rows={5}
+                placeholder="この映画について思ったことを..."
+                style={{
+                  width: "100%", background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.1)",
+                  borderRadius: "8px", padding: "12px", color: "#e8e3d8", fontSize: "14px", lineHeight: 1.6,
+                  resize: "vertical", outline: "none", boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            <div style={{ background: "rgba(232,227,216,0.03)", border: "1px solid rgba(232,227,216,0.08)", borderRadius: "8px", padding: "14px" }}>
+              <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.4)", margin: 0, lineHeight: 1.6 }}>
+                外部AIとの会話内容をここに貼り付けると、要約・感情タグを自動抽出して記録できます（プレミアム機能）
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: 映画情報 */}
+        {activeTab === "info" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {/* Staff chips */}
+            <div>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>スタッフ</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {directors.map((d, i) => (
+                  <Link
+                    key={`dir-${i}`}
+                    href={`/people/${encodeURIComponent(fallbackDirectors[i] ?? d)}?role=director`}
+                    style={{ fontSize: "12px", padding: "4px 10px", border: "1px solid rgba(232,227,216,0.15)", borderRadius: "999px", color: "#e8e3d8", textDecoration: "none" }}
+                  >
+                    🎬 {d}
+                  </Link>
+                ))}
+                {cast.slice(0, 5).map((c, i) => (
+                  <Link
+                    key={`cast-${i}`}
+                    href={`/people/${encodeURIComponent(fallbackCast[i] ?? c)}?role=actor`}
+                    style={{ fontSize: "12px", padding: "4px 10px", border: "1px solid rgba(232,227,216,0.15)", borderRadius: "999px", color: "#e8e3d8", textDecoration: "none" }}
+                  >
+                    {c}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Overview */}
+            {overview && (
+              <div>
+                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>あらすじ</p>
+                <p style={{ fontSize: "14px", lineHeight: 1.7, color: "rgba(232,227,216,0.8)", margin: 0 }}>{overview}</p>
+              </div>
+            )}
+
+            {/* Mood profile */}
+            <div>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>ムードプロファイル</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {moodProfile.map(({ label, value }) => {
+                  const pct = Math.round(value * 100);
+                  return (
+                    <div key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontSize: "10px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.5)", width: "64px", textAlign: "right", flexShrink: 0 }}>{label}</span>
+                      <div style={{ flex: 1, height: "4px", borderRadius: "999px", background: "rgba(232,227,216,0.1)" }}>
+                        <div style={{ width: `${pct}%`, height: "100%", borderRadius: "999px", background: "linear-gradient(90deg, #E8C97A, #D4537E)" }} />
+                      </div>
+                      <span style={{ fontSize: "10px", color: "#E8C97A", width: "28px", flexShrink: 0 }}>{pct}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Similar films */}
+            {similar.length > 0 && (
+              <div>
+                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>似た映画</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {similar.map((s) => (
+                    <Link key={s.id} href={`/movies/${s.id}`} style={{ fontSize: "14px", color: "#e8e3d8", textDecoration: "none" }}>
+                      {s.title}
+                      <span style={{ marginLeft: "8px", fontSize: "11px", color: "rgba(232,227,216,0.4)" }}>{s.releaseYear}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Review summary */}
+            {reviewSummary && (
+              <div>
+                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>レビュー</p>
+                <p style={{ fontSize: "14px", lineHeight: 1.7, color: "rgba(232,227,216,0.7)", margin: 0 }}>{reviewSummary}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Nav */}
+        <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px solid rgba(232,227,216,0.08)", display: "flex", justifyContent: "center", gap: "32px" }}>
+          <Link href="/browse" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>← Browse</Link>
+          <Link href="/recommend" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>Recommend →</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
