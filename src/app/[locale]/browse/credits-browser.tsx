@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState, useMemo } from "react";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
@@ -70,6 +71,7 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export function CreditsBrowser({ movies, genres }: Props) {
+  const t = useTranslations("browsePage");
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"score" | "year">("score");
@@ -115,7 +117,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="タイトル・監督で検索"
+                placeholder={t("searchPlaceholder")}
                 className="w-full rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-4 py-1.5 text-xs text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-border-accent)] focus:outline-none"
               />
               {searchQuery && (
@@ -131,7 +133,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
               onClick={() => setSortBy(sortBy === "score" ? "year" : "score")}
               className="credits-label shrink-0 rounded-full border border-[var(--color-border)] px-3 py-1.5 transition hover:border-[var(--color-border-accent)]"
             >
-              {sortBy === "score" ? "評価順" : "新着順"}
+              {sortBy === "score" ? t("sortScore") : t("sortYear")}
             </button>
           </div>
 
@@ -148,7 +150,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
                     : { borderColor: "var(--color-border)" }
                 }
               >
-                {g === null ? "すべて" : (genreLabel[g] ?? g)}
+                {g === null ? t("allGenres") : (t.has(`genres.${g}`) ? t(`genres.${g}`) : (genreLabel[g] ?? g))}
               </button>
             ))}
           </div>
@@ -156,7 +158,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
 
         {/* Count bar */}
         <div className="border-t border-[var(--color-border)] px-4 py-1.5 mx-auto max-w-5xl">
-          <p className="credits-label">{filtered.length}本</p>
+          <p className="credits-label">{t("count", { count: filtered.length })}</p>
         </div>
       </div>
 
@@ -164,7 +166,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
       <div className="mx-auto max-w-5xl px-4 py-5">
         {filtered.length === 0 ? (
           <div className="py-24 text-center">
-            <p className="credits-label">該当する映画が見つかりませんでした</p>
+            <p className="credits-label">{t("empty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -218,7 +220,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
                   {/* Genre + director below card */}
                   <div className="mt-1.5 px-0.5">
                     <p className="credits-label text-center" style={{ color: "var(--color-accent)", opacity: 0.8 }}>
-                      {genreLabel[movie.genrePrimary] ?? movie.genrePrimary}
+                      {t.has(`genres.${movie.genrePrimary}`) ? t(`genres.${movie.genrePrimary}`) : (genreLabel[movie.genrePrimary] ?? movie.genrePrimary)}
                     </p>
                     {movie.directors[0] && (
                       <p className="credits-label mt-0.5 truncate text-center opacity-60">

@@ -1,31 +1,28 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { PopCard } from "@/components/ui/pop-card";
-
 import { type RecommendationHistoryItem } from "./types";
 
 type RecommendationHistorySectionProps = {
   items: RecommendationHistoryItem[];
 };
 
-const STATUS_LABEL: Record<RecommendationHistoryItem["status"], string> = {
-  recommended: "提案のみ",
-  saved: "保存済み",
-  watched: "視聴済み",
-  skipped: "スキップ",
-};
-
 export function RecommendationHistorySection({ items }: RecommendationHistorySectionProps) {
+  const t = useTranslations("mypage.history");
+  const statusLabel = (status: RecommendationHistoryItem["status"]) =>
+    t(`status.${status}` as Parameters<typeof t>[0]);
+
   return (
     <PopCard tone="surface" className="space-y-4">
       <div>
-        <h2 className="text-movie-title text-[1.35rem]">Recommendation History</h2>
-        <p className="text-sm text-[var(--color-text-secondary)]">最近の提案と、その後のアクションを確認できます。</p>
+        <h2 className="text-movie-title text-[1.35rem]">{t("title")}</h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("description")}</p>
       </div>
 
       {items.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border)] p-4 text-sm text-[var(--color-text-secondary)]">
-          まだ推薦履歴がありません。おすすめを1回作成するとここに表示されます。
+          {t("empty")}
         </div>
       ) : (
         <div className="space-y-2">
@@ -47,7 +44,7 @@ export function RecommendationHistorySection({ items }: RecommendationHistorySec
                 </p>
                 <p className="mt-1 line-clamp-1 text-xs text-[var(--color-text-secondary)]">{item.reasons.join(" / ")}</p>
               </div>
-              <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs">{STATUS_LABEL[item.status]}</span>
+              <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs">{statusLabel(item.status)}</span>
             </article>
           ))}
         </div>

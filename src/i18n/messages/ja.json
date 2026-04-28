@@ -86,6 +86,13 @@
     "watchedOn": "{date}に鑑賞",
     "runtime": "{min}分",
     "score": "スコア",
+    "staff": "スタッフ",
+    "moodProfile": "ムードプロファイル",
+    "review": "レビュー",
+    "noWatchLog": "まだ視聴記録がありません。観たら記録しよう！",
+    "backToJournal": "← 映画手帳",
+    "backToBrowse": "← Browse",
+    "goToRecommend": "Recommend →",
     "overview": "あらすじ",
     "director": "監督",
     "writer": "脚本",
@@ -133,6 +140,12 @@
   "techo": {
     "title": "映画手帳",
     "subtitle": "映画日記",
+    "loading": "映画手帳を読み込んでいます...",
+    "loadError": "映画手帳を読み込めませんでした",
+    "empty": "まだ記録がありません",
+    "reload": "再読み込み",
+    "copyDone": "コピー済み ✓",
+    "directorFallback": "監督",
     "stats": {
       "totalCount": "今年の本数",
       "avgScore": "平均スコア",
@@ -147,11 +160,36 @@
       "addMovie": "映画を追加"
     },
     "promptBanner": "{title}を観終わりましたか？プロンプトが用意されています",
+    "promptBannerDesc": "{director}の視点でこの映画の核心を語るプロンプトが用意されています",
     "promptBannerCta": "プロンプトをコピー",
     "side": {
       "genreDistribution": "ジャンル分布",
       "emotionLog": "感情ログ",
       "monthlyPace": "月別ペース"
+    }
+  },
+  "browsePage": {
+    "searchPlaceholder": "タイトル・監督で検索",
+    "sortScore": "評価順",
+    "sortYear": "新着順",
+    "allGenres": "すべて",
+    "count": "{count}本",
+    "empty": "該当する映画が見つかりませんでした",
+    "genres": {
+      "action": "アクション",
+      "adventure": "冒険",
+      "animation": "アニメ",
+      "comedy": "コメディ",
+      "crime": "犯罪",
+      "drama": "ドラマ",
+      "family": "ファミリー",
+      "fantasy": "ファンタジー",
+      "horror": "ホラー",
+      "mystery": "ミステリー",
+      "musical": "ミュージカル",
+      "romance": "ロマンス",
+      "sci-fi": "SF",
+      "thriller": "スリラー"
     }
   },
   "mbti": {
@@ -178,9 +216,28 @@
     "description": "プロフィール、視聴履歴、推薦設定をまとめて管理できます。",
     "backHome": "トップページに戻る",
     "helper": "視聴履歴が少ない場合は、まずオンボーディングや推薦結果から作品を追加すると精度が上がります。",
+    "loading": "マイページを読み込み中...",
+    "loadError": "マイページデータの取得に失敗しました。",
+    "mbtiCheck": "映画相性チェック",
     "personality": {
       "label": "映画人格",
       "progress": "あと{remaining}枚で映画人格が生成されます"
+    },
+    "profile": {
+      "title": "プロフィール",
+      "description": "アカウント情報とプロフィール画像を管理します。",
+      "uploadImage": "画像をアップロード",
+      "uploadHelp": "MVPではローカル選択画像をData URLとして保存します。",
+      "name": "表示名",
+      "namePlaceholder": "表示名を入力",
+      "imageUrl": "画像URL（任意）",
+      "loginEmail": "ログインメール: {email}",
+      "saving": "保存中...",
+      "save": "プロフィールを保存",
+      "saved": "プロフィールを保存しました。",
+      "updateError": "プロフィール更新に失敗しました。",
+      "invalidImage": "画像ファイルを選択してください。",
+      "imageTooLarge": "4MB以下の画像を選択してください。"
     },
     "settings": {
       "title": "設定",
@@ -191,7 +248,74 @@
       "premium": "プレミアム",
       "upgrade": "プレミアムにアップグレード"
     },
-    "signOut": "サインアウト"
+    "signOut": "サインアウト",
+    "stats": {
+      "title": "視聴統計",
+      "description": "視聴傾向をコンパクトに可視化します。",
+      "loading": "統計データを準備中です。",
+      "watched": "視聴本数",
+      "watchlist": "ウォッチリスト",
+      "thisMonth": "今月",
+      "movies": "映画",
+      "dramas": "ドラマ",
+      "avgRating": "平均評価",
+      "topGenres": "よく観るジャンル",
+      "topDirectors": "よく観る監督",
+      "topActors": "よく観る俳優"
+    },
+    "preferences": {
+      "title": "推薦プリファレンス",
+      "description": "好みを保存し、推薦への反映を切り替えます。",
+      "useFavorites": "好みを反映",
+      "influenceTitle": "好み反映の強さ",
+      "influenceLight": "弱め",
+      "influenceBalanced": "バランス",
+      "influenceStrong": "強め",
+      "styleTitle": "推薦スタイル",
+      "styleSafe": "安全圏",
+      "styleBalanced": "バランス",
+      "styleDiscovery": "発見重視",
+      "favoriteGenresTitle": "好きなジャンル（優先）",
+      "excludedGenresTitle": "避けたいジャンル",
+      "discoveryTitle": "提案の広がり",
+      "discoveryFocused": "絞る",
+      "discoveryBalanced": "バランス",
+      "discoveryWide": "広げる",
+      "directorLabel": "推し監督",
+      "actorLabel": "推し俳優",
+      "suggestionsLoading": "候補を読み込み中...",
+      "suggestionsError": "候補の取得に失敗しました。",
+      "fallback": "候補が少ないため、全体データから提案しています。",
+      "saving": "保存中...",
+      "save": "推薦プリファレンスを保存",
+      "saved": "保存しました。",
+      "saveError": "保存に失敗しました。"
+    },
+    "history": {
+      "title": "推薦履歴",
+      "description": "最近の提案と、その後のアクションを確認できます。",
+      "empty": "まだ推薦履歴がありません。おすすめを1回作成するとここに表示されます。",
+      "status": {
+        "recommended": "提案のみ",
+        "saved": "保存済み",
+        "watched": "視聴済み",
+        "skipped": "スキップ"
+      }
+    },
+    "tasteSummary": {
+      "title": "映画嗜好サマリー",
+      "description": "視聴履歴と嗜好設定から傾向を解釈しています。",
+      "loading": "嗜好サマリーを準備中です。"
+    },
+    "library": {
+      "previewLabel": "視聴履歴",
+      "title": "視聴ライブラリ",
+      "recentCount": "最近観た作品 {count} 本",
+      "empty": "まだ視聴ライブラリが空です。検索追加かクイック分類で、気軽に埋めていきましょう。",
+      "viewAll": "すべて見る",
+      "addWatched": "視聴済みを登録",
+      "quickAdd": "クイック分類"
+    }
   },
   "auth": {
     "signIn": "サインイン",

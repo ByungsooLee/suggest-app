@@ -86,6 +86,13 @@
     "watchedOn": "{date}에 관람",
     "runtime": "{min}분",
     "score": "점수",
+    "staff": "스태프",
+    "moodProfile": "무드 프로필",
+    "review": "리뷰",
+    "noWatchLog": "아직 시청 기록이 없습니다. 보고 나면 기록해 보세요!",
+    "backToJournal": "← 영화 일지",
+    "backToBrowse": "← Browse",
+    "goToRecommend": "Recommend →",
     "overview": "줄거리",
     "director": "감독",
     "writer": "각본",
@@ -133,6 +140,12 @@
   "techo": {
     "title": "영화 일지",
     "subtitle": "영화 다이어리",
+    "loading": "영화 일지를 불러오는 중...",
+    "loadError": "영화 일지를 불러오지 못했습니다",
+    "empty": "아직 기록이 없습니다",
+    "reload": "다시 불러오기",
+    "copyDone": "복사 완료 ✓",
+    "directorFallback": "감독",
     "stats": {
       "totalCount": "올해 편수",
       "avgScore": "평균 점수",
@@ -147,11 +160,36 @@
       "addMovie": "영화 추가"
     },
     "promptBanner": "{title} 다 보셨나요? 프롬프트가 준비되어 있습니다.",
+    "promptBannerDesc": "{director}의 시선으로 이 영화의 핵심을 풀어보는 프롬프트가 준비되어 있습니다.",
     "promptBannerCta": "프롬프트 복사",
     "side": {
       "genreDistribution": "장르 분포",
       "emotionLog": "감정 로그",
       "monthlyPace": "월별 페이스"
+    }
+  },
+  "browsePage": {
+    "searchPlaceholder": "제목·감독으로 검색",
+    "sortScore": "평점순",
+    "sortYear": "최신순",
+    "allGenres": "전체",
+    "count": "{count}편",
+    "empty": "조건에 맞는 영화를 찾지 못했습니다",
+    "genres": {
+      "action": "액션",
+      "adventure": "어드벤처",
+      "animation": "애니메이션",
+      "comedy": "코미디",
+      "crime": "범죄",
+      "drama": "드라마",
+      "family": "가족",
+      "fantasy": "판타지",
+      "horror": "호러",
+      "mystery": "미스터리",
+      "musical": "뮤지컬",
+      "romance": "로맨스",
+      "sci-fi": "SF",
+      "thriller": "스릴러"
     }
   },
   "mbti": {
@@ -178,9 +216,28 @@
     "description": "프로필, 시청 기록, 추천 설정을 한곳에서 관리할 수 있습니다.",
     "backHome": "홈으로 돌아가기",
     "helper": "시청 기록이 아직 적다면 온보딩이나 추천 결과에서 작품을 몇 편 추가하면 정확도가 더 좋아집니다.",
+    "loading": "마이페이지를 불러오는 중...",
+    "loadError": "마이페이지 데이터를 불러오지 못했습니다.",
+    "mbtiCheck": "영화 궁합 체크",
     "personality": {
       "label": "영화 성격",
       "progress": "앞으로 {remaining}편 더 보면 영화 성격이 생성됩니다"
+    },
+    "profile": {
+      "title": "프로필",
+      "description": "계정 정보와 프로필 이미지를 관리합니다.",
+      "uploadImage": "이미지 업로드",
+      "uploadHelp": "MVP에서는 로컬에서 선택한 이미지를 Data URL로 저장합니다.",
+      "name": "표시 이름",
+      "namePlaceholder": "표시 이름 입력",
+      "imageUrl": "이미지 URL (선택)",
+      "loginEmail": "로그인 이메일: {email}",
+      "saving": "저장 중...",
+      "save": "프로필 저장",
+      "saved": "프로필을 저장했습니다.",
+      "updateError": "프로필 업데이트에 실패했습니다.",
+      "invalidImage": "이미지 파일을 선택해 주세요.",
+      "imageTooLarge": "4MB 이하 이미지를 선택해 주세요."
     },
     "settings": {
       "title": "설정",
@@ -191,7 +248,74 @@
       "premium": "프리미엄",
       "upgrade": "프리미엄으로 업그레이드"
     },
-    "signOut": "로그아웃"
+    "signOut": "로그아웃",
+    "stats": {
+      "title": "시청 통계",
+      "description": "시청 경향을 간결하게 시각화합니다.",
+      "loading": "통계 데이터를 준비 중입니다.",
+      "watched": "시청 편수",
+      "watchlist": "보고싶어요",
+      "thisMonth": "이번 달",
+      "movies": "영화",
+      "dramas": "드라마",
+      "avgRating": "평균 평점",
+      "topGenres": "자주 본 장르",
+      "topDirectors": "자주 본 감독",
+      "topActors": "자주 본 배우"
+    },
+    "preferences": {
+      "title": "추천 환경설정",
+      "description": "취향을 저장하고 추천에 반영할지 여부를 설정합니다.",
+      "useFavorites": "취향 반영",
+      "influenceTitle": "취향 반영 강도",
+      "influenceLight": "약하게",
+      "influenceBalanced": "균형",
+      "influenceStrong": "강하게",
+      "styleTitle": "추천 스타일",
+      "styleSafe": "안전",
+      "styleBalanced": "균형",
+      "styleDiscovery": "발견 중심",
+      "favoriteGenresTitle": "좋아하는 장르 (우선)",
+      "excludedGenresTitle": "피하고 싶은 장르",
+      "discoveryTitle": "추천 범위",
+      "discoveryFocused": "좁게",
+      "discoveryBalanced": "균형",
+      "discoveryWide": "넓게",
+      "directorLabel": "좋아하는 감독",
+      "actorLabel": "좋아하는 배우",
+      "suggestionsLoading": "후보를 불러오는 중...",
+      "suggestionsError": "후보를 불러오지 못했습니다.",
+      "fallback": "일치하는 항목이 적어 전체 데이터에서 제안합니다.",
+      "saving": "저장 중...",
+      "save": "추천 환경설정 저장",
+      "saved": "저장했습니다.",
+      "saveError": "저장에 실패했습니다."
+    },
+    "history": {
+      "title": "추천 기록",
+      "description": "최근 추천 내역과 그 이후 행동을 확인할 수 있습니다.",
+      "empty": "아직 추천 기록이 없습니다. 추천을 한 번 받으면 여기에 표시됩니다.",
+      "status": {
+        "recommended": "제안만",
+        "saved": "저장됨",
+        "watched": "시청함",
+        "skipped": "건너뜀"
+      }
+    },
+    "tasteSummary": {
+      "title": "취향 요약",
+      "description": "시청 기록과 취향 설정을 바탕으로 해석한 경향입니다.",
+      "loading": "취향 요약을 준비 중입니다."
+    },
+    "library": {
+      "previewLabel": "시청 기록",
+      "title": "시청 라이브러리",
+      "recentCount": "최근 본 작품 {count}편",
+      "empty": "라이브러리가 비어 있습니다. 검색 추가나 빠른 분류로 채워보세요.",
+      "viewAll": "전체 보기",
+      "addWatched": "시청 등록",
+      "quickAdd": "빠른 분류"
+    }
   },
   "auth": {
     "signIn": "로그인",

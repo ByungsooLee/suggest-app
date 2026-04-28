@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { PersonChip } from "@/components/person/PersonChip";
@@ -21,10 +21,10 @@ const EMOTION_CONFIG = [
 ] as const;
 
 const PROMPT_CARDS = [
-  { type: "director" as PromptType, icon: "🎬", label: "監督の視点",   premium: false },
-  { type: "actor"    as PromptType, icon: "🎭", label: "俳優の証言",   premium: true  },
-  { type: "critic"   as PromptType, icon: "📽", label: "映画評論家",   premium: true  },
-  { type: "trivia"   as PromptType, icon: "✨", label: "小ネタ案内人", premium: true  },
+  { type: "director" as PromptType, icon: "🎬", premium: false },
+  { type: "actor"    as PromptType, icon: "🎭", premium: true  },
+  { type: "critic"   as PromptType, icon: "📽", premium: true  },
+  { type: "trivia"   as PromptType, icon: "✨", premium: true  },
 ];
 
 type MoodEntry = { label: string; value: number };
@@ -76,6 +76,8 @@ export function MovieDetailClient({
   posterUrl,
   watchLog,
 }: Props) {
+  const detailT = useTranslations("movieDetail");
+  const browseT = useTranslations("browsePage");
   const { lang: movieTitleLang } = useMovieTitleLang();
   const locale = useLocale();
   const uiLang = locale === "en" || locale === "ko" || locale === "ja" ? locale : "ja";
@@ -123,6 +125,7 @@ export function MovieDetailClient({
   const promptText = generateMoviePrompt(
     { title: fallbackTitle, releaseYear, directors: fallbackDirectors, cast: fallbackCast, overview: fallbackOverview ?? undefined, genrePrimary },
     selectedPrompt,
+    uiLang,
   );
 
   const handleCopy = async () => {
@@ -146,7 +149,7 @@ export function MovieDetailClient({
       {/* TopBar */}
       <div style={{ display: "flex", alignItems: "center", padding: "12px 16px", borderBottom: "1px solid rgba(232,227,216,0.08)" }}>
         <Link href="/techo" style={{ color: "rgba(232,227,216,0.55)", fontSize: "13px", letterSpacing: "0.08em", textDecoration: "none" }}>
-          ← 映画手帳
+          {detailT("backToJournal")}
         </Link>
         <div style={{ flex: 1 }} />
         <LangSelector />
@@ -170,9 +173,11 @@ export function MovieDetailClient({
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
               {[genrePrimary, genreSecondary].filter(Boolean).map((g) => (
-                <span key={g} style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>{g}</span>
+                <span key={g} style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>
+                  {browseT.has(`genres.${g}`) ? browseT(`genres.${g}`) : g}
+                </span>
               ))}
-              <span style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>{runtimeMinutes}min</span>
+              <span style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>{detailT("runtime", { min: runtimeMinutes })}</span>
             </div>
             <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "22px", lineHeight: 1.2, margin: 0 }}>{title}</h1>
             {directors.length > 0 && (
@@ -186,7 +191,9 @@ export function MovieDetailClient({
             )}
             {watchLog?.watchedAt && (
               <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.35)", margin: 0 }}>
-                {new Date(watchLog.watchedAt).toLocaleDateString(uiLang === "ja" ? "ja-JP" : uiLang === "ko" ? "ko-KR" : "en-US")} 鑑賞
+                {detailT("watchedOn", {
+                  date: new Date(watchLog.watchedAt).toLocaleDateString(uiLang === "ja" ? "ja-JP" : uiLang === "ko" ? "ko-KR" : "en-US"),
+                })}
               </p>
             )}
           </div>
@@ -212,13 +219,13 @@ export function MovieDetailClient({
             ))}
             {activeEmotion && (
               <span style={{ fontSize: "12px", color: "rgba(232,227,216,0.65)", marginLeft: "4px" }}>
-                {activeEmotion.label}
+                {detailT(`emotion.${activeEmotion.key}`)}
               </span>
             )}
           </div>
           {!watchLog && (
             <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", marginTop: "10px" }}>
-              まだ視聴記録がありません。観たら記録しよう！
+              {detailT("noWatchLog")}
             </p>
           )}
         </div>
@@ -226,7 +233,6 @@ export function MovieDetailClient({
         {/* Tabs */}
         <div style={{ display: "flex", gap: "0", borderBottom: "1px solid rgba(232,227,216,0.12)", marginBottom: "24px" }}>
           {(["prompt", "memo", "info"] as const).map((t) => {
-            const labels = { prompt: "プロンプト", memo: "メモ", info: "映画情報" };
             return (
               <button
                 key={t}
@@ -239,7 +245,7 @@ export function MovieDetailClient({
                   marginBottom: "-1px", transition: "color 0.15s",
                 }}
               >
-                {labels[t]}
+                {detailT(`tabs.${t}`)}
               </button>
             );
           })}
@@ -267,10 +273,10 @@ export function MovieDetailClient({
                   )}
                   <div style={{ fontSize: "20px", marginBottom: "6px" }}>{card.icon}</div>
                   <div style={{ fontSize: "12px", letterSpacing: "0.05em", color: card.premium ? "rgba(232,227,216,0.5)" : "rgba(232,227,216,0.85)" }}>
-                    {card.label}
+                    {detailT(`promptTypes.${card.type}`)}
                   </div>
                   {!card.premium && (
-                    <div style={{ fontSize: "10px", color: "rgba(232,201,122,0.7)", marginTop: "4px" }}>無料</div>
+                    <div style={{ fontSize: "10px", color: "rgba(232,201,122,0.7)", marginTop: "4px" }}>{detailT("promptFree")}</div>
                   )}
                 </button>
               ))}
@@ -285,7 +291,7 @@ export function MovieDetailClient({
 
             {/* Premium nudge */}
             <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.35)", textAlign: "center", marginBottom: "16px" }}>
-              残り3種類は <Link href="/pricing" style={{ color: "#E8C97A", textDecoration: "none" }}>プレミアム ¥380/月</Link> で解放
+              {detailT("promptUpgrade", { count: 3 })}
             </p>
 
             {/* Copy button */}
@@ -298,7 +304,7 @@ export function MovieDetailClient({
                 transition: "background 0.2s",
               }}
             >
-              {copied ? "コピーしました ✓" : "プロンプトをコピーして使う"}
+              {copied ? `${detailT("promptCopied")} ✓` : detailT("promptCopy")}
             </button>
 
             <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", textAlign: "center", marginTop: "8px" }}>
@@ -313,13 +319,13 @@ export function MovieDetailClient({
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div>
               <label style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", display: "block", marginBottom: "8px" }}>
-                視聴後メモ
+                {detailT("memo.label")}
               </label>
               <textarea
                 value={memo}
                 onChange={(e) => handleMemo(e.target.value)}
                 rows={5}
-                placeholder="この映画について思ったことを..."
+                placeholder={detailT("memo.placeholder")}
                 style={{
                   width: "100%", background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.1)",
                   borderRadius: "8px", padding: "12px", color: "#e8e3d8", fontSize: "14px", lineHeight: 1.6,
@@ -330,7 +336,7 @@ export function MovieDetailClient({
 
             <div style={{ background: "rgba(232,227,216,0.03)", border: "1px solid rgba(232,227,216,0.08)", borderRadius: "8px", padding: "14px" }}>
               <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.4)", margin: 0, lineHeight: 1.6 }}>
-                外部AIとの会話内容をここに貼り付けると、要約・感情タグを自動抽出して記録できます（プレミアム機能）
+                {detailT("memo.chatSummaryEmpty")}
               </p>
             </div>
           </div>
@@ -341,7 +347,7 @@ export function MovieDetailClient({
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             {/* Staff chips */}
             <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>スタッフ</p>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>{detailT("staff")}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                 {directorCredits.map((credit) => (
                   <PersonChip key={`dir-${credit.personId ?? credit.name}`} {...credit} />
@@ -358,14 +364,14 @@ export function MovieDetailClient({
             {/* Overview */}
             {overview && (
               <div>
-                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>あらすじ</p>
+                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>{detailT("overview")}</p>
                 <p style={{ fontSize: "14px", lineHeight: 1.7, color: "rgba(232,227,216,0.8)", margin: 0 }}>{overview}</p>
               </div>
             )}
 
             {/* Mood profile */}
             <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>ムードプロファイル</p>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>{detailT("moodProfile")}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {moodProfile.map(({ label, value }) => {
                   const pct = Math.round(value * 100);
@@ -385,7 +391,7 @@ export function MovieDetailClient({
             {/* Similar films */}
             {similar.length > 0 && (
               <div>
-                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>似た映画</p>
+                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>{detailT("similarMovies")}</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {similar.map((s) => (
                     <Link key={s.id} href={`/movies/${s.id}`} style={{ fontSize: "14px", color: "#e8e3d8", textDecoration: "none" }}>
@@ -400,7 +406,7 @@ export function MovieDetailClient({
             {/* Review summary */}
             {reviewSummary && (
               <div>
-                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>レビュー</p>
+                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>{detailT("review")}</p>
                 <p style={{ fontSize: "14px", lineHeight: 1.7, color: "rgba(232,227,216,0.7)", margin: 0 }}>{reviewSummary}</p>
               </div>
             )}
@@ -409,8 +415,8 @@ export function MovieDetailClient({
 
         {/* Nav */}
         <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px solid rgba(232,227,216,0.08)", display: "flex", justifyContent: "center", gap: "32px" }}>
-          <Link href="/browse" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>← Browse</Link>
-          <Link href="/recommend" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>Recommend →</Link>
+          <Link href="/browse" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>{detailT("backToBrowse")}</Link>
+          <Link href="/recommend" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>{detailT("goToRecommend")}</Link>
         </div>
       </div>
     </div>

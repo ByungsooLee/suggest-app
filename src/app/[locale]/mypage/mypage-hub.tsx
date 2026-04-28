@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { PersonalStatsSection } from "@/components/mypage/personal-stats-section";
@@ -30,6 +31,7 @@ type RecommendationHistoryResponse = { items: RecommendationHistoryItem[] };
 type MovieProfileData = { totalSwipes: number; personalityLabel: string | null };
 
 export function MyPageHub() {
+  const t = useTranslations("mypage");
   const [profile, setProfile] = useState<MeProfile | null>(null);
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [watched, setWatched] = useState<WatchedItem[]>([]);
@@ -57,7 +59,7 @@ export function MyPageHub() {
           fetch("/api/me/movie-profile", { cache: "no-store" }),
         ]);
         if (!profileRes.ok || !prefsRes.ok || !watchedRes.ok) {
-          throw new Error("My Pageデータの取得に失敗しました。");
+          throw new Error(t("loadError"));
         }
         const profileData = (await profileRes.json()) as ProfileResponse;
         const prefsData = (await prefsRes.json()) as PreferencesResponse;
@@ -93,16 +95,16 @@ export function MyPageHub() {
         setState("ready");
       } catch (error) {
         setState("error");
-        setErrorMessage(error instanceof Error ? error.message : "My Pageデータの取得に失敗しました。");
+        setErrorMessage(error instanceof Error ? error.message : t("loadError"));
       }
     };
     void load();
-  }, []);
+  }, [t]);
 
   if (state === "loading") {
     return (
       <PopCard tone="muted">
-        <p className="text-sm text-[var(--color-text-secondary)]">My Pageを読み込み中...</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("loading")}</p>
       </PopCard>
     );
   }
@@ -137,7 +139,7 @@ export function MyPageHub() {
               </p>
             ) : (
               <p style={{ fontSize: "14px", color: "#9F99E8", margin: 0 }}>
-                あと {Math.max(0, 100 - movieProfile.totalSwipes)} 本で映画人格が生成されます
+                {t("personality.progress", { remaining: Math.max(0, 100 - movieProfile.totalSwipes) })}
               </p>
             )}
           </div>
@@ -155,7 +157,7 @@ export function MyPageHub() {
       >
         <div>
           <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", margin: "0 0 3px" }}>MBTI</p>
-          <p style={{ fontSize: "14px", color: "#E8C97A", margin: 0, fontWeight: 500 }}>映画相性チェック</p>
+          <p style={{ fontSize: "14px", color: "#E8C97A", margin: 0, fontWeight: 500 }}>{t("mbtiCheck")}</p>
         </div>
         <span style={{ fontSize: "18px", color: "rgba(232,201,122,0.5)" }}>→</span>
       </Link>

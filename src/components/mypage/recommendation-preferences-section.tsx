@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { PersonPreviewTrigger } from "@/components/person-preview-trigger";
 import { MoodChip } from "@/components/ui/mood-chip";
@@ -37,6 +38,7 @@ const toggleName = (source: string, name: string) => {
 };
 
 export function RecommendationPreferencesSection({ initialPreferences, onSaved }: RecommendationPreferencesSectionProps) {
+  const t = useTranslations("mypage.preferences");
   const [favoriteGenres, setFavoriteGenres] = useState<string[]>(initialPreferences?.favoriteGenres ?? []);
   const [excludedGenres, setExcludedGenres] = useState<string[]>(initialPreferences?.excludedGenres ?? []);
   const [preferredDirectors, setPreferredDirectors] = useState(setCsv(initialPreferences?.preferredDirectors ?? []));
@@ -106,14 +108,14 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       });
       if (!response.ok) {
         const data = (await response.json()) as { message?: string };
-        throw new Error(data.message ?? "保存に失敗しました。");
+        throw new Error(data.message ?? t("saveError"));
       }
       onSaved(payload);
       setState("done");
-      setMessage("保存しました。");
+      setMessage(t("saved"));
     } catch (error) {
       setState("error");
-      setMessage(error instanceof Error ? error.message : "保存に失敗しました。");
+      setMessage(error instanceof Error ? error.message : t("saveError"));
     }
   };
 
@@ -122,8 +124,8 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       <PopCard tone="surface" className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-movie-title text-[1.35rem]">Recommendation Preferences</h2>
-            <p className="text-sm text-[var(--color-text-secondary)]">好みを保存し、推薦への反映を切り替えます。</p>
+            <h2 className="text-movie-title text-[1.35rem]">{t("title")}</h2>
+            <p className="text-sm text-[var(--color-text-secondary)]">{t("description")}</p>
           </div>
           <button
             type="button"
@@ -134,13 +136,13 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
                 : "border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]"
             }`}
           >
-            Use my favorites: {useFavoritesInRecommendations ? "ON" : "OFF"}
+            {t("useFavorites")}: {useFavoritesInRecommendations ? "ON" : "OFF"}
           </button>
         </div>
       </PopCard>
 
       <PopCard tone="surface" className="space-y-3">
-        <h3 className="text-sm font-[500]">好きなジャンル（優先）</h3>
+        <h3 className="text-sm font-[500]">{t("favoriteGenresTitle")}</h3>
         <div className="flex flex-wrap gap-2">
           {MOVIE_GENRES.map((genre) => (
             <MoodChip key={`fav-${genre}`} label={genre} selected={favoriteGenres.includes(genre)} onClick={() => toggleGenre(genre, "favorite")} />
@@ -149,7 +151,7 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       <PopCard tone="muted" className="space-y-3">
-        <h3 className="text-sm font-[500]">避けたいジャンル</h3>
+        <h3 className="text-sm font-[500]">{t("excludedGenresTitle")}</h3>
         <div className="flex flex-wrap gap-2">
           {MOVIE_GENRES.map((genre) => (
             <MoodChip
@@ -163,12 +165,12 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       <PopCard tone="highlight" className="space-y-3">
-        <h3 className="text-sm font-[500]">提案の広がり</h3>
+        <h3 className="text-sm font-[500]">{t("discoveryTitle")}</h3>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { id: "focused", label: "絞る" },
-            { id: "balanced", label: "バランス" },
-            { id: "wide", label: "広げる" },
+            { id: "focused", label: t("discoveryFocused") },
+            { id: "balanced", label: t("discoveryBalanced") },
+            { id: "wide", label: t("discoveryWide") },
           ].map((mode) => (
             <button
               key={mode.id}
@@ -187,12 +189,12 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       <PopCard tone="surface" className="space-y-3">
-        <h3 className="text-sm font-[500]">好み反映の強さ</h3>
+        <h3 className="text-sm font-[500]">{t("influenceTitle")}</h3>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { id: "light", label: "Light" },
-            { id: "balanced", label: "Balanced" },
-            { id: "strong", label: "Strong" },
+            { id: "light", label: t("influenceLight") },
+            { id: "balanced", label: t("influenceBalanced") },
+            { id: "strong", label: t("influenceStrong") },
           ].map((strength) => (
             <button
               key={strength.id}
@@ -211,12 +213,12 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       <PopCard tone="surface" className="space-y-3">
-        <h3 className="text-sm font-[500]">Recommendation Style</h3>
+        <h3 className="text-sm font-[500]">{t("styleTitle")}</h3>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { id: "safe", label: "Safe" },
-            { id: "balanced", label: "Balanced" },
-            { id: "discovery_focused", label: "Discovery" },
+            { id: "safe", label: t("styleSafe") },
+            { id: "balanced", label: t("styleBalanced") },
+            { id: "discovery_focused", label: t("styleDiscovery") },
           ].map((mode) => (
             <button
               key={mode.id}
@@ -235,10 +237,10 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       <PopCard tone="surface" className="space-y-2">
-        <h3 className="text-sm font-[500]">推し監督</h3>
+        <h3 className="text-sm font-[500]">{t("directorLabel")}</h3>
         <div className="flex flex-wrap gap-2">
-          {suggestionState === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">候補を読み込み中...</p>}
-          {suggestionState === "error" && <p className="text-xs text-rose-500">候補の取得に失敗しました。</p>}
+          {suggestionState === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">{t("suggestionsLoading")}</p>}
+          {suggestionState === "error" && <p className="text-xs text-rose-500">{t("suggestionsError")}</p>}
           {suggestions?.directors.map((director) => {
             const selected = selectedDirectorSet.has(director.name);
             return (
@@ -262,10 +264,10 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       <PopCard tone="surface" className="space-y-2">
-        <h3 className="text-sm font-[500]">推し俳優</h3>
+        <h3 className="text-sm font-[500]">{t("actorLabel")}</h3>
         <div className="flex flex-wrap gap-2">
-          {suggestionState === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">候補を読み込み中...</p>}
-          {suggestionState === "error" && <p className="text-xs text-rose-500">候補の取得に失敗しました。</p>}
+          {suggestionState === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">{t("suggestionsLoading")}</p>}
+          {suggestionState === "error" && <p className="text-xs text-rose-500">{t("suggestionsError")}</p>}
           {suggestions?.actors.map((actor) => {
             const selected = selectedActorSet.has(actor.name);
             return (
@@ -289,11 +291,11 @@ export function RecommendationPreferencesSection({ initialPreferences, onSaved }
       </PopCard>
 
       {suggestions?.fallbackUsed ? (
-        <p className="text-xs text-[var(--color-text-secondary)]">候補が少ないため、全体データから提案しています。</p>
+        <p className="text-xs text-[var(--color-text-secondary)]">{t("fallback")}</p>
       ) : null}
       {message ? <p className={`text-sm ${state === "error" ? "text-rose-500" : "text-[var(--color-match-high)]"}`}>{message}</p> : null}
       <PopButton onClick={save} disabled={state === "saving"} className="w-full">
-        {state === "saving" ? "保存中..." : "推薦プリファレンスを保存"}
+        {state === "saving" ? t("saving") : t("save")}
       </PopButton>
     </div>
   );

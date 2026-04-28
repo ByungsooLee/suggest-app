@@ -86,6 +86,13 @@
     "watchedOn": "Watched on {date}",
     "runtime": "{min} min",
     "score": "Score",
+    "staff": "Staff",
+    "moodProfile": "Mood profile",
+    "review": "Review",
+    "noWatchLog": "No watch log yet. Add one after you watch it.",
+    "backToJournal": "← Film Journal",
+    "backToBrowse": "← Browse",
+    "goToRecommend": "Recommend →",
     "overview": "Overview",
     "director": "Director",
     "writer": "Writer",
@@ -133,6 +140,12 @@
   "techo": {
     "title": "Film Journal",
     "subtitle": "Movie diary",
+    "loading": "Loading your film journal...",
+    "loadError": "Couldn't load your film journal",
+    "empty": "No entries yet",
+    "reload": "Reload",
+    "copyDone": "Copied ✓",
+    "directorFallback": "Director",
     "stats": {
       "totalCount": "This year",
       "avgScore": "Avg score",
@@ -147,11 +160,36 @@
       "addMovie": "Add film"
     },
     "promptBanner": "Finished {title}? A prompt is ready for you.",
+    "promptBannerDesc": "A prompt is ready to unpack this film from {director}'s perspective.",
     "promptBannerCta": "Copy prompt",
     "side": {
       "genreDistribution": "Genre breakdown",
       "emotionLog": "Emotion log",
       "monthlyPace": "Monthly pace"
+    }
+  },
+  "browsePage": {
+    "searchPlaceholder": "Search by title or director",
+    "sortScore": "Top rated",
+    "sortYear": "Newest",
+    "allGenres": "All",
+    "count": "{count} films",
+    "empty": "No matching films found",
+    "genres": {
+      "action": "Action",
+      "adventure": "Adventure",
+      "animation": "Animation",
+      "comedy": "Comedy",
+      "crime": "Crime",
+      "drama": "Drama",
+      "family": "Family",
+      "fantasy": "Fantasy",
+      "horror": "Horror",
+      "mystery": "Mystery",
+      "musical": "Musical",
+      "romance": "Romance",
+      "sci-fi": "Sci-Fi",
+      "thriller": "Thriller"
     }
   },
   "mbti": {
@@ -178,9 +216,28 @@
     "description": "Manage your profile, watch history, and recommendation settings in one place.",
     "backHome": "Back to home",
     "helper": "If your watch history is still small, adding a few titles from onboarding or recommendation results will improve accuracy.",
+    "loading": "Loading My Page...",
+    "loadError": "Failed to load My Page data.",
+    "mbtiCheck": "Movie compatibility check",
     "personality": {
       "label": "Film personality",
       "progress": "{remaining} more films to generate your personality"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your account details and profile image.",
+      "uploadImage": "Upload image",
+      "uploadHelp": "In this MVP, locally selected images are stored as Data URLs.",
+      "name": "Display name",
+      "namePlaceholder": "Enter your display name",
+      "imageUrl": "Image URL (optional)",
+      "loginEmail": "Login email: {email}",
+      "saving": "Saving...",
+      "save": "Save profile",
+      "saved": "Profile saved.",
+      "updateError": "Failed to update profile.",
+      "invalidImage": "Please select an image file.",
+      "imageTooLarge": "Please choose an image smaller than 4MB."
     },
     "settings": {
       "title": "Settings",
@@ -191,7 +248,74 @@
       "premium": "Premium",
       "upgrade": "Upgrade to Premium"
     },
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "stats": {
+      "title": "Watch Stats",
+      "description": "A compact overview of your viewing habits.",
+      "loading": "Preparing stats…",
+      "watched": "Watched",
+      "watchlist": "Watchlist",
+      "thisMonth": "This month",
+      "movies": "Movies",
+      "dramas": "Dramas",
+      "avgRating": "Avg rating",
+      "topGenres": "Top genres",
+      "topDirectors": "Top directors",
+      "topActors": "Top actors"
+    },
+    "preferences": {
+      "title": "Recommendation Preferences",
+      "description": "Save your tastes and toggle how much they influence recommendations.",
+      "useFavorites": "Use my preferences",
+      "influenceTitle": "Preference influence strength",
+      "influenceLight": "Light",
+      "influenceBalanced": "Balanced",
+      "influenceStrong": "Strong",
+      "styleTitle": "Recommendation style",
+      "styleSafe": "Safe",
+      "styleBalanced": "Balanced",
+      "styleDiscovery": "Discovery",
+      "favoriteGenresTitle": "Favourite genres (preferred)",
+      "excludedGenresTitle": "Genres to avoid",
+      "discoveryTitle": "Discovery range",
+      "discoveryFocused": "Focused",
+      "discoveryBalanced": "Balanced",
+      "discoveryWide": "Wide",
+      "directorLabel": "Favourite directors",
+      "actorLabel": "Favourite actors",
+      "suggestionsLoading": "Loading suggestions…",
+      "suggestionsError": "Failed to load suggestions.",
+      "fallback": "Showing suggestions from the full catalogue as matches were limited.",
+      "saving": "Saving…",
+      "save": "Save preferences",
+      "saved": "Preferences saved.",
+      "saveError": "Failed to save preferences."
+    },
+    "history": {
+      "title": "Recommendation History",
+      "description": "See your recent recommendations and what you did with each one.",
+      "empty": "No history yet. Run a recommendation to see it here.",
+      "status": {
+        "recommended": "Suggested",
+        "saved": "Saved",
+        "watched": "Watched",
+        "skipped": "Skipped"
+      }
+    },
+    "tasteSummary": {
+      "title": "Your Taste Summary",
+      "description": "Inferred from your watch history and preference settings.",
+      "loading": "Preparing taste summary…"
+    },
+    "library": {
+      "previewLabel": "Watch History",
+      "title": "Watched Library",
+      "recentCount": "{count} titles watched",
+      "empty": "Your library is empty. Use search or quick-classify to fill it.",
+      "viewAll": "View all",
+      "addWatched": "Log a title",
+      "quickAdd": "Quick classify"
+    }
   },
   "auth": {
     "signIn": "Sign in",

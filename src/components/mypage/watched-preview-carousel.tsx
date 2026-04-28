@@ -1,10 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
-
 import { type WatchedItem } from "./types";
 
 type WatchedPreviewCarouselProps = {
@@ -12,24 +11,25 @@ type WatchedPreviewCarouselProps = {
 };
 
 export function WatchedPreviewCarousel({ items }: WatchedPreviewCarouselProps) {
+  const t = useTranslations("mypage.library");
   const recentItems = items.slice(0, 10);
 
   return (
     <PopCard tone="highlight" className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-heading">Library Preview</p>
-          <h2 className="text-movie-title text-[1.35rem]">Watched Library</h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">最近観た作品 {items.length} 本</p>
+          <p className="text-heading">{t("previewLabel")}</p>
+          <h2 className="text-movie-title text-[1.35rem]">{t("title")}</h2>
+          <p className="text-sm text-[var(--color-text-secondary)]">{t("recentCount", { count: items.length })}</p>
         </div>
         <Link href="/mypage/library" className="text-xs text-[var(--color-accent)] hover:opacity-80">
-          すべて見る
+          {t("viewAll")}
         </Link>
       </div>
 
       {recentItems.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border)] p-4 text-sm text-[var(--color-text-secondary)]">
-          まだ視聴ライブラリが空です。検索追加かクイック分類で、気軽に埋めていきましょう。
+          {t("empty")}
         </div>
       ) : (
         <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
@@ -55,17 +55,13 @@ export function WatchedPreviewCarousel({ items }: WatchedPreviewCarouselProps) {
 
       <div className="grid gap-2 sm:grid-cols-3">
         <Link href="/mypage/library" className="block">
-          <PopButton variant="secondary" className="w-full">
-            すべて見る
-          </PopButton>
+          <PopButton variant="secondary" className="w-full">{t("viewAll")}</PopButton>
         </Link>
         <Link href="/mypage/library/add" className="block">
-          <PopButton variant="secondary" className="w-full">
-            視聴済みを登録
-          </PopButton>
+          <PopButton variant="secondary" className="w-full">{t("addWatched")}</PopButton>
         </Link>
         <Link href="/mypage/library/quick-add" className="block">
-          <PopButton className="w-full">クイック分類</PopButton>
+          <PopButton className="w-full">{t("quickAdd")}</PopButton>
         </Link>
       </div>
     </PopCard>

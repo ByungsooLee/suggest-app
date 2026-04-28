@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 import { AvatarFallback } from "@/components/account/avatar-fallback";
@@ -15,6 +16,7 @@ type ProfileSectionProps = {
 };
 
 export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps) {
+  const t = useTranslations("mypage.profile");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [name, setName] = useState(profile?.name ?? "");
   const [imageInput, setImageInput] = useState(profile?.image ?? "");
@@ -35,16 +37,16 @@ export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps)
       });
       const payload = (await response.json()) as { profile?: MeProfile; message?: string };
       if (!response.ok || !payload.profile) {
-        throw new Error(payload.message ?? "プロフィール更新に失敗しました。");
+        throw new Error(payload.message ?? t("updateError"));
       }
       onProfileSaved(payload.profile);
       setName(payload.profile.name ?? "");
       setImageInput(payload.profile.image ?? "");
       setState("done");
-      setMessage("プロフィールを保存しました。");
+      setMessage(t("saved"));
     } catch (error) {
       setState("error");
-      setMessage(error instanceof Error ? error.message : "プロフィール更新に失敗しました。");
+      setMessage(error instanceof Error ? error.message : t("updateError"));
     }
   };
 
@@ -57,12 +59,12 @@ export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps)
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       setState("error");
-      setMessage("画像ファイルを選択してください。");
+      setMessage(t("invalidImage"));
       return;
     }
     if (file.size > 4 * 1024 * 1024) {
       setState("error");
-      setMessage("4MB以下の画像を選択してください。");
+      setMessage(t("imageTooLarge"));
       return;
     }
     const reader = new FileReader();
@@ -77,8 +79,8 @@ export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps)
   return (
     <PopCard tone="surface" className="space-y-4">
       <div>
-        <h2 className="text-movie-title text-[1.35rem]">Profile</h2>
-        <p className="text-sm text-[var(--color-text-secondary)]">アカウント情報とプロフィール画像を管理します。</p>
+        <h2 className="text-movie-title text-[1.35rem]">{t("title")}</h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("description")}</p>
       </div>
       <div className="flex items-center gap-4">
         {imageInput ? (
@@ -88,23 +90,23 @@ export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps)
         )}
         <div className="space-y-2">
           <PopButton variant="secondary" onClick={onUploadClick}>
-            画像をアップロード
+            {t("uploadImage")}
           </PopButton>
-          <p className="text-xs text-[var(--color-text-secondary)]">MVPではローカル選択画像をData URLとして保存します。</p>
+          <p className="text-xs text-[var(--color-text-secondary)]">{t("uploadHelp")}</p>
         </div>
       </div>
       <input ref={fileInputRef} type="file" accept="image/*" onChange={onSelectFile} className="hidden" />
       <label className="block space-y-1">
-        <span className="text-xs text-[var(--color-text-secondary)]">表示名</span>
+        <span className="text-xs text-[var(--color-text-secondary)]">{t("name")}</span>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
           className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm"
-          placeholder="表示名を入力"
+          placeholder={t("namePlaceholder")}
         />
       </label>
       <label className="block space-y-1">
-        <span className="text-xs text-[var(--color-text-secondary)]">画像URL（任意）</span>
+        <span className="text-xs text-[var(--color-text-secondary)]">{t("imageUrl")}</span>
         <input
           value={imageInput}
           onChange={(event) => setImageInput(event.target.value)}
@@ -112,10 +114,10 @@ export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps)
           placeholder="https://..."
         />
       </label>
-      {profile?.email ? <p className="text-xs text-[var(--color-text-secondary)]">ログインメール: {profile.email}</p> : null}
+      {profile?.email ? <p className="text-xs text-[var(--color-text-secondary)]">{t("loginEmail", { email: profile.email })}</p> : null}
       {message ? <p className={`text-sm ${state === "error" ? "text-rose-500" : "text-[var(--color-match-high)]"}`}>{message}</p> : null}
       <PopButton onClick={submit} disabled={state === "saving"}>
-        {state === "saving" ? "保存中..." : "プロフィールを保存"}
+        {state === "saving" ? t("saving") : t("save")}
       </PopButton>
     </PopCard>
   );

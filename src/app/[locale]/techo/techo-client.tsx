@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState, useEffect } from "react";
 import { generateMoviePrompt } from "@/lib/prompts/movie-prompt-generator";
@@ -55,6 +56,9 @@ const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR];
 
 export function TechoClient() {
+  const t = useTranslations("techo");
+  const emotionT = useTranslations("movieDetail.emotion");
+  const browseT = useTranslations("browsePage");
   const [year, setYear] = useState(CURRENT_YEAR);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,14 +78,14 @@ export function TechoClient() {
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === "AbortError") return;
         setStats(null);
-        setError("映画手帳を読み込めませんでした");
+        setError(t("loadError"));
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });
 
     return () => controller.abort();
-  }, [year, reloadKey]);
+  }, [year, reloadKey, t]);
 
   const handleYearChange = (nextYear: number) => {
     if (nextYear === year) return;
@@ -116,6 +120,7 @@ export function TechoClient() {
         "director",
       )
     : null;
+  const formatGenre = (genre: string) => (browseT.has(`genres.${genre}`) ? browseT(`genres.${genre}`) : genre);
 
   const handleBannerCopy = async () => {
     if (!bannerPrompt) return;
@@ -129,7 +134,7 @@ export function TechoClient() {
       {/* Header */}
       <div style={{ padding: "20px 20px 0", maxWidth: "960px", margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: "20px", marginBottom: "16px" }}>
-          <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "28px", margin: 0 }}>映画手帳</h1>
+          <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "28px", margin: 0 }}>{t("title")}</h1>
           <div style={{ display: "flex", gap: "8px" }}>
             {YEARS.map((y) => (
               <button
@@ -152,7 +157,7 @@ export function TechoClient() {
         {/* Stats row */}
         {loading && (
           <div style={{ padding: "60px 0", color: "rgba(232,227,216,0.35)", fontSize: "14px", textAlign: "center" }}>
-            映画手帳を読み込んでいます…
+            {t("loading")}
           </div>
         )}
 
@@ -171,10 +176,10 @@ export function TechoClient() {
         {stats && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px", marginBottom: "24px" }}>
             {[
-              { label: "今年の本数", value: `${stats.totalCount}本` },
-              { label: "平均スコア", value: stats.avgScore > 0 ? stats.avgScore.toFixed(1) : "—" },
-              { label: "最多ジャンル", value: stats.topGenre || "—" },
-              { label: "プロンプト使用", value: `${stats.promptUsedCount}本` },
+              { label: t("stats.totalCount"), value: `${stats.totalCount}${t("unit.count")}` },
+              { label: t("stats.avgScore"), value: stats.avgScore > 0 ? stats.avgScore.toFixed(1) : "—" },
+              { label: t("stats.topGenre"), value: stats.topGenre ? formatGenre(stats.topGenre) : "—" },
+              { label: t("stats.promptUsed"), value: `${stats.promptUsedCount}${t("unit.count")}` },
             ].map(({ label, value }) => (
               <div key={label} style={{ background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.08)", borderRadius: "8px", padding: "12px" }}>
                 <p style={{ fontSize: "10px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", margin: "0 0 4px" }}>{label}</p>
@@ -191,14 +196,14 @@ export function TechoClient() {
         <div style={{ flex: 1, minWidth: 0 }}>
           {Object.keys(grouped).length === 0 && stats !== null && !loading && !error && (
             <div style={{ textAlign: "center", padding: "60px 0", color: "rgba(232,227,216,0.3)", fontSize: "14px" }}>
-              まだ記録がありません
+              {t("empty")}
             </div>
           )}
 
           {Object.entries(grouped).map(([genre, logs]) => (
             <div key={genre} style={{ marginBottom: "32px" }}>
               <p style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", marginBottom: "12px" }}>
-                {genre} <span style={{ color: "rgba(232,227,216,0.25)" }}>({logs.length})</span>
+                {formatGenre(genre)} <span style={{ color: "rgba(232,227,216,0.25)" }}>({logs.length})</span>
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "flex-end" }}>
                 {logs.map((log) => {
@@ -261,14 +266,14 @@ export function TechoClient() {
           {/* Genre bar chart */}
           {stats && stats.byGenre.length > 0 && (
             <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", marginBottom: "10px" }}>ジャンル分布</p>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", marginBottom: "10px" }}>{t("side.genreDistribution")}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {stats.byGenre.slice(0, 6).map(({ genre, count }, i) => {
                   const pct = (count / maxGenreCount) * 100;
                   const color = i % 2 === 0 ? "#E8C97A" : "#7F77DD";
                   return (
                     <div key={genre} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontSize: "10px", color: "rgba(232,227,216,0.5)", width: "64px", textAlign: "right", flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{genre}</span>
+                      <span style={{ fontSize: "10px", color: "rgba(232,227,216,0.5)", width: "64px", textAlign: "right", flexShrink: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{formatGenre(genre)}</span>
                       <div style={{ flex: 1, height: "4px", borderRadius: "999px", background: "rgba(232,227,216,0.08)" }}>
                         <div style={{ width: `${pct}%`, height: "100%", borderRadius: "999px", background: color }} />
                       </div>
@@ -283,12 +288,12 @@ export function TechoClient() {
           {/* Emotion log */}
           {stats && stats.byEmotion.length > 0 && (
             <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", marginBottom: "10px" }}>感情ログ</p>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", marginBottom: "10px" }}>{t("side.emotionLog")}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {stats.byEmotion.map(({ emotion, count }) => (
                   <div key={emotion} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: EMOTION_COLORS[emotion] ?? "#888", flexShrink: 0 }} />
-                    <span style={{ fontSize: "11px", color: "rgba(232,227,216,0.6)", flex: 1 }}>{emotion}</span>
+                    <span style={{ fontSize: "11px", color: "rgba(232,227,216,0.6)", flex: 1 }}>{emotionT(emotion as "excited" | "moved" | "thinking" | "thrilled" | "relaxed")}</span>
                     <span style={{ fontSize: "11px", color: "rgba(232,227,216,0.4)" }}>{count}</span>
                   </div>
                 ))}
@@ -299,7 +304,7 @@ export function TechoClient() {
           {/* Monthly pace */}
           {stats && (
             <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", marginBottom: "10px" }}>月別ペース</p>
+              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", marginBottom: "10px" }}>{t("side.monthlyPace")}</p>
               <div style={{ display: "flex", alignItems: "flex-end", gap: "3px", height: "60px" }}>
                 {stats.byMonth.map(({ month, count }) => {
                   const h = maxMonthCount > 0 ? (count / maxMonthCount) * 52 : 0;
@@ -329,10 +334,10 @@ export function TechoClient() {
           <div style={{ background: "rgba(232,201,122,0.06)", border: "1px solid rgba(232,201,122,0.2)", borderRadius: "12px", padding: "20px 24px", display: "flex", alignItems: "center", gap: "20px" }}>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: "13px", color: "rgba(232,227,216,0.7)", margin: "0 0 4px" }}>
-                「{recentMovie.title}」を観終わりましたか？
+                {t("promptBanner", { title: recentMovie.title })}
               </p>
               <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: 0 }}>
-                {recentMovie.directors[0] ?? "監督"}の視点でこの映画の核心を語るプロンプトが用意されています
+                {t("promptBannerDesc", { director: recentMovie.directors[0] ?? t("directorFallback") })}
               </p>
             </div>
             <button
@@ -344,7 +349,7 @@ export function TechoClient() {
                 transition: "background 0.2s",
               }}
             >
-              {bannerCopied ? "コピー済み ✓" : "プロンプトをコピー"}
+              {bannerCopied ? t("copyDone") : t("promptBannerCta")}
             </button>
           </div>
         </div>
