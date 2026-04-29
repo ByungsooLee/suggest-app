@@ -18,6 +18,7 @@ import {
   WATCH_SOURCES,
   WATCHED_CATALOG_SOURCES,
 } from "@/lib/constants/mypage";
+import { PersonRoleSchema } from "@/lib/person/roles";
 import { USER_MOODS } from "@/lib/onboarding/mood-map";
 import { ONBOARDING_REACTION_TYPES } from "@/lib/onboarding/onboarding-reaction";
 
@@ -194,7 +195,7 @@ export const RecommendationItemSchema = z.object({
     personId: z.string().min(1).optional(),
     tmdbId: z.number().int().nullable().optional(),
     name: z.string().min(1),
-    role: z.enum(["director", "actor", "writer"]),
+    role: PersonRoleSchema,
   })).optional(),
   reviewScore: z.number().min(0).max(10).nullable().optional(),
   reviewSummary: z.string().nullable().optional(),

@@ -1,14 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { PersonDetailResponse, PersonRole } from "@/components/person/types";
-
-const ROLE_LABEL: Record<PersonRole, string> = {
-  director: "監督",
-  actor: "俳優",
-  writer: "脚本",
-};
 
 type Props = {
   name: string;
@@ -19,6 +14,7 @@ type Props = {
 };
 
 export function PersonHoverCard({ name, role, data, isLoading, error }: Props) {
+  const t = useTranslations("person");
   const canOpenPage = role !== "writer";
 
   return (
@@ -59,7 +55,7 @@ export function PersonHoverCard({ name, role, data, isLoading, error }: Props) {
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <p style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(232,227,216,0.35)", margin: "0 0 4px" }}>
-            {ROLE_LABEL[role]}
+            {t(`roles.${role}`)}
           </p>
           <p style={{ fontSize: "16px", color: "#f0ede8", margin: 0, lineHeight: 1.25 }}>
             {data?.person.name ?? name}
@@ -75,13 +71,13 @@ export function PersonHoverCard({ name, role, data, isLoading, error }: Props) {
       <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "10px" }}>
         {isLoading && (
           <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: 0 }}>
-            人物情報を読み込み中...
+            {t("loading")}
           </p>
         )}
 
         {error && !isLoading && (
           <p style={{ fontSize: "12px", color: "rgba(216,90,48,0.85)", margin: 0 }}>
-            人物情報を読み込めませんでした
+            {t("loadError")}
           </p>
         )}
 
@@ -107,7 +103,7 @@ export function PersonHoverCard({ name, role, data, isLoading, error }: Props) {
             {(data?.person.knownFor?.length ?? 0) > 0 && (
               <div>
                 <p style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(232,227,216,0.3)", margin: "0 0 6px" }}>
-                  KNOWN FOR
+                  {t("knownFor")}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {data!.person.knownFor.slice(0, 3).map((title) => (
@@ -131,7 +127,7 @@ export function PersonHoverCard({ name, role, data, isLoading, error }: Props) {
             {(data?.collaborators?.length ?? 0) > 0 && (
               <div>
                 <p style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(232,227,216,0.3)", margin: "0 0 6px" }}>
-                  COLLABORATORS
+                  {t("collaborators")}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {data!.collaborators!.slice(0, 4).map((collaborator) => (
@@ -158,7 +154,7 @@ export function PersonHoverCard({ name, role, data, isLoading, error }: Props) {
                   href={`/people/${encodeURIComponent(name)}?role=${role}`}
                   style={{ fontSize: "12px", color: "#E8C97A", textDecoration: "none" }}
                 >
-                  人物ページを見る →
+                  {t("viewPage")}
                 </Link>
               </div>
             )}

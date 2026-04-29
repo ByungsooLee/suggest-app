@@ -1,31 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import type { PersonChipData } from "@/components/person/types";
+import type { MovieCardPayload } from "@/lib/movies/movie-card";
+import { getMovieCardGradient } from "@/components/swipe/card-styles";
+import { useSwipeCardDrag } from "@/components/swipe/useSwipeCardDrag";
 
-const GENRE_GRADIENTS: Record<string, string> = {
-  スリラー: "linear-gradient(135deg, #1a1020 0%, #2d1a3d 100%)",
-  SF: "linear-gradient(135deg, #0d1a2e 0%, #1a3a5c 100%)",
-  ドラマ: "linear-gradient(135deg, #1a0e0e 0%, #3d1a1a 100%)",
-  ホラー: "linear-gradient(135deg, #0d1e14 0%, #1a3d28 100%)",
-  コメディ: "linear-gradient(135deg, #1e1a0d 0%, #3d3510 100%)",
-  default: "linear-gradient(135deg, #141418 0%, #2a2a30 100%)",
-};
-
-export type SwipeCardMovie = {
-  id: string;
-  title: string;
-  year: number | null;
-  genre: string | null;
-  duration: number | null;
-  directors: string[];
-  score: number | null;
-  posterUrl: string | null;
-  overview: string | null;
-  credits?: PersonChipData[];
-  localizedTitles?: unknown;
-  localizedData?: unknown;
-};
+export type SwipeCardMovie = MovieCardPayload;
 
 type Props = {
   movie: SwipeCardMovie;
@@ -37,51 +16,18 @@ type Props = {
   stackStyle?: React.CSSProperties;
 };
 
-const THRESHOLD = 80;
-
 export function SwipeCard({ movie, decisionHook, mbtiTypes, onSwipeLeft, onSwipeRight, isTop, stackStyle }: Props) {
-  const [dragX, setDragX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [exiting, setExiting] = useState<"left" | "right" | null>(null);
-  const startX = useRef(0);
-  const fired = useRef(false);
-
-  const exit = useCallback(
-    (dir: "left" | "right") => {
-      if (fired.current) return;
-      fired.current = true;
-      setExiting(dir);
-      setTimeout(() => {
-        if (dir === "right") onSwipeRight();
-        else onSwipeLeft();
-      }, 280);
+  const { dragX, isDragging, exiting, exit, handlePointerDown, handlePointerMove, handlePointerUp } = useSwipeCardDrag({
+    enabled: isTop,
+    onExit: (direction) => {
+      if (direction === "right") onSwipeRight();
+      else onSwipeLeft();
     },
-    [onSwipeLeft, onSwipeRight],
-  );
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (!isTop || exiting) return;
-    startX.current = e.clientX;
-    setIsDragging(true);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging || !isTop || exiting) return;
-    setDragX(e.clientX - startX.current);
-  };
-
-  const handlePointerUp = () => {
-    if (!isDragging || !isTop) return;
-    setIsDragging(false);
-    if (dragX > THRESHOLD) exit("right");
-    else if (dragX < -THRESHOLD) exit("left");
-    else setDragX(0);
-  };
+  });
 
   const rotation = Math.max(-12, Math.min(12, dragX * 0.1));
-  const rightOverlay = dragX > 0 ? Math.min(0.35, (dragX / THRESHOLD) * 0.35) : 0;
-  const leftOverlay = dragX < 0 ? Math.min(0.35, (-dragX / THRESHOLD) * 0.35) : 0;
+  const rightOverlay = dragX > 0 ? Math.min(0.35, (dragX / 80) * 0.35) : 0;
+  const leftOverlay = dragX < 0 ? Math.min(0.35, (-dragX / 80) * 0.35) : 0;
 
   const cardTransform =
     exiting === "right"
@@ -93,7 +39,7 @@ export function SwipeCard({ movie, decisionHook, mbtiTypes, onSwipeLeft, onSwipe
           : "none";
 
   const transition = isDragging ? "none" : "transform 280ms cubic-bezier(0.16, 1, 0.3, 1)";
-  const posterBg = GENRE_GRADIENTS[movie.genre ?? ""] ?? GENRE_GRADIENTS.default;
+  const posterBg = getMovieCardGradient(movie.genrePrimary);
 
   return (
     <div
@@ -161,7 +107,7 @@ export function SwipeCard({ movie, decisionHook, mbtiTypes, onSwipeLeft, onSwipe
           fontSize: "11px", color: "rgba(232,227,216,0.55)", letterSpacing: "0.05em",
           pointerEvents: "none",
         }}>
-          {[movie.genre, movie.year, movie.duration ? `${movie.duration}分` : null].filter(Boolean).join(" · ")}
+          {[movie.genrePrimary, movie.releaseYear, movie.runtimeMinutes ? `${movie.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
         </div>
       </div>
 
@@ -173,7 +119,7 @@ export function SwipeCard({ movie, decisionHook, mbtiTypes, onSwipeLeft, onSwipe
           </h2>
           <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.4)", margin: 0 }}>
             {movie.directors.slice(0, 2).join(", ")}
-            {movie.score != null && ` · ★ ${movie.score.toFixed(1)}`}
+            {movie.reviewScore != null && ` · ★ ${movie.reviewScore.toFixed(1)}`}
           </p>
         </div>
 

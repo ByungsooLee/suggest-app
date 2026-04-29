@@ -3,25 +3,10 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
+import type { MovieCardPayload } from "@/lib/movies/movie-card";
 import { getMovieTitle } from "@/lib/movie-title";
 import { PersonChip } from "@/components/person/PersonChip";
-import type { PersonChipData } from "@/components/person/types";
-
-type DiscoverMovie = {
-  id: string;
-  title: string;
-  year: number;
-  genrePrimary: string;
-  directors: string[];
-  posterUrl: string | null;
-  runtime: number | null;
-  reviewScore: number | null;
-  overview: string | null;
-  cast: string[];
-  credits: PersonChipData[];
-  localizedTitles?: unknown;
-  localizedData?: unknown;
-};
+type DiscoverMovie = MovieCardPayload;
 
 type Props = {
   movie: DiscoverMovie;
@@ -90,7 +75,7 @@ export function MovieDetailSheet({ movie, onClose, onAction }: Props) {
               {displayTitle}
             </h2>
             <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: 0 }}>
-              {[movie.year, movie.genrePrimary, movie.runtime ? `${movie.runtime}分` : null].filter(Boolean).join(" · ")}
+              {[movie.releaseYear, movie.genrePrimary, movie.runtimeMinutes ? `${movie.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
             </p>
             {movie.reviewScore != null && (
               <p style={{ fontSize: "12px", color: "#E8C97A", margin: "4px 0 0" }}>★ {movie.reviewScore.toFixed(1)}</p>

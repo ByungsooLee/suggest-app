@@ -1,4 +1,4 @@
-import type { Lang, LocalizedData } from "@/lib/i18n/lang-context";
+import { isLang, normalizeLocalizedData, type Lang, type LocalizedData } from "@/lib/i18n/localized-movie";
 
 type MovieTitleSource = {
   title: string;
@@ -10,11 +10,8 @@ type MovieTitleSource = {
 };
 
 export function getMovieTitle(movie: MovieTitleSource, locale: string): string {
-  const lang: Lang = locale === "en" || locale === "ko" || locale === "ja" ? locale : "ja";
-  const localizedData =
-    movie.localizedData && typeof movie.localizedData === "object" && !Array.isArray(movie.localizedData)
-      ? (movie.localizedData as LocalizedData)
-      : null;
+  const lang: Lang = isLang(locale) ? locale : "ja";
+  const localizedData = normalizeLocalizedData(movie.localizedData);
   const localizedTitle = localizedData?.[lang]?.title;
   if (localizedTitle) return localizedTitle;
 

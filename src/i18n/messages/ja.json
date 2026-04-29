@@ -9,10 +9,37 @@
     "tagline": "今夜の映画、3秒で決める。",
     "sub": "気分 × 誰と × MBTIで最適な1本を",
     "cta": "今夜の1本を探す →",
+    "ctaGuest": "無料ではじめる →",
     "ctaSub": "4ステップ · 約1分",
     "moodLabel": "今の気分",
     "discoverBanner": "好みの映画を発見する",
-    "discoverProgress": "{current} / 100枚"
+    "discoverProgress": "{current} / 100本",
+    "recentPicks": "あなたへのピック",
+    "alreadyHaveAccount": "すでにアカウントをお持ちの方は",
+    "login": "ログイン",
+    "stats": {
+      "total": "総視聴本数",
+      "thisMonth": "今月",
+      "unit": "本"
+    },
+    "discoverCardTitle": "好みの映画を育てる",
+    "mbtiCardTitle": "一緒に観る人との相性チェック",
+    "guestFeatures": {
+      "mood": {
+        "title": "気分ベースで提案",
+        "desc": "8種類の気分から今夜の映画を絞り込む"
+      },
+      "steps": {
+        "title": "4ステップ完結",
+        "desc": "質問に答えるだけで最適な1本が決まる"
+      },
+      "mbti": {
+        "title": "MBTI×好みを学習",
+        "desc": "使うほど精度が上がるパーソナルエンジン"
+      }
+    },
+    "createAccount": "アカウントを作成してはじめる →",
+    "browseLink": "カタログを見る →"
   },
   "mood": {
     "excited": "ドキドキしたい",
@@ -192,6 +219,56 @@
       "thriller": "スリラー"
     }
   },
+  "recommendForm": {
+    "step": "step {current}/4",
+    "steps": {
+      "runtime": "今夜は何分？",
+      "withWhom": "誰と観る？",
+      "avoid": "避けたいもの",
+      "mood": "今夜の気分"
+    },
+    "watchContexts": {
+      "solo_watch": "ひとりで観る",
+      "date_friendly": "デートで観る",
+      "friends_hangout": "友人と観る",
+      "family_time": "家族で観る",
+      "late_night_fit": "夜更かしで観る"
+    },
+    "moods": {
+      "calm": "落ち着きたい",
+      "emotional": "感情を揺さぶられたい",
+      "stylish": "映像美を楽しみたい",
+      "dark": "ダークな雰囲気",
+      "funny": "笑いたい",
+      "tense": "緊張感がほしい",
+      "uplifting": "前向きになりたい",
+      "melancholic": "余韻に浸りたい"
+    },
+    "runtimePresets": {
+      "quick": "さくっと (90分)",
+      "standard": "標準 (120分)",
+      "long": "じっくり (150分)"
+    },
+    "runtimeTitle": "今夜は何分くらい観たい？",
+    "runtimeAdjust": "詳細調整（{minutes}分）",
+    "runtimeRange": "検索範囲: {min} 〜 {max} 分",
+    "withWhomTitle": "今夜は誰と観る？",
+    "avoidTitle": "今夜は避けたいものは？",
+    "avoidHelp": "任意。スキップして次へ進めます。",
+    "excludeTagsLabel": "除外タグ（カンマ区切り、任意）",
+    "moodTitle": "今夜の気分は？",
+    "moodHelp": "最大3つまで。選ばなくてもおまかせで提案します。",
+    "summaryTitle": "選んだ条件",
+    "summaryRuntime": "尺 {min}〜{max}分 · {context}",
+    "summaryExclude": "除外: {items}",
+    "summaryMood": "気分: {items}",
+    "keepGoing": "このまま次へ",
+    "submit": "今夜の1本を見つける",
+    "submitting": "計算中...",
+    "errorCreate": "推薦作成に失敗しました。",
+    "errorTimeout": "計算に時間がかかっています。しばらくして再試行してください。",
+    "errorNetwork": "通信エラーが発生しました。ネットワーク状態を確認して再試行してください。"
+  },
   "mbti": {
     "title": "MBTI相性",
     "pairMode": "2人で観る",
@@ -339,5 +416,18 @@
     "done": "完了",
     "free": "無料",
     "premium": "プレミアム"
+  },
+  "person": {
+    "roles": {
+      "director": "監督",
+      "actor": "俳優",
+      "writer": "脚本"
+    },
+    "loading": "人物情報を読み込み中...",
+    "loadError": "人物情報を読み込めませんでした",
+    "knownFor": "代表作",
+    "recentCredits": "最近の関連作品",
+    "collaborators": "主なコラボレーター",
+    "viewPage": "人物ページを見る →"
   }
 }

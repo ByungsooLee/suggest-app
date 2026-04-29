@@ -105,15 +105,6 @@ export function ProfileSection({ profile, onProfileSaved }: ProfileSectionProps)
           placeholder={t("namePlaceholder")}
         />
       </label>
-      <label className="block space-y-1">
-        <span className="text-xs text-[var(--color-text-secondary)]">{t("imageUrl")}</span>
-        <input
-          value={imageInput}
-          onChange={(event) => setImageInput(event.target.value)}
-          className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm"
-          placeholder="https://..."
-        />
-      </label>
       {profile?.email ? <p className="text-xs text-[var(--color-text-secondary)]">{t("loginEmail", { email: profile.email })}</p> : null}
       {message ? <p className={`text-sm ${state === "error" ? "text-rose-500" : "text-[var(--color-match-high)]"}`}>{message}</p> : null}
       <PopButton onClick={submit} disabled={state === "saving"}>

@@ -1,5 +1,7 @@
-import { type MbtiType, type Movie, type PersonRole } from "@prisma/client";
+import { type MbtiType, type Movie } from "@prisma/client";
 
+import type { RecommendationCandidateRecord } from "@/lib/db/selects/movie";
+import type { PersonRole } from "@/lib/person/roles";
 import { type MoodTag, type WatchContext } from "@/lib/constants/taxonomy";
 import { type UserMood } from "@/lib/onboarding/mood-map";
 import { type FeatureVector } from "@/lib/recommendation/feature-vector";
@@ -42,32 +44,16 @@ export type ReactionInput = {
   >;
 };
 
-export type CandidateMovie = Pick<
-  Movie,
-  | "id"
-  | "title"
-  | "genrePrimary"
-  | "genreSecondary"
-  | "runtimeMinutes"
-  | "contentWarnings"
-  | "moodTags"
-  | "watchContexts"
-  | "directors"
-  | "cast"
-  | "reviewScore"
-  | "moodCalm"
-  | "moodDark"
-  | "moodEmotional"
-  | "moodUplifting"
-  | "toneStylish"
-  | "toneFunny"
-  | "paceFast"
-  | "paceSlowBurn"
-  | "complexity"
-  | "emotionalWeight"
-  | "tension"
-  | "accessibility"
+export type CandidateMovie = Omit<
+  RecommendationCandidateRecord,
+  "overview" | "posterUrl" | "reviewSummary" | "releaseYear" | "localizedTitles" | "localizedData" | "credits"
 > & {
+  overview?: RecommendationCandidateRecord["overview"];
+  posterUrl?: RecommendationCandidateRecord["posterUrl"];
+  reviewSummary?: RecommendationCandidateRecord["reviewSummary"];
+  releaseYear?: RecommendationCandidateRecord["releaseYear"];
+  localizedTitles?: RecommendationCandidateRecord["localizedTitles"];
+  localizedData?: RecommendationCandidateRecord["localizedData"];
   credits?: Array<{
     role: PersonRole;
     person: {

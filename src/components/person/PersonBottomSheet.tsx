@@ -1,14 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { PersonDetailResponse, PersonRole } from "@/components/person/types";
-
-const ROLE_LABEL: Record<PersonRole, string> = {
-  director: "監督",
-  actor: "俳優",
-  writer: "脚本",
-};
 
 type Props = {
   open: boolean;
@@ -21,6 +16,7 @@ type Props = {
 };
 
 export function PersonBottomSheet({ open, onClose, name, role, data, isLoading, error }: Props) {
+  const t = useTranslations("person");
   if (!open) return null;
 
   return (
@@ -80,7 +76,7 @@ export function PersonBottomSheet({ open, onClose, name, role, data, isLoading, 
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <p style={{ fontSize: "11px", letterSpacing: "0.12em", color: "rgba(232,227,216,0.35)", margin: "2px 0 6px" }}>
-                {ROLE_LABEL[role]}
+                {t(`roles.${role}`)}
               </p>
               <h3 style={{ fontSize: "21px", color: "#f0ede8", margin: 0, lineHeight: 1.2 }}>
                 {data?.person.name ?? name}
@@ -96,13 +92,13 @@ export function PersonBottomSheet({ open, onClose, name, role, data, isLoading, 
           <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
             {isLoading && (
               <p style={{ fontSize: "13px", color: "rgba(232,227,216,0.45)", margin: 0 }}>
-                人物情報を読み込み中...
+                {t("loading")}
               </p>
             )}
 
             {error && !isLoading && (
               <p style={{ fontSize: "13px", color: "rgba(216,90,48,0.85)", margin: 0 }}>
-                人物情報を読み込めませんでした
+                {t("loadError")}
               </p>
             )}
 
@@ -117,7 +113,7 @@ export function PersonBottomSheet({ open, onClose, name, role, data, isLoading, 
                 {(data?.person.knownFor?.length ?? 0) > 0 && (
                   <div>
                     <p style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.35)", margin: "0 0 8px" }}>
-                      代表作
+                      {t("knownFor")}
                     </p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                       {data!.person.knownFor.slice(0, 4).map((title) => (
@@ -141,7 +137,7 @@ export function PersonBottomSheet({ open, onClose, name, role, data, isLoading, 
                 {(data?.credits?.length ?? 0) > 0 && (
                   <div>
                     <p style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.35)", margin: "0 0 8px" }}>
-                      最近の関連作品
+                      {t("recentCredits")}
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                       {data!.credits!.slice(0, 4).map((credit) => (
@@ -187,7 +183,7 @@ export function PersonBottomSheet({ open, onClose, name, role, data, isLoading, 
                       fontWeight: 600,
                     }}
                   >
-                    人物ページを見る
+                    {t("viewPage").replace(" →", "").replace("→", "")}
                   </Link>
                 )}
               </>

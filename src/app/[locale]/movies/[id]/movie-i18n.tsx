@@ -4,7 +4,8 @@ import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PersonChip } from "@/components/person/PersonChip";
 import type { PersonChipData } from "@/components/person/types";
-import { useMovieTitleLang, resolveField, type LocalizedData } from "@/lib/i18n/lang-context";
+import { useMovieTitleLang } from "@/lib/i18n/lang-context";
+import { resolveField, type LocalizedData } from "@/lib/i18n/localized-movie";
 import { getMovieTitle } from "@/lib/movie-title";
 import { LangSelector } from "@/components/lang-selector";
 

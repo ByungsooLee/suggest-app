@@ -73,9 +73,9 @@ export function SwipeResultClient({ movies }: Props) {
           <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "26px", color: "#e8e3d8", margin: 0, lineHeight: 1.2 }}>
             {pickedMovieTitle}
           </h1>
-          {pickedMovie.year && (
+          {pickedMovie.releaseYear && (
             <p style={{ fontSize: "13px", color: "rgba(232,227,216,0.4)", margin: "6px 0 0" }}>
-              {pickedMovie.year}{pickedMovie.directors[0] ? ` · ${pickedMovie.directors[0]}` : ""}
+              {pickedMovie.releaseYear}{pickedMovie.directors[0] ? ` · ${pickedMovie.directors[0]}` : ""}
             </p>
           )}
           {((pickedMovie.credits ?? []).filter((credit) => credit.role === "director").length > 0) && (
@@ -157,7 +157,7 @@ export function SwipeResultClient({ movies }: Props) {
               {topPickTitle}
             </h2>
             <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: "0 0 12px" }}>
-              {[topPick.directors[0], topPick.year, topPick.genre, topPick.duration ? `${topPick.duration}分` : null].filter(Boolean).join(" · ")}
+              {[topPick.directors[0], topPick.releaseYear, topPick.genrePrimary, topPick.runtimeMinutes ? `${topPick.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
             </p>
             {topPickDirectors.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
@@ -227,7 +227,7 @@ export function SwipeResultClient({ movies }: Props) {
                       {movieTitle}
                     </p>
                     <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.4)", margin: 0 }}>
-                      {movie.genre ?? ""}{movie.year ? ` · ${movie.year}` : ""}
+                      {movie.genrePrimary ?? ""}{movie.releaseYear ? ` · ${movie.releaseYear}` : ""}
                     </p>
                     {((movie.credits ?? []).filter((credit) => credit.role === "director").length > 0) && (
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>

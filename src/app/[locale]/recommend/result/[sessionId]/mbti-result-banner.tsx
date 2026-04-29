@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 type MbtiContext = {
@@ -10,9 +11,8 @@ type MbtiContext = {
   watchingWith: "pair" | "group";
 };
 
-const SCORE_LABELS = ["難", "要注意", "無難", "良好", "伝説"];
-
 export function MbtiResultBanner() {
+  const t = useTranslations("mbti");
   const [ctx, setCtx] = useState<MbtiContext | null>(null);
 
   useEffect(() => {
@@ -53,13 +53,14 @@ export function MbtiResultBanner() {
         ))}
       </div>
       <span style={{ fontSize: "12px", color: "rgba(232,227,216,0.55)", flex: 1, minWidth: "160px" }}>
-        {ctx.chemistry} — {SCORE_LABELS[ctx.score - 1]}の組み合わせ
+        {ctx.chemistry} — {t(`compatibility.${ctx.score}` as "compatibility.1" | "compatibility.2" | "compatibility.3" | "compatibility.4" | "compatibility.5")}
       </span>
     </div>
   );
 }
 
 export function MbtiDecisionHook({ title }: { title: string }) {
+  const t = useTranslations("recommend");
   const [ctx, setCtx] = useState<MbtiContext | null>(null);
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export function MbtiDecisionHook({ title }: { title: string }) {
       }}
     >
       <p style={{ fontSize: "10px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.35)", margin: "0 0 4px" }}>
-        {ctx.types.join(" × ")} だから
+        {t("mbtiReason", { types: ctx.types.join(" × ") })}
       </p>
       <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.65)", margin: 0, lineHeight: 1.55 }}>
         {ctx.decisionHook}

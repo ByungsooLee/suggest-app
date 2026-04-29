@@ -1,9 +1,11 @@
 import { recommendMovies } from "@/lib/recommendation/engine";
 import { Prisma } from "@prisma/client";
 import { requireUser } from "@/lib/auth/require-user";
+import { recommendationCandidateSelect } from "@/lib/db/selects/movie";
 import { prisma } from "@/lib/db/prisma";
 import { resolveStrictMoviePoster } from "@/lib/movies/strict-movie-poster-match";
 import { REPETITION_CONTROL } from "@/lib/recommendation/constants";
+import { buildRecommendationResponse } from "@/lib/recommendation/mappers";
 import { parseJson } from "@/lib/validation/http";
 import { RecommendationsRequestSchema } from "@/lib/validation/schemas";
 
@@ -130,47 +132,7 @@ export async function POST(request: Request) {
     },
   });
   const movies = await prisma.movie.findMany({
-    select: {
-      id: true,
-      title: true,
-      genrePrimary: true,
-      genreSecondary: true,
-      runtimeMinutes: true,
-      contentWarnings: true,
-      moodTags: true,
-      watchContexts: true,
-      directors: true,
-      cast: true,
-      reviewScore: true,
-      reviewSummary: true,
-      posterUrl: true,
-      overview: true,
-      releaseYear: true,
-      credits: {
-        select: {
-          role: true,
-          person: {
-            select: {
-              id: true,
-              name: true,
-              tmdbId: true,
-            },
-          },
-        },
-      },
-      moodCalm: true,
-      moodDark: true,
-      moodEmotional: true,
-      moodUplifting: true,
-      toneStylish: true,
-      toneFunny: true,
-      paceFast: true,
-      paceSlowBurn: true,
-      complexity: true,
-      emotionalWeight: true,
-      tension: true,
-      accessibility: true,
-    },
+    select: recommendationCandidateSelect,
     orderBy: [{ releaseYear: "desc" }, { title: "asc" }],
   });
   const recentSessions = await prisma.recommendationSession.findMany({
@@ -360,53 +322,13 @@ export async function POST(request: Request) {
     });
   }
 
-  const [topPick, ...backups] = recommendations;
+  const responsePayload = buildRecommendationResponse(recommendations, movieById);
 
   return Response.json(
     {
       sessionId: session.id,
-      topPick: {
-        rank: topPick.rank,
-        movieId: topPick.movieId,
-        title: topPick.title,
-        score: topPick.score,
-        confidenceLabel: topPick.confidenceLabel,
-        posterUrl: movieById.get(topPick.movieId)?.posterUrl ?? null,
-        overview: movieById.get(topPick.movieId)?.overview ?? null,
-        directors: movieById.get(topPick.movieId)?.directors ?? [],
-        cast: movieById.get(topPick.movieId)?.cast ?? [],
-        credits:
-          movieById.get(topPick.movieId)?.credits?.map((credit) => ({
-            personId: credit.person.id,
-            tmdbId: credit.person.tmdbId,
-            name: credit.person.name,
-            role: credit.role,
-          })) ?? [],
-        reviewScore: movieById.get(topPick.movieId)?.reviewScore ?? null,
-        reviewSummary: movieById.get(topPick.movieId)?.reviewSummary ?? null,
-        reasons: topPick.reasons,
-      },
-      backups: backups.map((item) => ({
-        rank: item.rank,
-        movieId: item.movieId,
-        title: item.title,
-        score: item.score,
-        confidenceLabel: item.confidenceLabel,
-        posterUrl: movieById.get(item.movieId)?.posterUrl ?? null,
-        overview: movieById.get(item.movieId)?.overview ?? null,
-        directors: movieById.get(item.movieId)?.directors ?? [],
-        cast: movieById.get(item.movieId)?.cast ?? [],
-        credits:
-          movieById.get(item.movieId)?.credits?.map((credit) => ({
-            personId: credit.person.id,
-            tmdbId: credit.person.tmdbId,
-            name: credit.person.name,
-            role: credit.role,
-          })) ?? [],
-        reviewScore: movieById.get(item.movieId)?.reviewScore ?? null,
-        reviewSummary: movieById.get(item.movieId)?.reviewSummary ?? null,
-        reasons: item.reasons,
-      })),
+      topPick: responsePayload.topPick,
+      backups: responsePayload.backups,
     },
     { status: 201 },
   );

@@ -1,105 +1,35 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
+import { MyPageShortcutLinks } from "@/components/mypage/MyPageShortcutLinks";
 import { PersonalStatsSection } from "@/components/mypage/personal-stats-section";
 import { RecommendationHistorySection } from "@/components/mypage/recommendation-history-section";
 import { RecommendationPreferencesSection } from "@/components/mypage/recommendation-preferences-section";
 import { ProfileSection } from "@/components/mypage/profile-section";
 import { TasteSummarySection } from "@/components/mypage/taste-summary-section";
-import {
-  type MeProfile,
-  type PersonalStats,
-  type Preferences,
-  type RecommendationHistoryItem,
-  type TasteSummary,
-  type WatchedItem,
-  type WatchlistItem,
-} from "@/components/mypage/types";
 import { WatchedPreviewCarousel } from "@/components/mypage/watched-preview-carousel";
-import { WatchlistSection } from "@/components/mypage/watchlist-section";
+import { useMyPageHubData } from "@/components/mypage/use-mypage-hub-data";
 import { PopCard } from "@/components/ui/pop-card";
-
-type ProfileResponse = { profile: MeProfile };
-type PreferencesResponse = { preferences: Preferences };
-type WatchedResponse = { items: WatchedItem[] };
-type WatchlistResponse = { items: WatchlistItem[] };
-type RecommendationHistoryResponse = { items: RecommendationHistoryItem[] };
-
-type MovieProfileData = { totalSwipes: number; personalityLabel: string | null };
 
 export function MyPageHub() {
   const t = useTranslations("mypage");
-  const [profile, setProfile] = useState<MeProfile | null>(null);
-  const [preferences, setPreferences] = useState<Preferences | null>(null);
-  const [watched, setWatched] = useState<WatchedItem[]>([]);
-  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
-  const [history, setHistory] = useState<RecommendationHistoryItem[]>([]);
-  const [stats, setStats] = useState<PersonalStats | null>(null);
-  const [tasteSummary, setTasteSummary] = useState<TasteSummary | null>(null);
-  const [movieProfile, setMovieProfile] = useState<MovieProfileData | null>(null);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    const load = async () => {
-      setState("loading");
-      setErrorMessage("");
-      try {
-        const [profileRes, prefsRes, watchedRes, watchlistRes, statsRes, tasteRes, historyRes, movieProfileRes] = await Promise.all([
-          fetch("/api/me/profile", { cache: "no-store" }),
-          fetch("/api/me/preferences", { cache: "no-store" }),
-          fetch("/api/me/watched?type=all", { cache: "no-store" }),
-          fetch("/api/me/watchlist", { cache: "no-store" }),
-          fetch("/api/me/stats", { cache: "no-store" }),
-          fetch("/api/me/taste-summary", { cache: "no-store" }),
-          fetch("/api/me/recommendation-history", { cache: "no-store" }),
-          fetch("/api/me/movie-profile", { cache: "no-store" }),
-        ]);
-        if (!profileRes.ok || !prefsRes.ok || !watchedRes.ok) {
-          throw new Error(t("loadError"));
-        }
-        const profileData = (await profileRes.json()) as ProfileResponse;
-        const prefsData = (await prefsRes.json()) as PreferencesResponse;
-        const watchedData = (await watchedRes.json()) as WatchedResponse;
-        const watchlistData = watchlistRes.ok ? ((await watchlistRes.json()) as WatchlistResponse) : { items: [] };
-        const historyData = historyRes.ok ? ((await historyRes.json()) as RecommendationHistoryResponse) : { items: [] };
-        const statsData = statsRes.ok
-          ? ((await statsRes.json()) as PersonalStats)
-          : {
-              totals: {
-                watchedCount: watchedData.items.length,
-                watchlistCount: watchlistData.items.length,
-                moviesCount: watchedData.items.filter((item) => item.contentType === "movie").length,
-                dramasCount: watchedData.items.filter((item) => item.contentType === "drama").length,
-                watchedThisMonth: 0,
-                averageRating: null,
-              },
-              topGenres: [],
-              topDirectors: [],
-              topActors: [],
-            };
-        const tasteData = tasteRes.ok
-          ? ((await tasteRes.json()) as TasteSummary)
-          : { summary: "視聴履歴が増えると、あなたの好みサマリを表示します。", signals: [] };
-        setProfile(profileData.profile);
-        setPreferences(prefsData.preferences);
-        setWatched(watchedData.items);
-        setWatchlist(watchlistData.items);
-        setHistory(historyData.items);
-        setStats(statsData);
-        setTasteSummary(tasteData);
-        if (movieProfileRes.ok) setMovieProfile((await movieProfileRes.json()) as MovieProfileData);
-        setState("ready");
-      } catch (error) {
-        setState("error");
-        setErrorMessage(error instanceof Error ? error.message : t("loadError"));
-      }
-    };
-    void load();
-  }, [t]);
+  const {
+    profile,
+    setProfile,
+    preferences,
+    setPreferences,
+    watched,
+    history,
+    stats,
+    tasteSummary,
+    movieProfile,
+    state,
+    errorMessage,
+  } = useMyPageHubData({
+    loadError: t("loadError"),
+    tasteFallback: "視聴履歴が増えると、あなたの好みサマリを表示します。",
+  });
 
   if (state === "loading") {
     return (
@@ -120,57 +50,12 @@ export function MyPageHub() {
   return (
     <div className="space-y-5">
       <ProfileSection profile={profile} onProfileSaved={setProfile} />
-
-      {/* Movie personality label */}
-      {movieProfile && (
-        <Link
-          href="/discover"
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "14px 16px", borderRadius: "10px", textDecoration: "none",
-            background: "rgba(127,119,221,0.05)", border: "1px solid rgba(127,119,221,0.15)",
-          }}
-        >
-          <div>
-            <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(127,119,221,0.55)", margin: "0 0 3px" }}>DISCOVER</p>
-            {movieProfile.personalityLabel ? (
-              <p style={{ fontSize: "15px", color: "#9F99E8", margin: 0, fontWeight: 500 }}>
-                ✦ {movieProfile.personalityLabel}
-              </p>
-            ) : (
-              <p style={{ fontSize: "14px", color: "#9F99E8", margin: 0 }}>
-                {t("personality.progress", { remaining: Math.max(0, 100 - movieProfile.totalSwipes) })}
-              </p>
-            )}
-          </div>
-          <span style={{ fontSize: "18px", color: "rgba(127,119,221,0.45)" }}>→</span>
-        </Link>
-      )}
-
-      <Link
-        href="/mbti"
-        style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "14px 16px", borderRadius: "10px", textDecoration: "none",
-          background: "rgba(232,201,122,0.06)", border: "1px solid rgba(232,201,122,0.2)",
-        }}
-      >
-        <div>
-          <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.4)", margin: "0 0 3px" }}>MBTI</p>
-          <p style={{ fontSize: "14px", color: "#E8C97A", margin: 0, fontWeight: 500 }}>{t("mbtiCheck")}</p>
-        </div>
-        <span style={{ fontSize: "18px", color: "rgba(232,201,122,0.5)" }}>→</span>
-      </Link>
-      <WatchedPreviewCarousel items={watched} />
-      <WatchlistSection
-        items={watchlist}
-        onAdded={(item) => setWatchlist((prev) => [item, ...prev])}
-        onRemoved={(itemId) => setWatchlist((prev) => prev.filter((item) => item.id !== itemId))}
-        onMovedToWatched={(itemId, item) => {
-          setWatchlist((prev) => prev.filter((entry) => entry.id !== itemId));
-          if (item) setWatched((prev) => [item, ...prev]);
-        }}
+      <MyPageShortcutLinks
+        movieProfile={movieProfile}
+        mbtiLabel={t("mbtiCheck")}
+        personalityProgressLabel={(remaining) => t("personality.progress", { remaining })}
       />
+      <WatchedPreviewCarousel items={watched} />
       <RecommendationHistorySection items={history} />
       <PersonalStatsSection stats={stats} />
       <TasteSummarySection tasteSummary={tasteSummary} />

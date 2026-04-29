@@ -9,10 +9,37 @@
     "tagline": "Tonight's movie, decided in 3 seconds.",
     "sub": "Matched by mood × company × MBTI",
     "cta": "Find tonight's pick →",
+    "ctaGuest": "Get started free →",
     "ctaSub": "4 steps · about 1 min",
     "moodLabel": "Current mood",
     "discoverBanner": "Discover movies you'll love",
-    "discoverProgress": "{current} / 100"
+    "discoverProgress": "{current} / 100 films",
+    "recentPicks": "Picks for you",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Sign in",
+    "stats": {
+      "total": "Total watched",
+      "thisMonth": "This month",
+      "unit": "films"
+    },
+    "discoverCardTitle": "Build your film taste",
+    "mbtiCardTitle": "Check your compatibility with your watch partner",
+    "guestFeatures": {
+      "mood": {
+        "title": "Mood-based picks",
+        "desc": "Narrow down tonight's movie from 8 moods"
+      },
+      "steps": {
+        "title": "Done in 4 steps",
+        "desc": "Answer a few questions and get the best pick"
+      },
+      "mbti": {
+        "title": "Learns MBTI and taste",
+        "desc": "A personal engine that gets better the more you use it"
+      }
+    },
+    "createAccount": "Create an account to start →",
+    "browseLink": "Browse the catalog →"
   },
   "mood": {
     "excited": "Thrilling",
@@ -192,6 +219,56 @@
       "thriller": "Thriller"
     }
   },
+  "recommendForm": {
+    "step": "step {current}/4",
+    "steps": {
+      "runtime": "How long do you want tonight's movie to be?",
+      "withWhom": "Who are you watching with?",
+      "avoid": "What do you want to avoid?",
+      "mood": "What's tonight's mood?"
+    },
+    "watchContexts": {
+      "solo_watch": "Watching solo",
+      "date_friendly": "Date night",
+      "friends_hangout": "With friends",
+      "family_time": "With family",
+      "late_night_fit": "Late-night watch"
+    },
+    "moods": {
+      "calm": "Want something calm",
+      "emotional": "Want to be moved",
+      "stylish": "Want striking visuals",
+      "dark": "Want a dark mood",
+      "funny": "Want to laugh",
+      "tense": "Want tension",
+      "uplifting": "Want something uplifting",
+      "melancholic": "Want lingering emotion"
+    },
+    "runtimePresets": {
+      "quick": "Quick (90 min)",
+      "standard": "Standard (120 min)",
+      "long": "Long (150 min)"
+    },
+    "runtimeTitle": "How long do you want to watch tonight?",
+    "runtimeAdjust": "Fine-tune ({minutes} min)",
+    "runtimeRange": "Search range: {min} to {max} min",
+    "withWhomTitle": "Who are you watching with tonight?",
+    "avoidTitle": "Anything you want to avoid tonight?",
+    "avoidHelp": "Optional. You can skip this and move on.",
+    "excludeTagsLabel": "Exclude tags (comma-separated, optional)",
+    "moodTitle": "What's your mood tonight?",
+    "moodHelp": "Pick up to 3. Leave it blank if you want us to choose for you.",
+    "summaryTitle": "Selected conditions",
+    "summaryRuntime": "Length {min}-{max} min · {context}",
+    "summaryExclude": "Exclude: {items}",
+    "summaryMood": "Mood: {items}",
+    "keepGoing": "Continue with this",
+    "submit": "Find tonight's pick",
+    "submitting": "Thinking...",
+    "errorCreate": "Failed to create recommendations.",
+    "errorTimeout": "This is taking longer than expected. Please try again in a moment.",
+    "errorNetwork": "A network error occurred. Please check your connection and try again."
+  },
   "mbti": {
     "title": "MBTI compatibility",
     "pairMode": "Watch as a pair",
@@ -339,5 +416,18 @@
     "done": "Done",
     "free": "Free",
     "premium": "Premium"
+  },
+  "person": {
+    "roles": {
+      "director": "Director",
+      "actor": "Actor",
+      "writer": "Writer"
+    },
+    "loading": "Loading person details...",
+    "loadError": "Couldn't load person details",
+    "knownFor": "Known for",
+    "recentCredits": "Recent related titles",
+    "collaborators": "Frequent collaborators",
+    "viewPage": "View person page →"
   }
 }

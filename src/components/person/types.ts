@@ -1,4 +1,4 @@
-export type PersonRole = "director" | "actor" | "writer";
+import type { PersonRole } from "@/lib/person/roles";
 
 export type PersonChipData = {
   personId?: string | null;
@@ -36,3 +36,5 @@ export type PersonDetailResponse = {
     roles: PersonRole[];
   }>;
 };
+
+export type { PersonRole };

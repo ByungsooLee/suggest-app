@@ -1,16 +1,24 @@
 "use client";
 
-import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { PersonChip } from "@/components/person/PersonChip";
 import type { PersonChipData } from "@/components/person/types";
-import { useMovieTitleLang, resolveField, type LocalizedData } from "@/lib/i18n/lang-context";
+import { useMovieTitleLang } from "@/lib/i18n/lang-context";
+import { resolveField, type LocalizedData } from "@/lib/i18n/localized-movie";
 import { getMovieTitle } from "@/lib/movie-title";
 import { LangSelector } from "@/components/lang-selector";
 import { generateMoviePrompt, type PromptType } from "@/lib/prompts/movie-prompt-generator";
 import { useDominantColor } from "@/hooks/useDominantColor";
+import {
+  MovieDetailEmotionBar,
+  MovieDetailFooterLinks,
+  MovieDetailHero,
+  MovieDetailInfoTab,
+  MovieDetailMemoTab,
+  MovieDetailPromptTab,
+  MovieDetailTabNav,
+} from "./movie-detail-sections";
 
 const EMOTION_CONFIG = [
   { key: "excited",  label: "excited",  color: "#E8C97A" },
@@ -156,268 +164,92 @@ export function MovieDetailClient({
       </div>
 
       <div style={{ maxWidth: "640px", margin: "0 auto", padding: "24px 16px 48px" }}>
-        {/* Hero */}
-        <div style={{ display: "flex", gap: "20px", marginBottom: "28px" }}>
-          {/* Poster */}
-          <div style={{ flexShrink: 0, width: "120px", height: "180px", borderRadius: "8px", overflow: "hidden", background: "rgba(232,227,216,0.06)", position: "relative" }}>
-            {posterUrl ? (
-              <Image src={posterUrl} alt={title} fill className="object-cover" />
-            ) : (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: "2rem", opacity: 0.2 }}>
-                {title[0]}
-              </div>
-            )}
-          </div>
-
-          {/* Info */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              {[genrePrimary, genreSecondary].filter(Boolean).map((g) => (
-                <span key={g} style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>
-                  {browseT.has(`genres.${g}`) ? browseT(`genres.${g}`) : g}
-                </span>
-              ))}
-              <span style={{ fontSize: "10px", letterSpacing: "0.1em", padding: "2px 8px", border: "1px solid rgba(232,227,216,0.2)", borderRadius: "999px", color: "rgba(232,227,216,0.6)" }}>{detailT("runtime", { min: runtimeMinutes })}</span>
-            </div>
-            <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "22px", lineHeight: 1.2, margin: 0 }}>{title}</h1>
-            {directors.length > 0 && (
-              <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.55)", margin: 0 }}>{directors[0]}</p>
-            )}
-            {reviewScore != null && (
-              <p style={{ fontFamily: "var(--font-dm-serif)", fontSize: "28px", color: "#E8C97A", margin: 0, lineHeight: 1 }}>
-                {reviewScore.toFixed(1)}
-                <span style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", marginLeft: "4px" }}>/10</span>
-              </p>
-            )}
-            {watchLog?.watchedAt && (
-              <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.35)", margin: 0 }}>
-                {detailT("watchedOn", {
+        <MovieDetailHero
+          title={title}
+          posterUrl={posterUrl}
+          genreLabels={[genrePrimary, genreSecondary].filter((value): value is string => Boolean(value)).map((genre) => (
+            browseT.has(`genres.${genre}`) ? browseT(`genres.${genre}`) : genre
+          ))}
+          runtimeLabel={detailT("runtime", { min: runtimeMinutes })}
+          firstDirector={directors[0]}
+          reviewScore={reviewScore}
+          watchedOnLabel={
+            watchLog?.watchedAt
+              ? detailT("watchedOn", {
                   date: new Date(watchLog.watchedAt).toLocaleDateString(uiLang === "ja" ? "ja-JP" : uiLang === "ko" ? "ko-KR" : "en-US"),
-                })}
-              </p>
-            )}
-          </div>
-        </div>
+                })
+              : null
+          }
+        />
 
-        {/* Emotion bar */}
-        <div style={{ marginBottom: "28px" }}>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            {EMOTION_CONFIG.map((e) => (
-              <button
-                key={e.key}
-                onClick={() => handleEmotion(e.key)}
-                style={{
-                  width: "32px", height: "32px", borderRadius: "50%",
-                  background: e.color,
-                  border: emotion === e.key ? "2px solid #fff" : "2px solid transparent",
-                  cursor: "pointer", flexShrink: 0,
-                  transform: emotion === e.key ? "scale(1.15)" : "scale(1)",
-                  transition: "all 0.15s",
-                }}
-                title={e.label}
-              />
-            ))}
-            {activeEmotion && (
-              <span style={{ fontSize: "12px", color: "rgba(232,227,216,0.65)", marginLeft: "4px" }}>
-                {detailT(`emotion.${activeEmotion.key}`)}
-              </span>
-            )}
-          </div>
-          {!watchLog && (
-            <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", marginTop: "10px" }}>
-              {detailT("noWatchLog")}
-            </p>
-          )}
-        </div>
+        <MovieDetailEmotionBar
+          items={EMOTION_CONFIG.map((item) => ({ key: item.key, color: item.color, title: item.label }))}
+          emotion={emotion}
+          onEmotionChange={handleEmotion}
+          activeEmotionLabel={activeEmotion ? detailT(`emotion.${activeEmotion.key}`) : null}
+          noWatchLogLabel={detailT("noWatchLog")}
+          showNoWatchLog={!watchLog}
+        />
 
-        {/* Tabs */}
-        <div style={{ display: "flex", gap: "0", borderBottom: "1px solid rgba(232,227,216,0.12)", marginBottom: "24px" }}>
-          {(["prompt", "memo", "info"] as const).map((t) => {
-            return (
-              <button
-                key={t}
-                onClick={() => setActiveTab(t)}
-                style={{
-                  padding: "8px 16px", fontSize: "12px", letterSpacing: "0.08em",
-                  background: "none", border: "none", cursor: "pointer",
-                  color: activeTab === t ? "#E8C97A" : "rgba(232,227,216,0.45)",
-                  borderBottom: activeTab === t ? "2px solid #E8C97A" : "2px solid transparent",
-                  marginBottom: "-1px", transition: "color 0.15s",
-                }}
-              >
-                {detailT(`tabs.${t}`)}
-              </button>
-            );
-          })}
-        </div>
+        <MovieDetailTabNav
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          labels={{
+            prompt: detailT("tabs.prompt"),
+            memo: detailT("tabs.memo"),
+            info: detailT("tabs.info"),
+          }}
+        />
 
         {/* Tab: プロンプト */}
         {activeTab === "prompt" && (
-          <div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
-              {PROMPT_CARDS.map((card) => (
-                <button
-                  key={card.type}
-                  onClick={() => !card.premium && setSelectedPrompt(card.type)}
-                  style={{
-                    padding: "16px", borderRadius: "10px", textAlign: "left", cursor: card.premium ? "default" : "pointer",
-                    background: selectedPrompt === card.type && !card.premium ? "rgba(232,201,122,0.1)" : "rgba(232,227,216,0.04)",
-                    border: selectedPrompt === card.type && !card.premium ? "1px solid rgba(232,201,122,0.4)" : "1px solid rgba(232,227,216,0.1)",
-                    opacity: card.premium ? 0.5 : 1,
-                    transition: "all 0.15s",
-                    position: "relative",
-                  }}
-                >
-                  {card.premium && (
-                    <span style={{ position: "absolute", top: "8px", right: "8px", fontSize: "12px" }}>🔒</span>
-                  )}
-                  <div style={{ fontSize: "20px", marginBottom: "6px" }}>{card.icon}</div>
-                  <div style={{ fontSize: "12px", letterSpacing: "0.05em", color: card.premium ? "rgba(232,227,216,0.5)" : "rgba(232,227,216,0.85)" }}>
-                    {detailT(`promptTypes.${card.type}`)}
-                  </div>
-                  {!card.premium && (
-                    <div style={{ fontSize: "10px", color: "rgba(232,201,122,0.7)", marginTop: "4px" }}>{detailT("promptFree")}</div>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Prompt preview */}
-            <div style={{ background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.1)", borderRadius: "10px", padding: "16px", marginBottom: "12px" }}>
-              <p style={{ fontFamily: "var(--font-dm-serif)", fontStyle: "italic", fontSize: "13px", lineHeight: 1.7, color: "rgba(232,227,216,0.8)", margin: 0 }}>
-                {promptText}
-              </p>
-            </div>
-
-            {/* Premium nudge */}
-            <p style={{ fontSize: "11px", color: "rgba(232,227,216,0.35)", textAlign: "center", marginBottom: "16px" }}>
-              {detailT("promptUpgrade", { count: 3 })}
-            </p>
-
-            {/* Copy button */}
-            <button
-              onClick={handleCopy}
-              style={{
-                width: "100%", padding: "14px", borderRadius: "10px", border: "none", cursor: "pointer",
-                background: copied ? "#5DCAA5" : "#E8C97A",
-                color: "#080808", fontWeight: 600, fontSize: "14px", letterSpacing: "0.05em",
-                transition: "background 0.2s",
-              }}
-            >
-              {copied ? `${detailT("promptCopied")} ✓` : detailT("promptCopy")}
-            </button>
-
-            <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", textAlign: "center", marginTop: "8px" }}>
-              ※ このプロンプトはsuggest-appが研究・設計しています。<br />
-              皆さまのご利用が、より良いプロンプトの向上につながります。
-            </p>
-          </div>
+          <MovieDetailPromptTab
+            promptCards={PROMPT_CARDS}
+            selectedPrompt={selectedPrompt}
+            onSelectPrompt={setSelectedPrompt}
+            promptTypeLabel={(type) => detailT(`promptTypes.${type}`)}
+            promptFreeLabel={detailT("promptFree")}
+            promptText={promptText}
+            promptUpgradeLabel={detailT("promptUpgrade", { count: 3 })}
+            copied={copied}
+            onCopy={handleCopy}
+            promptCopyLabel={detailT("promptCopy")}
+            promptCopiedLabel={detailT("promptCopied")}
+            promptNoteLabel={detailT("promptNote")}
+          />
         )}
 
         {/* Tab: メモ */}
         {activeTab === "memo" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div>
-              <label style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", display: "block", marginBottom: "8px" }}>
-                {detailT("memo.label")}
-              </label>
-              <textarea
-                value={memo}
-                onChange={(e) => handleMemo(e.target.value)}
-                rows={5}
-                placeholder={detailT("memo.placeholder")}
-                style={{
-                  width: "100%", background: "rgba(232,227,216,0.04)", border: "1px solid rgba(232,227,216,0.1)",
-                  borderRadius: "8px", padding: "12px", color: "#e8e3d8", fontSize: "14px", lineHeight: 1.6,
-                  resize: "vertical", outline: "none", boxSizing: "border-box",
-                }}
-              />
-            </div>
-
-            <div style={{ background: "rgba(232,227,216,0.03)", border: "1px solid rgba(232,227,216,0.08)", borderRadius: "8px", padding: "14px" }}>
-              <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.4)", margin: 0, lineHeight: 1.6 }}>
-                {detailT("memo.chatSummaryEmpty")}
-              </p>
-            </div>
-          </div>
+          <MovieDetailMemoTab
+            memoLabel={detailT("memo.label")}
+            memo={memo}
+            onChangeMemo={handleMemo}
+            memoPlaceholder={detailT("memo.placeholder")}
+            chatSummaryEmptyLabel={detailT("memo.chatSummaryEmpty")}
+          />
         )}
 
         {/* Tab: 映画情報 */}
         {activeTab === "info" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {/* Staff chips */}
-            <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>{detailT("staff")}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {directorCredits.map((credit) => (
-                  <PersonChip key={`dir-${credit.personId ?? credit.name}`} {...credit} />
-                ))}
-                {writerCredits.map((credit) => (
-                  <PersonChip key={`writer-${credit.personId ?? credit.name}`} {...credit} compact />
-                ))}
-                {castCredits.slice(0, 5).map((credit) => (
-                  <PersonChip key={`cast-${credit.personId ?? credit.name}`} {...credit} compact />
-                ))}
-              </div>
-            </div>
-
-            {/* Overview */}
-            {overview && (
-              <div>
-                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>{detailT("overview")}</p>
-                <p style={{ fontSize: "14px", lineHeight: 1.7, color: "rgba(232,227,216,0.8)", margin: 0 }}>{overview}</p>
-              </div>
-            )}
-
-            {/* Mood profile */}
-            <div>
-              <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>{detailT("moodProfile")}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {moodProfile.map(({ label, value }) => {
-                  const pct = Math.round(value * 100);
-                  return (
-                    <div key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ fontSize: "10px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.5)", width: "64px", textAlign: "right", flexShrink: 0 }}>{label}</span>
-                      <div style={{ flex: 1, height: "4px", borderRadius: "999px", background: "rgba(232,227,216,0.1)" }}>
-                        <div style={{ width: `${pct}%`, height: "100%", borderRadius: "999px", background: "linear-gradient(90deg, #E8C97A, #D4537E)" }} />
-                      </div>
-                      <span style={{ fontSize: "10px", color: "#E8C97A", width: "28px", flexShrink: 0 }}>{pct}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Similar films */}
-            {similar.length > 0 && (
-              <div>
-                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "10px" }}>{detailT("similarMovies")}</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {similar.map((s) => (
-                    <Link key={s.id} href={`/movies/${s.id}`} style={{ fontSize: "14px", color: "#e8e3d8", textDecoration: "none" }}>
-                      {getMovieTitle(s, movieTitleLang)}
-                      <span style={{ marginLeft: "8px", fontSize: "11px", color: "rgba(232,227,216,0.4)" }}>{s.releaseYear}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Review summary */}
-            {reviewSummary && (
-              <div>
-                <p style={{ fontSize: "11px", letterSpacing: "0.08em", color: "rgba(232,227,216,0.45)", marginBottom: "8px" }}>{detailT("review")}</p>
-                <p style={{ fontSize: "14px", lineHeight: 1.7, color: "rgba(232,227,216,0.7)", margin: 0 }}>{reviewSummary}</p>
-              </div>
-            )}
-          </div>
+          <MovieDetailInfoTab
+            staffLabel={detailT("staff")}
+            directorCredits={directorCredits}
+            writerCredits={writerCredits}
+            castCredits={castCredits}
+            overviewLabel={detailT("overview")}
+            overview={overview}
+            moodProfileLabel={detailT("moodProfile")}
+            moodProfile={moodProfile}
+            similarMoviesLabel={detailT("similarMovies")}
+            similar={similar}
+            movieTitleLang={movieTitleLang}
+            reviewLabel={detailT("review")}
+            reviewSummary={reviewSummary}
+          />
         )}
 
-        {/* Nav */}
-        <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px solid rgba(232,227,216,0.08)", display: "flex", justifyContent: "center", gap: "32px" }}>
-          <Link href="/browse" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>{detailT("backToBrowse")}</Link>
-          <Link href="/recommend" style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(232,227,216,0.4)", textDecoration: "none" }}>{detailT("goToRecommend")}</Link>
-        </div>
+        <MovieDetailFooterLinks backToBrowseLabel={detailT("backToBrowse")} goToRecommendLabel={detailT("goToRecommend")} />
       </div>
     </div>
   );

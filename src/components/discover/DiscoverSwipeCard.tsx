@@ -1,38 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useRef, useState } from "react";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
+import type { MovieCardPayload } from "@/lib/movies/movie-card";
 import { getMovieTitle } from "@/lib/movie-title";
-import type { PersonChipData } from "@/components/person/types";
+import { getMovieCardGradient } from "@/components/swipe/card-styles";
+import { useSwipeCardDrag } from "@/components/swipe/useSwipeCardDrag";
 
-const GENRE_GRADIENTS: Record<string, string> = {
-  スリラー:   "linear-gradient(160deg,#1a1020 0%,#2d1a3d 100%)",
-  SF:         "linear-gradient(160deg,#0d1a2e 0%,#1a3a5c 100%)",
-  ドラマ:     "linear-gradient(160deg,#1a0e0e 0%,#3d1a1a 100%)",
-  ホラー:     "linear-gradient(160deg,#0a0e0a 0%,#0e2e0e 100%)",
-  コメディ:   "linear-gradient(160deg,#1e1a0d 0%,#3d3510 100%)",
-  アクション: "linear-gradient(160deg,#1a0a0a 0%,#3d1010 100%)",
-  ロマンス:   "linear-gradient(160deg,#1a0d14 0%,#3d1a2d 100%)",
-  アニメ:     "linear-gradient(160deg,#0d1a14 0%,#1a3d28 100%)",
-  default:    "linear-gradient(160deg,#141418 0%,#2a2a30 100%)",
-};
-
-export type DiscoverMovie = {
-  id: string;
-  title: string;
-  year: number;
-  genrePrimary: string;
-  directors: string[];
-  posterUrl: string | null;
-  runtime: number | null;
-  reviewScore: number | null;
-  overview: string | null;
-  cast: string[];
-  credits: PersonChipData[];
-  localizedTitles?: unknown;
-  localizedData?: unknown;
-};
+export type DiscoverMovie = MovieCardPayload;
 
 type Props = {
   movie: DiscoverMovie;
@@ -42,75 +17,34 @@ type Props = {
   onTap: () => void;
 };
 
-const THRESHOLD = 80;
-
 export function DiscoverSwipeCard({ movie, isTop, stackStyle, onSwipe, onTap }: Props) {
   const t = useTranslations("discover");
   const { lang } = useMovieTitleLang();
-  const [dragX, setDragX] = useState(0);
-  const [dragY, setDragY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [exiting, setExiting] = useState<"like" | "pass" | "watchlist" | null>(null);
-  const startX = useRef(0);
-  const startY = useRef(0);
-  const fired = useRef(false);
-  const moved = useRef(false);
-
-  const stopButtonPointer = (e: React.PointerEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-  };
-
-  const exit = useCallback((action: "like" | "pass" | "watchlist") => {
-    if (fired.current) return;
-    fired.current = true;
-    setExiting(action);
-    setTimeout(() => onSwipe(action), 280);
-  }, [onSwipe]);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (!isTop || exiting) return;
-    if (e.target instanceof HTMLElement && e.target.closest("button")) return;
-    startX.current = e.clientX;
-    startY.current = e.clientY;
-    moved.current = false;
-    setIsDragging(true);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging || !isTop || exiting) return;
-    const dx = e.clientX - startX.current;
-    const dy = e.clientY - startY.current;
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved.current = true;
-    setDragX(dx);
-    setDragY(dy);
-  };
-
-  const handlePointerUp = () => {
-    if (!isDragging || !isTop) return;
-    setIsDragging(false);
-    if (!moved.current) { setDragX(0); setDragY(0); return; }
-    if (dragX > THRESHOLD) exit("like");
-    else if (dragX < -THRESHOLD) exit("pass");
-    else if (dragY < -THRESHOLD) exit("watchlist");
-    else { setDragX(0); setDragY(0); }
-  };
+  const { dragX, dragY, isDragging, exiting, exit, stopButtonPointer, handlePointerDown, handlePointerMove, handlePointerUp } = useSwipeCardDrag({
+    enabled: isTop,
+    allowUpSwipe: true,
+    onExit: (direction) => {
+      if (direction === "right") onSwipe("like");
+      else if (direction === "left") onSwipe("pass");
+      else onSwipe("watchlist");
+    },
+  });
 
   const rotation = Math.max(-12, Math.min(12, dragX * 0.08));
 
   let overlayColor = "transparent";
-  if (dragX > 20) overlayColor = `rgba(232,201,122,${Math.min(0.4, dragX / THRESHOLD * 0.4)})`;
-  else if (dragX < -20) overlayColor = `rgba(216,90,48,${Math.min(0.4, -dragX / THRESHOLD * 0.4)})`;
-  else if (dragY < -20) overlayColor = `rgba(127,119,221,${Math.min(0.4, -dragY / THRESHOLD * 0.4)})`;
+  if (dragX > 20) overlayColor = `rgba(232,201,122,${Math.min(0.4, (dragX / 80) * 0.4)})`;
+  else if (dragX < -20) overlayColor = `rgba(216,90,48,${Math.min(0.4, (-dragX / 80) * 0.4)})`;
+  else if (dragY < -20) overlayColor = `rgba(127,119,221,${Math.min(0.4, (-dragY / 80) * 0.4)})`;
 
   const cardTransform =
-    exiting === "like"      ? "translateX(110vw) rotate(20deg)" :
-    exiting === "pass"      ? "translateX(-110vw) rotate(-20deg)" :
-    exiting === "watchlist" ? "translateY(-110vh) rotate(-5deg)" :
+    exiting === "right" ? "translateX(110vw) rotate(20deg)" :
+    exiting === "left" ? "translateX(-110vw) rotate(-20deg)" :
+    exiting === "up" ? "translateY(-110vh) rotate(-5deg)" :
     isTop ? `translateX(${dragX}px) translateY(${dragY}px) rotate(${rotation}deg)` : "none";
 
   const transition = isDragging ? "none" : "transform 280ms cubic-bezier(0.16,1,0.3,1)";
-  const bg = GENRE_GRADIENTS[movie.genrePrimary] ?? GENRE_GRADIENTS.default;
+  const bg = getMovieCardGradient(movie.genrePrimary);
   const displayTitle = getMovieTitle(movie, lang);
 
   const showLike      = dragX > 30;
@@ -171,7 +105,7 @@ export function DiscoverSwipeCard({ movie, isTop, stackStyle, onSwipe, onTap }: 
         )}
         {/* Genre/year */}
         <div style={{ position: "absolute", bottom: "10px", left: "14px", fontSize: "11px", color: "rgba(232,227,216,0.5)", letterSpacing: "0.05em", pointerEvents: "none" }}>
-          {[movie.genrePrimary, movie.year, movie.runtime ? `${movie.runtime}分` : null].filter(Boolean).join(" · ")}
+          {[movie.genrePrimary, movie.releaseYear, movie.runtimeMinutes ? `${movie.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
         </div>
       </div>
 
@@ -194,21 +128,21 @@ export function DiscoverSwipeCard({ movie, isTop, stackStyle, onSwipe, onTap }: 
         <button
           onPointerDown={stopButtonPointer}
           onPointerUp={stopButtonPointer}
-          onClick={(e) => { e.stopPropagation(); if (isTop && !exiting) exit("pass"); }}
+          onClick={(e) => { e.stopPropagation(); if (isTop && !exiting) exit("left"); }}
           style={{ flex: 1, height: "40px", borderRadius: "9px", background: "rgba(216,90,48,0.08)", border: "1px solid rgba(216,90,48,0.25)", color: "#D85A30", fontSize: "12px", cursor: "pointer" }}>
           {t("hint.left")}
         </button>
         <button
           onPointerDown={stopButtonPointer}
           onPointerUp={stopButtonPointer}
-          onClick={(e) => { e.stopPropagation(); if (isTop && !exiting) exit("watchlist"); }}
+          onClick={(e) => { e.stopPropagation(); if (isTop && !exiting) exit("up"); }}
           style={{ flex: 1, height: "40px", borderRadius: "9px", background: "rgba(127,119,221,0.08)", border: "1px solid rgba(127,119,221,0.25)", color: "#7F77DD", fontSize: "12px", cursor: "pointer" }}>
           {t("hint.up")}
         </button>
         <button
           onPointerDown={stopButtonPointer}
           onPointerUp={stopButtonPointer}
-          onClick={(e) => { e.stopPropagation(); if (isTop && !exiting) exit("like"); }}
+          onClick={(e) => { e.stopPropagation(); if (isTop && !exiting) exit("right"); }}
           style={{ flex: 1, height: "40px", borderRadius: "9px", background: "rgba(232,201,122,0.1)", border: "1px solid rgba(232,201,122,0.35)", color: "#E8C97A", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>
           {t("hint.right")}
         </button>

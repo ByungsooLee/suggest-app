@@ -4,7 +4,10 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
+import { movieCardSelect } from "@/lib/db/selects/movie";
 import { prisma } from "@/lib/db/prisma";
+import { mapCreditsToPersonChipData } from "@/lib/movies/credits";
+import { createMovieCardPayload } from "@/lib/movies/movie-card";
 import { SwipeResultClient } from "./swipe-result-client";
 
 export default async function RecommendResultPage({
@@ -25,22 +28,7 @@ export default async function RecommendResultPage({
       results: {
         include: {
           movie: {
-            include: {
-              credits: {
-                select: {
-                  role: true,
-                  creditOrder: true,
-                  person: {
-                    select: {
-                      id: true,
-                      name: true,
-                      tmdbId: true,
-                    },
-                  },
-                },
-                orderBy: [{ role: "asc" }, { creditOrder: "asc" }],
-              },
-            },
+            select: movieCardSelect,
           },
         },
         orderBy: { rank: "asc" },
@@ -67,31 +55,27 @@ export default async function RecommendResultPage({
     );
   }
 
-  const movies = recommendationSession.results.map((r) => ({
-    id: r.movie.id,
-    title: r.movie.title,
-    year: r.movie.releaseYear,
-    genre: r.movie.genrePrimary,
-    duration: r.movie.runtimeMinutes,
-    directors: r.movie.directors,
-    score: r.movie.reviewScore,
-    posterUrl: r.movie.posterUrl,
-    overview: r.movie.overview,
-    localizedTitles: r.movie.localizedTitles,
-    localizedData: r.movie.localizedData,
-    credits:
-      r.movie.credits.length > 0
-        ? r.movie.credits.map((credit) => ({
-            personId: credit.person.id,
-            tmdbId: credit.person.tmdbId,
-            name: credit.person.name,
-            role: credit.role,
-          }))
-        : [
-            ...r.movie.directors.map((name) => ({ name, role: "director" as const })),
-            ...r.movie.cast.map((name) => ({ name, role: "actor" as const })),
-          ],
-  }));
+  const movies = recommendationSession.results.map((r) =>
+    createMovieCardPayload({
+      id: r.movie.id,
+      title: r.movie.title,
+      releaseYear: r.movie.releaseYear,
+      genrePrimary: r.movie.genrePrimary,
+      runtimeMinutes: r.movie.runtimeMinutes,
+      directors: r.movie.directors,
+      reviewScore: r.movie.reviewScore,
+      posterUrl: r.movie.posterUrl,
+      overview: r.movie.overview,
+      cast: r.movie.cast,
+      localizedTitles: r.movie.localizedTitles,
+      localizedData: r.movie.localizedData,
+      credits: mapCreditsToPersonChipData({
+        credits: r.movie.credits,
+        directors: r.movie.directors,
+        cast: r.movie.cast,
+      }),
+    }),
+  );
 
   return <SwipeResultClient movies={movies} />;
 }

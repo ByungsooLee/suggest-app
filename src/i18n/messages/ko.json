@@ -9,10 +9,37 @@
     "tagline": "오늘 밤 영화, 3초 만에 결정.",
     "sub": "기분 × 함께 보는 사람 × MBTI로 최적의 한 편을",
     "cta": "오늘 밤 영화 찾기 →",
+    "ctaGuest": "무료로 시작하기 →",
     "ctaSub": "4단계 · 약 1분",
     "moodLabel": "현재 기분",
     "discoverBanner": "좋아할 영화 발견하기",
-    "discoverProgress": "{current} / 100편"
+    "discoverProgress": "{current} / 100편",
+    "recentPicks": "당신을 위한 픽",
+    "alreadyHaveAccount": "이미 계정이 있다면",
+    "login": "로그인",
+    "stats": {
+      "total": "총 시청 편수",
+      "thisMonth": "이번 달",
+      "unit": "편"
+    },
+    "discoverCardTitle": "취향 영화를 키우기",
+    "mbtiCardTitle": "함께 보는 사람과의 궁합 체크",
+    "guestFeatures": {
+      "mood": {
+        "title": "기분 기반 추천",
+        "desc": "8가지 기분에서 오늘 밤 영화를 좁혀갑니다"
+      },
+      "steps": {
+        "title": "4단계로 끝",
+        "desc": "질문에 답하면 가장 잘 맞는 한 편이 정해집니다"
+      },
+      "mbti": {
+        "title": "MBTI×취향 학습",
+        "desc": "쓸수록 정밀해지는 개인화 엔진"
+      }
+    },
+    "createAccount": "계정을 만들어 시작하기 →",
+    "browseLink": "카탈로그 보기 →"
   },
   "mood": {
     "excited": "두근거리고 싶다",
@@ -192,6 +219,56 @@
       "thriller": "스릴러"
     }
   },
+  "recommendForm": {
+    "step": "step {current}/4",
+    "steps": {
+      "runtime": "오늘은 몇 분짜리가 좋나요?",
+      "withWhom": "누구와 함께 보나요?",
+      "avoid": "피하고 싶은 건 있나요?",
+      "mood": "오늘 밤 기분은 어떤가요?"
+    },
+    "watchContexts": {
+      "solo_watch": "혼자 보기",
+      "date_friendly": "데이트로 보기",
+      "friends_hangout": "친구와 보기",
+      "family_time": "가족과 보기",
+      "late_night_fit": "늦은 밤 보기"
+    },
+    "moods": {
+      "calm": "차분해지고 싶다",
+      "emotional": "감정을 크게 흔들고 싶다",
+      "stylish": "영상미를 즐기고 싶다",
+      "dark": "어두운 분위기가 좋다",
+      "funny": "웃고 싶다",
+      "tense": "긴장감이 필요하다",
+      "uplifting": "기분이 좋아지고 싶다",
+      "melancholic": "여운에 잠기고 싶다"
+    },
+    "runtimePresets": {
+      "quick": "가볍게 (90분)",
+      "standard": "표준 (120분)",
+      "long": "진득하게 (150분)"
+    },
+    "runtimeTitle": "오늘 밤은 몇 분 정도 보고 싶나요?",
+    "runtimeAdjust": "세부 조정 ({minutes}분)",
+    "runtimeRange": "검색 범위: {min} ~ {max}분",
+    "withWhomTitle": "오늘 밤 누구와 함께 보나요?",
+    "avoidTitle": "오늘 밤 피하고 싶은 것이 있나요?",
+    "avoidHelp": "선택 사항입니다. 건너뛰고 다음으로 갈 수 있어요.",
+    "excludeTagsLabel": "제외 태그 (쉼표 구분, 선택)",
+    "moodTitle": "오늘 밤 기분은 어떤가요?",
+    "moodHelp": "최대 3개까지. 고르지 않아도 알아서 추천해 드립니다.",
+    "summaryTitle": "선택한 조건",
+    "summaryRuntime": "러닝타임 {min}~{max}분 · {context}",
+    "summaryExclude": "제외: {items}",
+    "summaryMood": "기분: {items}",
+    "keepGoing": "이대로 다음으로",
+    "submit": "오늘 밤 영화를 찾기",
+    "submitting": "계산 중...",
+    "errorCreate": "추천 생성에 실패했습니다.",
+    "errorTimeout": "계산에 시간이 걸리고 있습니다. 잠시 후 다시 시도해 주세요.",
+    "errorNetwork": "네트워크 오류가 발생했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요."
+  },
   "mbti": {
     "title": "MBTI 궁합",
     "pairMode": "2인 관람",
@@ -339,5 +416,18 @@
     "done": "완료",
     "free": "무료",
     "premium": "프리미엄"
+  },
+  "person": {
+    "roles": {
+      "director": "감독",
+      "actor": "배우",
+      "writer": "각본"
+    },
+    "loading": "인물 정보를 불러오는 중...",
+    "loadError": "인물 정보를 불러오지 못했습니다",
+    "knownFor": "대표작",
+    "recentCredits": "최근 관련 작품",
+    "collaborators": "주요 협업자",
+    "viewPage": "인물 페이지 보기 →"
   }
 }

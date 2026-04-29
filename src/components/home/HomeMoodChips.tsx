@@ -1,17 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 
 const QUICK_MOODS = [
-  { emoji: "😤", label: "笑いたい", mood: "funny" },
-  { emoji: "💓", label: "ドキドキしたい", mood: "tense" },
-  { emoji: "🥹", label: "泣きたい", mood: "emotional" },
-  { emoji: "✨", label: "映像美を楽しみたい", mood: "stylish" },
-  { emoji: "🌙", label: "余韻に浸りたい", mood: "melancholic" },
-  { emoji: "☀️", label: "前向きになりたい", mood: "uplifting" },
+  { emoji: "😤", mood: "funny" },
+  { emoji: "💓", mood: "tense" },
+  { emoji: "🥹", mood: "emotional" },
+  { emoji: "✨", mood: "stylish" },
+  { emoji: "🌙", mood: "melancholic" },
+  { emoji: "☀️", mood: "uplifting" },
 ] as const;
 
 export function HomeMoodChips({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const homeT = useTranslations("home");
+  const formT = useTranslations("recommendForm.moods");
   const router = useRouter();
 
   const handleMood = (mood: string) => {
@@ -26,10 +29,10 @@ export function HomeMoodChips({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <section style={{ padding: "0 0 8px" }}>
       <p style={{ fontSize: "11px", letterSpacing: "0.1em", color: "rgba(240,237,232,0.35)", marginBottom: "12px" }}>
-        今の気分
+        {homeT("moodLabel")}
       </p>
       <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
-        {QUICK_MOODS.map(({ emoji, label, mood }) => (
+        {QUICK_MOODS.map(({ emoji, mood }) => (
           <button
             key={mood}
             onClick={() => handleMood(mood)}
@@ -53,7 +56,7 @@ export function HomeMoodChips({ isLoggedIn }: { isLoggedIn: boolean }) {
             }}
           >
             <span>{emoji}</span>
-            <span>{label}</span>
+            <span>{formT(mood)}</span>
           </button>
         ))}
       </div>

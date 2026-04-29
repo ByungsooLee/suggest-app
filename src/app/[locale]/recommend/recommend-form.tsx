@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -10,36 +11,10 @@ import { CONTENT_WARNING_TAGS, MOOD_TAGS, WATCH_CONTEXTS, type MoodTag, type Wat
 
 const STEP_COUNT = 4;
 
-const STEP_LABELS = [
-  "今夜は何分？",
-  "誰と観る？",
-  "避けたいもの",
-  "今夜の気分",
-] as const;
-
-const WATCH_CONTEXT_LABELS: Record<WatchContext, string> = {
-  solo_watch: "ひとりで観る",
-  date_friendly: "デートで観る",
-  friends_hangout: "友人と観る",
-  family_time: "家族で観る",
-  late_night_fit: "夜更かしで観る",
-};
-
-const MOOD_LABELS: Record<MoodTag, string> = {
-  calm: "落ち着きたい",
-  emotional: "感情を揺さぶられたい",
-  stylish: "映像美を楽しみたい",
-  dark: "ダークな雰囲気",
-  funny: "笑いたい",
-  tense: "緊張感がほしい",
-  uplifting: "前向きになりたい",
-  melancholic: "余韻に浸りたい",
-};
-
 const RUNTIME_PRESETS = [
-  { id: "quick", label: "さくっと (90分)", value: 90 },
-  { id: "standard", label: "標準 (120分)", value: 120 },
-  { id: "long", label: "じっくり (150分)", value: 150 },
+  { id: "quick", value: 90 },
+  { id: "standard", value: 120 },
+  { id: "long", value: 150 },
 ] as const;
 
 type MbtiContext = {
@@ -53,6 +28,8 @@ type MbtiContext = {
 } | null;
 
 export function RecommendForm() {
+  const t = useTranslations("recommendForm");
+  const commonT = useTranslations("common");
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [currentMoods, setCurrentMoods] = useState<MoodTag[]>([]);
@@ -101,6 +78,24 @@ export function RecommendForm() {
 
   const desiredRuntimeMin = useMemo(() => Math.max(60, runtimeTarget - 20), [runtimeTarget]);
   const desiredRuntimeMax = useMemo(() => Math.min(240, runtimeTarget + 20), [runtimeTarget]);
+  const stepKeys = ["runtime", "withWhom", "avoid", "mood"] as const;
+  const watchContextLabels: Record<WatchContext, string> = {
+    solo_watch: t("watchContexts.solo_watch"),
+    date_friendly: t("watchContexts.date_friendly"),
+    friends_hangout: t("watchContexts.friends_hangout"),
+    family_time: t("watchContexts.family_time"),
+    late_night_fit: t("watchContexts.late_night_fit"),
+  };
+  const moodLabels: Record<MoodTag, string> = {
+    calm: t("moods.calm"),
+    emotional: t("moods.emotional"),
+    stylish: t("moods.stylish"),
+    dark: t("moods.dark"),
+    funny: t("moods.funny"),
+    tense: t("moods.tense"),
+    uplifting: t("moods.uplifting"),
+    melancholic: t("moods.melancholic"),
+  };
 
   const toggleValue = <T extends string>(arr: T[], value: T, set: (next: T[]) => void) => {
     if (arr.includes(value)) {
@@ -144,7 +139,7 @@ export function RecommendForm() {
       const data = (await response.json().catch(() => ({}))) as { sessionId?: string; message?: string };
       if (!response.ok || !data.sessionId) {
         setState("error");
-        setErrorMessage(data.message ?? "推薦作成に失敗しました。");
+        setErrorMessage(data.message ?? t("errorCreate"));
         return;
       }
 
@@ -153,9 +148,9 @@ export function RecommendForm() {
     } catch (error) {
       setState("error");
       if (error instanceof DOMException && error.name === "AbortError") {
-        setErrorMessage("計算に時間がかかっています。しばらくして再試行してください。");
+        setErrorMessage(t("errorTimeout"));
       } else {
-        setErrorMessage("通信エラーが発生しました。ネットワーク状態を確認して再試行してください。");
+        setErrorMessage(t("errorNetwork"));
       }
     } finally {
       clearTimeout(timeoutId);
@@ -173,7 +168,7 @@ export function RecommendForm() {
   return (
     <form className="mt-6 space-y-6 pb-52" onSubmit={submit}>
       <div className="sticky top-2 z-10 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-overlay)] p-3 backdrop-blur">
-        <p className="text-heading">step {step}/4 · {STEP_LABELS[step - 1]}</p>
+        <p className="text-heading">{t("step", { current: step })} · {t(`steps.${stepKeys[step - 1]}`)}</p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-bg-elevated)]">
           <div className="h-full rounded-full bg-[var(--color-accent)] transition-all duration-300" style={{ width: `${stepProgress}%` }} />
         </div>
@@ -182,12 +177,12 @@ export function RecommendForm() {
       {/* Step 1: 尺 */}
       {step === 1 && (
         <PopCard tone="surface" className="space-y-4">
-          <h2 className="text-movie-title text-[1.5rem]">今夜は何分くらい観たい？</h2>
+          <h2 className="text-movie-title text-[1.5rem]">{t("runtimeTitle")}</h2>
           <div className="flex flex-wrap gap-2">
             {RUNTIME_PRESETS.map((preset) => (
               <MoodChip
                 key={preset.id}
-                label={preset.label}
+                label={t(`runtimePresets.${preset.id}`)}
                 selected={selectedPreset === preset.id}
                 onClick={() => {
                   setSelectedPreset(preset.id);
@@ -197,7 +192,7 @@ export function RecommendForm() {
             ))}
           </div>
           <div className="space-y-2">
-            <label className="text-label">詳細調整（{runtimeTarget}分）</label>
+            <label className="text-label">{t("runtimeAdjust", { minutes: runtimeTarget })}</label>
             <input
               type="range"
               min={60}
@@ -207,10 +202,10 @@ export function RecommendForm() {
               onChange={(event) => setRuntimeTarget(Number(event.target.value))}
               className="w-full accent-[var(--color-accent)]"
             />
-            <p className="text-body">検索範囲: {desiredRuntimeMin} 〜 {desiredRuntimeMax} 分</p>
+            <p className="text-body">{t("runtimeRange", { min: desiredRuntimeMin, max: desiredRuntimeMax })}</p>
           </div>
           <button type="button" className="text-label hover:text-[var(--color-text-primary)]" onClick={goNext}>
-            このまま次へ
+            {t("keepGoing")}
           </button>
         </PopCard>
       )}
@@ -218,12 +213,12 @@ export function RecommendForm() {
       {/* Step 2: 文脈（シングル選択・タップ後260ms自動進行） */}
       {step === 2 && (
         <PopCard tone="surface" className="space-y-4">
-          <h2 className="text-movie-title text-[1.5rem]">今夜は誰と観る？</h2>
+          <h2 className="text-movie-title text-[1.5rem]">{t("withWhomTitle")}</h2>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {WATCH_CONTEXTS.map((context) => (
               <MoodChip
                 key={context}
-                label={WATCH_CONTEXT_LABELS[context]}
+                label={watchContextLabels[context]}
                 selected={watchingWith === context}
                 onClick={() => {
                   setWatchingWith(context);
@@ -233,7 +228,7 @@ export function RecommendForm() {
             ))}
           </div>
           <button type="button" className="text-label hover:text-[var(--color-text-primary)]" onClick={goNext}>
-            このまま次へ
+            {t("keepGoing")}
           </button>
         </PopCard>
       )}
@@ -241,8 +236,8 @@ export function RecommendForm() {
       {/* Step 3: 除外条件 */}
       {step === 3 && (
         <PopCard tone="surface" className="space-y-4">
-          <h2 className="text-movie-title text-[1.5rem]">今夜は避けたいものは？</h2>
-          <p className="text-body">任意。スキップして次へ進めます。</p>
+          <h2 className="text-movie-title text-[1.5rem]">{t("avoidTitle")}</h2>
+          <p className="text-body">{t("avoidHelp")}</p>
           <div className="flex flex-wrap gap-2">
             {CONTENT_WARNING_TAGS.map((warning) => (
               <MoodChip
@@ -254,7 +249,7 @@ export function RecommendForm() {
             ))}
           </div>
           <div className="space-y-1">
-            <label className="text-label">除外タグ（カンマ区切り、任意）</label>
+            <label className="text-label">{t("excludeTagsLabel")}</label>
             <input
               value={excludeTags}
               onChange={(event) => setExcludeTags(event.target.value)}
@@ -269,13 +264,13 @@ export function RecommendForm() {
       {step === 4 && (
         <>
           <PopCard tone="highlight" className="space-y-3">
-            <h2 className="text-movie-title text-[1.5rem]">今夜の気分は？</h2>
-            <p className="text-body">最大3つまで。選ばなくてもおまかせで提案します。</p>
+            <h2 className="text-movie-title text-[1.5rem]">{t("moodTitle")}</h2>
+            <p className="text-body">{t("moodHelp")}</p>
             <div className="flex flex-wrap gap-2">
               {MOOD_TAGS.map((mood) => (
                 <MoodChip
                   key={mood}
-                  label={MOOD_LABELS[mood]}
+                  label={moodLabels[mood]}
                   selected={currentMoods.includes(mood)}
                   onClick={() => {
                     if (!currentMoods.includes(mood) && currentMoods.length >= 3) return;
@@ -287,15 +282,15 @@ export function RecommendForm() {
           </PopCard>
 
           <PopCard tone="surface" className="space-y-1 text-sm">
-            <p className="text-label">選んだ条件</p>
+            <p className="text-label">{t("summaryTitle")}</p>
             <p className="text-body">
-              尺 {desiredRuntimeMin}〜{desiredRuntimeMax}分 · {WATCH_CONTEXT_LABELS[watchingWith]}
+              {t("summaryRuntime", { min: desiredRuntimeMin, max: desiredRuntimeMax, context: watchContextLabels[watchingWith] })}
             </p>
             {excludeContentWarnings.length > 0 && (
-              <p className="text-body">除外: {excludeContentWarnings.join(", ")}</p>
+              <p className="text-body">{t("summaryExclude", { items: excludeContentWarnings.join(", ") })}</p>
             )}
             {currentMoods.length > 0 && (
-              <p className="text-body">気分: {currentMoods.map((m) => MOOD_LABELS[m]).join(" / ")}</p>
+              <p className="text-body">{t("summaryMood", { items: currentMoods.map((m) => moodLabels[m]).join(" / ") })}</p>
             )}
           </PopCard>
         </>
@@ -309,15 +304,15 @@ export function RecommendForm() {
       >
         <div className="mx-auto flex w-full max-w-5xl gap-2">
           <PopButton type="button" variant="ghost" onClick={goBack} disabled={step === 1 || state === "loading"}>
-            戻る
+            {commonT("back")}
           </PopButton>
           {step < 4 ? (
             <PopButton type="button" className="flex-1" onClick={goNext} disabled={state === "loading"}>
-              次へ
+              {commonT("next")}
             </PopButton>
           ) : (
             <PopButton type="submit" disabled={state === "loading"} className="flex-1">
-              {state === "loading" ? "計算中..." : "今夜の1本を見つける"}
+              {state === "loading" ? t("submitting") : t("submit")}
             </PopButton>
           )}
         </div>

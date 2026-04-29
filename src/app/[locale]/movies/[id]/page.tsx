@@ -1,7 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { movieDetailSelect } from "@/lib/db/selects/movie";
 import { prisma } from "@/lib/db/prisma";
-import type { LocalizedData } from "@/lib/i18n/lang-context";
+import { normalizeLocalizedData } from "@/lib/i18n/localized-movie";
+import { mapCreditsToPersonChipData } from "@/lib/movies/credits";
 import { MovieDetailClient } from "./movie-detail-client";
 
 export default async function MovieDetailPage({
@@ -16,42 +18,7 @@ export default async function MovieDetailPage({
 
   const movie = await prisma.movie.findUnique({
     where: { id },
-    select: {
-      id: true,
-      title: true,
-      releaseYear: true,
-      runtimeMinutes: true,
-      genrePrimary: true,
-      genreSecondary: true,
-      posterUrl: true,
-      overview: true,
-      directors: true,
-      cast: true,
-      reviewScore: true,
-      reviewSummary: true,
-      moodCalm: true,
-      moodDark: true,
-      moodEmotional: true,
-      toneStylish: true,
-      tension: true,
-      complexity: true,
-      moodTags: true,
-      localizedData: true,
-      credits: {
-        select: {
-          role: true,
-          creditOrder: true,
-          person: {
-            select: {
-              id: true,
-              name: true,
-              tmdbId: true,
-            },
-          },
-        },
-        orderBy: [{ role: "asc" }, { creditOrder: "asc" }],
-      },
-    },
+    select: movieDetailSelect,
   });
 
   if (!movie) notFound();
@@ -80,7 +47,7 @@ export default async function MovieDetailPage({
     { label: "Complexity", value: movie.complexity },
   ];
 
-  const localizedData = (movie.localizedData ?? null) as LocalizedData | null;
+  const localizedData = normalizeLocalizedData(movie.localizedData);
 
   const watchLogData = watchLog
     ? { ...watchLog, watchedAt: watchLog.watchedAt.toISOString() }
@@ -93,19 +60,7 @@ export default async function MovieDetailPage({
       fallbackOverview={movie.overview}
       fallbackDirectors={movie.directors}
       fallbackCast={movie.cast}
-      fallbackCredits={
-        movie.credits.length > 0
-          ? movie.credits.map((credit) => ({
-              personId: credit.person.id,
-              tmdbId: credit.person.tmdbId,
-              name: credit.person.name,
-              role: credit.role,
-            }))
-          : [
-              ...movie.directors.map((name) => ({ name, role: "director" as const })),
-              ...movie.cast.map((name) => ({ name, role: "actor" as const })),
-            ]
-      }
+      fallbackCredits={mapCreditsToPersonChipData({ credits: movie.credits, directors: movie.directors, cast: movie.cast })}
       localizedData={localizedData}
       releaseYear={movie.releaseYear}
       runtimeMinutes={movie.runtimeMinutes}
@@ -116,7 +71,7 @@ export default async function MovieDetailPage({
       moodProfile={moodProfile}
       similar={similar.map((item) => ({
         ...item,
-        localizedData: (item.localizedData ?? null) as LocalizedData | null,
+        localizedData: normalizeLocalizedData(item.localizedData),
       }))}
       posterUrl={movie.posterUrl}
       watchLog={watchLogData}
