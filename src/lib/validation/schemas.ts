@@ -4,6 +4,7 @@ import {
   CONTENT_WARNING_TAGS,
   FEEDBACK_REACTIONS,
   MBTI_TYPES,
+  MOVIE_GENRE_AXES,
   MOVIE_GENRES,
   MOOD_TAGS,
   REVIEW_SOURCES,
@@ -27,6 +28,7 @@ export const WatchContextSchema = z.enum(WATCH_CONTEXTS);
 export const ContentWarningSchema = z.enum(CONTENT_WARNING_TAGS);
 export const ReactionTypeSchema = z.enum(FEEDBACK_REACTIONS);
 export const MovieGenreSchema = z.enum(MOVIE_GENRES);
+export const MovieGenreAxisSchema = z.enum(MOVIE_GENRE_AXES);
 export const StreamingProviderSchema = z.enum(STREAMING_PROVIDERS);
 export const ReviewSourceSchema = z.enum(REVIEW_SOURCES);
 export const MbtiSchema = z.enum(MBTI_TYPES);
@@ -279,14 +281,19 @@ export const WatchedCatalogSourceSchema = z.enum(WATCHED_CATALOG_SOURCES);
 export const QuickReactionActionSchema = z.enum(QUICK_REACTION_ACTIONS);
 
 export const MyPagePreferencesSchema = z.object({
-  favoriteGenres: z.array(MovieGenreSchema).max(8),
-  excludedGenres: z.array(MovieGenreSchema).max(8),
-  preferredDirectors: uniqueNameArray(20).default([]),
-  preferredActors: uniqueNameArray(20).default([]),
-  discoveryMode: DiscoveryModeSchema,
-  influenceStrength: InfluenceStrengthSchema.default("balanced"),
+  favoriteGenres:          z.array(MovieGenreSchema).max(8),
+  excludedGenres:          z.array(MovieGenreSchema).max(8),
+  favoriteGenreAxes:       z.array(MovieGenreAxisSchema).max(16).default([]),
+  excludedGenreAxes:       z.array(MovieGenreAxisSchema).max(8).default([]),
+  preferredDirectors:      uniqueNameArray(20).default([]),
+  preferredActors:         uniqueNameArray(20).default([]),
+  preferredWriters:        uniqueNameArray(20).default([]),
+  discoveryMode:           DiscoveryModeSchema,
+  influenceStrength:       InfluenceStrengthSchema.default("balanced"),
   recommendationStyleMode: RecommendationStyleModeSchema.default("balanced"),
 });
+
+export type MyPagePreferences = z.infer<typeof MyPagePreferencesSchema>;
 
 export const UseFavoritesInRecommendationsSchema = z.boolean();
 

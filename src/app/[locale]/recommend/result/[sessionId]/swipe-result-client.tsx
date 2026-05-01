@@ -7,6 +7,7 @@ import { PersonChip } from "@/components/person/PersonChip";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
 import { getMovieTitle } from "@/lib/movie-title";
 import { type SwipeCardMovie } from "@/components/recommend/SwipeCard";
+import { MovieSocialActions } from "@/components/movie/MovieSocialActions";
 
 type MbtiCtx = {
   types: string[];
@@ -152,42 +153,49 @@ export function SwipeResultClient({ movies }: Props) {
               }}>{t("topPick")}</div>
             </div>
           )}
-          <div style={{ padding: "16px" }}>
-            <h2 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "22px", margin: "0 0 5px", color: "#e8e3d8", lineHeight: 1.2 }}>
-              {topPickTitle}
-            </h2>
-            <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: "0 0 12px" }}>
-              {[topPick.directors[0], topPick.releaseYear, topPick.genrePrimary, topPick.runtimeMinutes ? `${topPick.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
-            </p>
-            {topPickDirectors.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
-                {topPickDirectors.slice(0, 2).map((credit) => (
-                  <PersonChip key={`top-${credit.personId ?? credit.name}`} {...credit} />
-                ))}
-              </div>
-            )}
-            {mbtiCtx?.decisionHook && (
-              <div style={{
-                background: "rgba(232,201,122,0.05)", border: "1px solid rgba(232,201,122,0.15)",
-                borderRadius: "8px", padding: "10px 12px", marginBottom: "14px",
-              }}>
-                <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.7)", margin: 0, lineHeight: 1.6 }}>
-                  {mbtiCtx.decisionHook}
-                </p>
-              </div>
-            )}
-            <button
-              onClick={() => setPickedId(topPick.id)}
-              className="pulse-gold btn-bounce"
-              style={{
-                width: "100%", padding: "13px", borderRadius: "10px",
-                background: "#E8C97A", color: "#080808",
-                fontWeight: 700, fontSize: "14px", letterSpacing: "0.04em",
-                border: "none", cursor: "pointer",
-              }}
-            >
-              {t("pickThis")}
-            </button>
+          <div style={{ padding: "16px", display: "flex", gap: "12px", alignItems: "flex-start" }}>
+            {/* 左: 映画情報 + ボタン */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "22px", margin: "0 0 5px", color: "#e8e3d8", lineHeight: 1.2 }}>
+                {topPickTitle}
+              </h2>
+              <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: "0 0 12px" }}>
+                {[topPick.directors[0], topPick.releaseYear, topPick.genrePrimary, topPick.runtimeMinutes ? `${topPick.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
+              </p>
+              {topPickDirectors.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+                  {topPickDirectors.slice(0, 2).map((credit) => (
+                    <PersonChip key={`top-${credit.personId ?? credit.name}`} {...credit} />
+                  ))}
+                </div>
+              )}
+              {mbtiCtx?.decisionHook && (
+                <div style={{
+                  background: "rgba(232,201,122,0.05)", border: "1px solid rgba(232,201,122,0.15)",
+                  borderRadius: "8px", padding: "10px 12px", marginBottom: "14px",
+                }}>
+                  <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.7)", margin: 0, lineHeight: 1.6 }}>
+                    {mbtiCtx.decisionHook}
+                  </p>
+                </div>
+              )}
+              <button
+                onClick={() => setPickedId(topPick.id)}
+                className="pulse-gold btn-bounce"
+                style={{
+                  width: "100%", padding: "13px", borderRadius: "10px",
+                  background: "#E8C97A", color: "#080808",
+                  fontWeight: 700, fontSize: "14px", letterSpacing: "0.04em",
+                  border: "none", cursor: "pointer",
+                }}
+              >
+                {t("pickThis")}
+              </button>
+            </div>
+            {/* 右: ソーシャルアクションバー */}
+            <div style={{ flexShrink: 0, paddingTop: "4px" }}>
+              <MovieSocialActions movieId={topPick.id} movieTitle={topPickTitle} />
+            </div>
           </div>
         </div>
 

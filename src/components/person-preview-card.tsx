@@ -9,7 +9,7 @@ type NewsItem = {
 
 type PersonPreviewData = {
   name: string;
-  role: "director" | "actor";
+  role: "director" | "actor" | "writer";
   avatarUrl: string | null;
   bio: string | null;
   knownFor: string[];
@@ -46,7 +46,7 @@ export function PersonPreviewCard({ data, loading, error, onClose, mobile = fals
           </div>
           <div>
             <p className="text-sm font-[500] text-[var(--color-text-primary)]">{data?.name ?? "読み込み中..."}</p>
-            <p className="text-xs text-[var(--color-text-secondary)]">{data ? (data.role === "director" ? "監督" : "俳優") : ""}</p>
+            <p className="text-xs text-[var(--color-text-secondary)]">{data ? (data.role === "director" ? "監督" : data.role === "writer" ? "脚本家" : "俳優") : ""}</p>
           </div>
         </div>
         {onClose ? (

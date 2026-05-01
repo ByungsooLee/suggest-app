@@ -151,6 +151,8 @@ model User {
   excludedGenres        String[] @default([])
   preferredDirectors    String[] @default([])
   preferredActors       String[] @default([])
+  preferredWriters      String[] @default([])
+  metadata              Json?
   discoveryMode         String   @default("balanced")
   locale                String   @default("ja")
   useFavoritesInRecommendations Boolean @default(true)
@@ -178,6 +180,8 @@ model User {
   onboardingReactions    OnboardingMovieReaction[]
   quickReactionLogs      QuickReactionLog[]
   watchLogs              WatchLog[]
+  movieLikes             MovieLike[]
+  movieComments          MovieComment[]
 }
 
 model Account {
@@ -314,6 +318,8 @@ model Movie {
   onboardingReactions   OnboardingMovieReaction[]
   quickReactions        QuickReactionLog[]
   watchLogs             WatchLog[]
+  likes                 MovieLike[]
+  comments              MovieComment[]
 
   @@unique([title, releaseYear])
   @@index([genrePrimary, releaseYear])
@@ -655,4 +661,33 @@ model UserMovieProfile {
   updatedAt        DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MovieLike {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([movieId, createdAt(sort: Desc)])
+  @@index([userId])
+}
+
+model MovieComment {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@index([movieId, createdAt(sort: Desc)])
+  @@index([userId])
 }

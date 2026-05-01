@@ -6,15 +6,31 @@ import { MoodChip } from "@/components/ui/mood-chip";
 
 import { PersonPreviewCard } from "./person-preview-card";
 
-type PersonRole = "director" | "actor";
+type PersonRole = "director" | "actor" | "writer";
 
-type PersonPreviewTriggerProps = {
+type PersonPreviewTriggerSingleProps = {
   name: string;
   count: number;
   role: PersonRole;
   selected: boolean;
   onSelect: () => void;
+  names?: never;
+  onAdd?: never;
+  onRemove?: never;
 };
+
+type PersonPreviewTriggerMultiProps = {
+  names: string[];
+  role: PersonRole;
+  onAdd: () => void;
+  onRemove: (name: string) => void;
+  name?: never;
+  count?: never;
+  selected?: never;
+  onSelect?: never;
+};
+
+type PersonPreviewTriggerProps = PersonPreviewTriggerSingleProps | PersonPreviewTriggerMultiProps;
 
 type PersonPreviewResponse = {
   profile: {
@@ -39,7 +55,45 @@ type PersonPreviewResponse = {
 const hoverDelayMs = 250;
 const longPressMs = 450;
 
-export function PersonPreviewTrigger({ name, count, role, selected, onSelect }: PersonPreviewTriggerProps) {
+export function PersonPreviewTrigger(props: PersonPreviewTriggerProps) {
+  if (props.names !== undefined) {
+    const { names, onAdd, onRemove } = props;
+    return (
+      <div className="flex flex-wrap gap-2 items-center">
+        {names.map((n) => (
+          <span
+            key={n}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--color-accent-dim)] border border-[var(--color-accent-border)] text-xs text-[var(--color-accent)]"
+          >
+            {n}
+            <button
+              type="button"
+              onClick={() => onRemove(n)}
+              className="ml-0.5 opacity-60 hover:opacity-100 text-[10px] leading-none"
+              aria-label={`${n}を削除`}
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+        <button
+          type="button"
+          onClick={onAdd}
+          className="px-2.5 py-1 rounded-full border border-dashed border-[var(--color-border-mid)] text-xs text-[var(--color-text-muted)] hover:border-[var(--color-accent-border)] hover:text-[var(--color-accent)] transition-colors"
+        >
+          ＋ 追加
+        </button>
+      </div>
+    );
+  }
+
+  const { name, count, role, selected, onSelect } = props;
+  return <PersonPreviewTriggerSingle name={name} count={count} role={role} selected={selected} onSelect={onSelect} />;
+}
+
+function PersonPreviewTriggerSingle({ name, count, role, selected, onSelect }: {
+  name: string; count: number; role: PersonRole; selected: boolean; onSelect: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
