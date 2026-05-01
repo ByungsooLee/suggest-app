@@ -62,6 +62,7 @@
     "pickThis": "오늘 밤 이걸로 →",
     "pickThisShort": "이걸로 정하기",
     "retry": "기분이 바뀌었나요? → 다시 찾기",
+    "retryAction": "다시 찾기",
     "retryShort": "다시 고르기",
     "backup": "백업",
     "topPick": "메인 추천",
@@ -73,7 +74,24 @@
       "3": "MBTI 궁합 확인 중...",
       "4": "거의 다 됐습니다..."
     },
-    "mbtiReason": "{types} 조합이라서"
+    "mbtiReason": "{types} 조합이라서",
+    "page": {
+      "title": "오늘 밤 추천 조건",
+      "description": "4단계로 조건을 정하면 오늘 밤에 맞는 세 편을 추천합니다.",
+      "preferencesLabel": "마이페이지 설정",
+      "favoriteGenres": "좋아하는 장르: {genres}",
+      "excludedGenres": "제외 장르: {genres}",
+      "unset": "미설정",
+      "none": "없음",
+      "preferencesNote": "취향 반영은 마이페이지에서 언제든 변경할 수 있습니다.",
+      "editPreferences": "마이페이지에서 자세히 편집",
+      "missingProfile": "아직 Taste profile이 없습니다. 온보딩을 완료한 뒤 다시 시도해 주세요.",
+      "backToOnboarding": "온보딩으로 돌아가기"
+    },
+    "emptyState": {
+      "message": "후보를 찾지 못했습니다. 제외 조건을 하나 줄이거나 러닝타임 범위를 넓혀보세요.",
+      "adjust": "조건 조정하기"
+    }
   },
   "discover": {
     "title": "발견",
@@ -401,6 +419,29 @@
     "password": "비밀번호",
     "continueWithGoogle": "Google로 계속하기"
   },
+  "feedback": {
+    "title": "추천 피드백 (원탭)",
+    "reactions": {
+      "liked": "좋아요",
+      "too_dark": "너무 무거웠어요",
+      "too_long": "너무 길었어요",
+      "not_now": "지금은 아니에요",
+      "mismatch": "기분과 달라요"
+    },
+    "saving": "저장 중...",
+    "saved": "피드백을 저장했습니다.",
+    "error": "저장에 실패했습니다. 다시 시도해 주세요."
+  },
+  "history": {
+    "title": "기록",
+    "deferred": "후속 구현",
+    "description": "MVP에서는 후속 구현 대상입니다. 현재는 추천 세션 저장만 구현되어 있습니다."
+  },
+  "notFound": {
+    "title": "페이지를 찾을 수 없습니다",
+    "description": "세션이 없거나 접근 권한이 없습니다.",
+    "home": "홈으로 돌아가기"
+  },
   "common": {
     "loading": "불러오는 중...",
     "error": "오류가 발생했습니다",
@@ -415,7 +456,10 @@
     "showLess": "접기",
     "done": "완료",
     "free": "무료",
-    "premium": "프리미엄"
+    "premium": "프리미엄",
+    "openMypage": "마이페이지 열기",
+    "profileAvatarAlt": "프로필 이미지",
+    "runtimeMinutes": "{minutes}분"
   },
   "person": {
     "roles": {

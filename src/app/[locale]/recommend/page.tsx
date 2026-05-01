@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
 import { auth } from "@/auth";
@@ -11,6 +12,8 @@ import { PopButton } from "@/components/ui/pop-button";
 import { RecommendForm } from "./recommend-form";
 
 export default async function RecommendPage() {
+  const t = await getTranslations("recommend.page");
+  const tGenres = await getTranslations("browsePage.genres");
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
@@ -36,34 +39,48 @@ export default async function RecommendPage() {
       excludedGenres: true,
     },
   });
+  const formatGenres = (genres?: string[] | null) => {
+    if (!genres?.length) return null;
+    return genres
+      .map((genre) => {
+        try {
+          return tGenres(genre);
+        } catch {
+          return genre;
+        }
+      })
+      .join(" / ");
+  };
+  const favoriteGenres = formatGenres(mypagePreferences?.favoriteGenres) ?? t("unset");
+  const excludedGenres = formatGenres(mypagePreferences?.excludedGenres) ?? t("none");
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10">
       <AvatarTrigger image={user?.image} name={user?.name} />
       <ScreenHeader
-        title="今夜の推薦条件"
-        description="4ステップで条件を決めると、今夜向けの3本を返します。"
+        title={t("title")}
+        description={t("description")}
       />
       <PopCard tone="muted" className="mt-4 space-y-2">
-        <p className="text-label">マイページ設定</p>
+        <p className="text-label">{t("preferencesLabel")}</p>
         <p className="text-body">
-          好みジャンル: {mypagePreferences?.favoriteGenres?.length ? mypagePreferences.favoriteGenres.join(" / ") : "未設定"}
+          {t("favoriteGenres", { genres: favoriteGenres })}
         </p>
         <p className="text-body">
-          除外ジャンル: {mypagePreferences?.excludedGenres?.length ? mypagePreferences.excludedGenres.join(" / ") : "なし"}
+          {t("excludedGenres", { genres: excludedGenres })}
         </p>
         <p className="text-body">
-          お気に入り反映: マイページでいつでも変更できます
+          {t("preferencesNote")}
         </p>
         <Link href="/mypage" className="inline-block">
-          <PopButton variant="secondary">マイページで詳細を編集</PopButton>
+          <PopButton variant="secondary">{t("editPreferences")}</PopButton>
         </Link>
       </PopCard>
       {!profile ? (
         <PopCard tone="muted" className="mt-6">
-          <p className="text-body">Taste profileがまだありません。オンボーディングを完了してから再度お試しください。</p>
+          <p className="text-body">{t("missingProfile")}</p>
           <Link href="/onboarding" className="mt-3 inline-block">
-            <PopButton variant="secondary">オンボーディングへ戻る</PopButton>
+            <PopButton variant="secondary">{t("backToOnboarding")}</PopButton>
           </Link>
         </PopCard>
       ) : (

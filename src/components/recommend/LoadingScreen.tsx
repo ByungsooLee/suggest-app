@@ -1,21 +1,17 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-const LOADING_MESSAGES = [
-  "映画を探しています...",
-  "あなたの気分を分析中...",
-  "今夜最適な1本を選んでいます...",
-  "MBTIとの相性を確認中...",
-  "もうすぐです...",
-];
+const LOADING_MESSAGE_COUNT = 5;
 
 export function RecommendLoadingScreen() {
+  const t = useTranslations("recommend.loading");
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setMessageIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+      setMessageIndex((i) => (i + 1) % LOADING_MESSAGE_COUNT);
     }, 1800);
     return () => clearInterval(interval);
   }, []);
@@ -35,7 +31,7 @@ export function RecommendLoadingScreen() {
         className="fade-up text-center text-sm"
         style={{ color: "rgba(232,227,216,0.5)" }}
       >
-        {LOADING_MESSAGES[messageIndex]}
+        {t(String(messageIndex))}
       </p>
     </div>
   );

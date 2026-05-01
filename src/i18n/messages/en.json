@@ -62,6 +62,7 @@
     "pickThis": "This is the one →",
     "pickThisShort": "Pick this",
     "retry": "Changed your mind? → Search again",
+    "retryAction": "Search again",
     "retryShort": "Start over",
     "backup": "Backup",
     "topPick": "Top Pick",
@@ -73,7 +74,24 @@
       "3": "Checking MBTI compatibility...",
       "4": "Almost there..."
     },
-    "mbtiReason": "Because {types}"
+    "mbtiReason": "Because {types}",
+    "page": {
+      "title": "Tonight's recommendation setup",
+      "description": "Set your conditions in 4 steps and get three picks for tonight.",
+      "preferencesLabel": "My Page settings",
+      "favoriteGenres": "Favourite genres: {genres}",
+      "excludedGenres": "Excluded genres: {genres}",
+      "unset": "Not set",
+      "none": "None",
+      "preferencesNote": "Preference influence can be changed anytime from My Page.",
+      "editPreferences": "Edit details in My Page",
+      "missingProfile": "Your taste profile is not ready yet. Complete onboarding and try again.",
+      "backToOnboarding": "Back to onboarding"
+    },
+    "emptyState": {
+      "message": "No candidates were found. Try removing one exclusion or widening the runtime range.",
+      "adjust": "Adjust conditions"
+    }
   },
   "discover": {
     "title": "Discover",
@@ -401,6 +419,29 @@
     "password": "Password",
     "continueWithGoogle": "Continue with Google"
   },
+  "feedback": {
+    "title": "Recommendation feedback (one tap)",
+    "reactions": {
+      "liked": "Loved it",
+      "too_dark": "Too heavy",
+      "too_long": "Too long",
+      "not_now": "Not now",
+      "mismatch": "Wrong mood"
+    },
+    "saving": "Saving...",
+    "saved": "Feedback saved.",
+    "error": "Failed to save feedback. Please try again."
+  },
+  "history": {
+    "title": "History",
+    "deferred": "Deferred",
+    "description": "This is planned for a later MVP pass. Recommendation sessions are already being saved."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The session does not exist, or you do not have access.",
+    "home": "Back to home"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",
@@ -415,7 +456,10 @@
     "showLess": "Show less",
     "done": "Done",
     "free": "Free",
-    "premium": "Premium"
+    "premium": "Premium",
+    "openMypage": "Open My Page",
+    "profileAvatarAlt": "Profile avatar",
+    "runtimeMinutes": "{minutes} min"
   },
   "person": {
     "roles": {

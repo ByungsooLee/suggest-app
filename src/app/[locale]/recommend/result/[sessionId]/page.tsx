@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
 import { PopButton } from "@/components/ui/pop-button";
@@ -15,6 +16,7 @@ export default async function RecommendResultPage({
 }: {
   params: Promise<{ sessionId: string }>;
 }) {
+  const t = await getTranslations("recommend.emptyState");
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
@@ -45,10 +47,10 @@ export default async function RecommendResultPage({
       <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10">
         <PopCard tone="muted" className="mt-6 text-sm">
           <p className="text-[var(--color-text-secondary)]">
-            候補が見つかりませんでした。除外条件を1つ外すか、視聴時間の幅を広げてお試しください。
+            {t("message")}
           </p>
           <Link href="/recommend" className="mt-4 inline-block">
-            <PopButton variant="secondary">条件を調整する</PopButton>
+            <PopButton variant="secondary">{t("adjust")}</PopButton>
           </Link>
         </PopCard>
       </main>

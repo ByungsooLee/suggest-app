@@ -22,6 +22,7 @@ type Props = {
 
 export function SwipeResultClient({ movies }: Props) {
   const t = useTranslations("recommend");
+  const tCommon = useTranslations("common");
   const { lang } = useMovieTitleLang();
   const [mbtiCtx, setMbtiCtx] = useState<MbtiCtx>(null);
   const [pickedId, setPickedId] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export function SwipeResultClient({ movies }: Props) {
     ? retryLabel.split("→").map((part) => part.trim()).filter(Boolean)
     : [retryLabel];
   const retryLead = retryParts.length > 1 ? retryParts[0] : "";
-  const retryAction = retryParts.length > 1 ? retryParts[retryParts.length - 1] : retryLabel;
+  const retryAction = t("retryAction");
 
   const isPicked = pickedId !== null;
   const pickedMovie = movies.find((m) => m.id === pickedId);
@@ -126,7 +127,7 @@ export function SwipeResultClient({ movies }: Props) {
           )}
         </div>
         <Link href="/recommend" style={{ fontSize: "12px", color: "rgba(232,227,216,0.35)", textDecoration: "none" }}>
-          {t("retry").replace("気分が変わったら → ", "").replace("Changed your mind? → ", "").replace("기분이 바뀌었나요? → ", "")}
+          {retryAction}
         </Link>
       </div>
 
@@ -160,7 +161,12 @@ export function SwipeResultClient({ movies }: Props) {
                 {topPickTitle}
               </h2>
               <p style={{ fontSize: "12px", color: "rgba(232,227,216,0.45)", margin: "0 0 12px" }}>
-                {[topPick.directors[0], topPick.releaseYear, topPick.genrePrimary, topPick.runtimeMinutes ? `${topPick.runtimeMinutes}分` : null].filter(Boolean).join(" · ")}
+                {[
+                  topPick.directors[0],
+                  topPick.releaseYear,
+                  topPick.genrePrimary,
+                  topPick.runtimeMinutes ? tCommon("runtimeMinutes", { minutes: topPick.runtimeMinutes }) : null,
+                ].filter(Boolean).join(" · ")}
               </p>
               {topPickDirectors.length > 0 && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>

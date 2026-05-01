@@ -62,6 +62,7 @@
     "pickThis": "今夜これにする →",
     "pickThisShort": "これにする",
     "retry": "気分が変わったら → もう一度探す",
+    "retryAction": "もう一度探す",
     "retryShort": "やり直す",
     "backup": "他の候補",
     "topPick": "本命",
@@ -73,7 +74,24 @@
       "3": "MBTIとの相性を確認中...",
       "4": "もうすぐです..."
     },
-    "mbtiReason": "{types} だから"
+    "mbtiReason": "{types} だから",
+    "page": {
+      "title": "今夜の推薦条件",
+      "description": "4ステップで条件を決めると、今夜向けの3本を返します。",
+      "preferencesLabel": "マイページ設定",
+      "favoriteGenres": "好みジャンル: {genres}",
+      "excludedGenres": "除外ジャンル: {genres}",
+      "unset": "未設定",
+      "none": "なし",
+      "preferencesNote": "お気に入り反映: マイページでいつでも変更できます",
+      "editPreferences": "マイページで詳細を編集",
+      "missingProfile": "Taste profileがまだありません。オンボーディングを完了してから再度お試しください。",
+      "backToOnboarding": "オンボーディングへ戻る"
+    },
+    "emptyState": {
+      "message": "候補が見つかりませんでした。除外条件を1つ外すか、視聴時間の幅を広げてお試しください。",
+      "adjust": "条件を調整する"
+    }
   },
   "discover": {
     "title": "発見",
@@ -401,6 +419,29 @@
     "password": "パスワード",
     "continueWithGoogle": "Googleで続ける"
   },
+  "feedback": {
+    "title": "推薦フィードバック（ワンタップ）",
+    "reactions": {
+      "liked": "好き",
+      "too_dark": "重すぎた",
+      "too_long": "長すぎた",
+      "not_now": "今じゃない",
+      "mismatch": "気分と違う"
+    },
+    "saving": "保存中...",
+    "saved": "フィードバックを保存しました。",
+    "error": "保存に失敗しました。再試行してください。"
+  },
+  "history": {
+    "title": "履歴",
+    "deferred": "後続実装",
+    "description": "MVPでは後続実装対象です。現時点では推薦セッション保存のみ実装済みです。"
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "description": "セッションが存在しないか、アクセス権がありません。",
+    "home": "ホームへ戻る"
+  },
   "common": {
     "loading": "読み込み中...",
     "error": "エラーが発生しました",
@@ -415,7 +456,10 @@
     "showLess": "折りたたむ",
     "done": "完了",
     "free": "無料",
-    "premium": "プレミアム"
+    "premium": "プレミアム",
+    "openMypage": "マイページを開く",
+    "profileAvatarAlt": "プロフィール画像",
+    "runtimeMinutes": "{minutes}分"
   },
   "person": {
     "roles": {

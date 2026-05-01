@@ -1,18 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FEEDBACK_REACTIONS, type FeedbackReaction } from "@/lib/constants/taxonomy";
 import { PopCard } from "@/components/ui/pop-card";
 import { ReactionPill } from "@/components/ui/reaction-pill";
 
-const LABELS: Record<FeedbackReaction, string> = {
-  liked: "好き",
-  too_dark: "重すぎた",
-  too_long: "長すぎた",
-  not_now: "今じゃない",
-  mismatch: "気分と違う",
-};
 const EMOJI: Record<FeedbackReaction, string> = {
   liked: "😍",
   too_dark: "🌑",
@@ -27,6 +21,7 @@ type FeedbackChipsProps = {
 };
 
 export function FeedbackChips({ sessionId, recommendationResultId }: FeedbackChipsProps) {
+  const t = useTranslations("feedback");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
   const submitReaction = async (reaction: FeedbackReaction) => {
@@ -48,21 +43,21 @@ export function FeedbackChips({ sessionId, recommendationResultId }: FeedbackChi
 
   return (
     <PopCard tone="muted" className="space-y-3">
-      <h3 className="text-sm font-[500]">推薦フィードバック（ワンタップ）</h3>
+      <h3 className="text-sm font-[500]">{t("title")}</h3>
       <div className="flex flex-wrap gap-2">
         {FEEDBACK_REACTIONS.map((reaction) => (
           <ReactionPill
             key={reaction}
             onClick={() => void submitReaction(reaction)}
-            label={LABELS[reaction]}
+            label={t(`reactions.${reaction}`)}
             emoji={EMOJI[reaction]}
             disabled={state === "loading"}
           />
         ))}
       </div>
-      {state === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">保存中...</p>}
-      {state === "done" && <p className="text-xs text-[var(--color-match-high)]">フィードバックを保存しました。</p>}
-      {state === "error" && <p className="text-xs text-[var(--color-streaming)]">保存に失敗しました。再試行してください。</p>}
+      {state === "loading" && <p className="text-xs text-[var(--color-text-secondary)]">{t("saving")}</p>}
+      {state === "done" && <p className="text-xs text-[var(--color-match-high)]">{t("saved")}</p>}
+      {state === "error" && <p className="text-xs text-[var(--color-streaming)]">{t("error")}</p>}
     </PopCard>
   );
 }
