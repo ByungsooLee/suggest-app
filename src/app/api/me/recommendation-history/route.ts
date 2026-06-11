@@ -1,15 +1,12 @@
-import { requireUser } from "@/lib/auth/require-user";
-import { isMissingUserWatchedContentTableError, isMissingUserWatchlistTableError } from "@/lib/db/prisma-compat";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 type HistoryStatus = "recommended" | "saved" | "watched" | "skipped";
 
 export async function GET() {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const results = await prisma.recommendationResult.findMany({
-    where: { session: { userId: authResult.userId } },
+    where: { session: { userId: userId } },
     select: {
       id: true,
       sessionId: true,
@@ -22,6 +19,8 @@ export async function GET() {
       movie: {
         select: {
           title: true,
+          localizedTitles: true,
+          localizedData: true,
           posterUrl: true,
         },
       },
@@ -37,73 +36,48 @@ export async function GET() {
   const resultIds = results.map((result) => result.id);
   const movieIds = Array.from(new Set(results.map((result) => result.movieId)));
 
-  let watchlistByResultId = new Map<string, Date>();
-  try {
-    const watchlistItems = await prisma.userWatchlistItem.findMany({
-      where: {
-        userId: authResult.userId,
-        recommendedFromResultId: { in: resultIds },
-      },
-      select: {
-        recommendedFromResultId: true,
-        savedAt: true,
-      },
-    });
-    watchlistByResultId = new Map(
-      watchlistItems
-        .filter((item): item is { recommendedFromResultId: string; savedAt: Date } => Boolean(item.recommendedFromResultId))
-        .map((item) => [item.recommendedFromResultId, item.savedAt]),
-    );
-  } catch (error) {
-    if (!isMissingUserWatchlistTableError(error)) throw error;
-  }
+  const watchlistItems = await prisma.userWatchlistItem.findMany({
+    where: {
+      userId,
+      recommendedFromResultId: { in: resultIds },
+    },
+    select: {
+      recommendedFromResultId: true,
+      savedAt: true,
+    },
+  });
+  const watchlistByResultId = new Map(
+    watchlistItems
+      .filter((item): item is { recommendedFromResultId: string; savedAt: Date } => Boolean(item.recommendedFromResultId))
+      .map((item) => [item.recommendedFromResultId, item.savedAt]),
+  );
 
   const watchedByMovieId = new Map<string, Date>();
-  try {
-    const watchedItems = await prisma.userWatchedContent.findMany({
-      where: {
-        userId: authResult.userId,
-        contentType: "movie",
-        watched: true,
-        movieId: { in: movieIds },
-      },
-      select: {
-        movieId: true,
-        watchedAt: true,
-        createdAt: true,
-      },
-    });
-    for (const item of watchedItems) {
-      if (!item.movieId) continue;
-      const watchedAt = item.watchedAt ?? item.createdAt;
-      const prev = watchedByMovieId.get(item.movieId);
-      if (!prev || prev < watchedAt) {
-        watchedByMovieId.set(item.movieId, watchedAt);
-      }
-    }
-  } catch (error) {
-    if (!isMissingUserWatchedContentTableError(error)) throw error;
-    const legacyItems = await prisma.userWatchedMovie.findMany({
-      where: {
-        userId: authResult.userId,
-        movieId: { in: movieIds },
-      },
-      select: {
-        movieId: true,
-        createdAt: true,
-      },
-    });
-    for (const item of legacyItems) {
-      const prev = watchedByMovieId.get(item.movieId);
-      if (!prev || prev < item.createdAt) {
-        watchedByMovieId.set(item.movieId, item.createdAt);
-      }
+  const watchedItems = await prisma.userWatchedContent.findMany({
+    where: {
+      userId,
+      contentType: "movie",
+      watched: true,
+      movieId: { in: movieIds },
+    },
+    select: {
+      movieId: true,
+      watchedAt: true,
+      createdAt: true,
+    },
+  });
+  for (const item of watchedItems) {
+    if (!item.movieId) continue;
+    const watchedAt = item.watchedAt ?? item.createdAt;
+    const prev = watchedByMovieId.get(item.movieId);
+    if (!prev || prev < watchedAt) {
+      watchedByMovieId.set(item.movieId, watchedAt);
     }
   }
 
   const feedbackLogs = await prisma.feedbackLog.findMany({
     where: {
-      userId: authResult.userId,
+      userId: userId,
       recommendationResultId: { in: resultIds },
     },
     select: {
@@ -141,6 +115,8 @@ export async function GET() {
       sessionId: result.sessionId,
       movieId: result.movieId,
       title: result.movie.title,
+      localizedTitles: result.movie.localizedTitles,
+      localizedData: result.movie.localizedData,
       posterUrl: result.movie.posterUrl ?? null,
       rank: result.rank,
       recommendedAt: result.createdAt.toISOString(),

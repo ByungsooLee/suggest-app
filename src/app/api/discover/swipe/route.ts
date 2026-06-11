@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { updateUserMovieProfile } from "@/lib/discover/update-profile";
 import { generatePersonalityLabel } from "@/lib/discover/generate-personality";
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getAppUserId();
 
   const body = await req.json();
   const { movieId, action, reasons = [] } = body as {
@@ -43,25 +42,25 @@ export async function POST(req: NextRequest) {
   if (!movie) return NextResponse.json({ error: "Movie not found" }, { status: 404 });
 
   await prisma.movieSwipe.upsert({
-    where: { userId_movieId: { userId: session.user.id, movieId } },
-    create: { userId: session.user.id, movieId, action, reasons },
+    where: { userId_movieId: { userId, movieId } },
+    create: { userId, movieId, action, reasons },
     update: { action, reasons },
   });
 
-  await updateUserMovieProfile(session.user.id, movie, action, reasons);
+  await updateUserMovieProfile(userId, movie, action, reasons);
 
   // Check for 100-swipe milestone
   const profile = await prisma.userMovieProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
     select: { totalSwipes: true, personalityLabel: true, personalityUpdatedAt: true },
   });
 
   let personalityLabel: string | null = null;
   if (profile && profile.totalSwipes >= 100 && !profile.personalityUpdatedAt) {
-    personalityLabel = await generatePersonalityLabel(session.user.id);
+    personalityLabel = await generatePersonalityLabel(userId);
   } else if (profile?.personalityLabel && profile.totalSwipes % 100 === 0 && profile.totalSwipes > 0) {
     // Refresh every 100 swipes
-    personalityLabel = await generatePersonalityLabel(session.user.id);
+    personalityLabel = await generatePersonalityLabel(userId);
   }
 
   return NextResponse.json({ ok: true, personalityLabel });

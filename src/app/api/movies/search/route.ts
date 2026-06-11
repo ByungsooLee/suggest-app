@@ -1,13 +1,11 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { STREAMING_PROVIDERS } from "@/lib/constants/taxonomy";
 import { prisma } from "@/lib/db/prisma";
 
 const providerSet = new Set(STREAMING_PROVIDERS);
 
 export async function GET(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const url = new URL(request.url);
   const q = url.searchParams.get("q")?.trim() ?? "";
   const genre = url.searchParams.get("genre")?.trim() ?? "";

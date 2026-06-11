@@ -1,26 +1,13 @@
 import { Link } from "@/i18n/navigation";
 
 type Props = {
-  isLoggedIn: boolean;
   title: string;
   subtitle: string;
   cta: string;
-  guestCta: string;
   ctaSub: string;
-  alreadyHaveAccount: string;
-  loginLabel: string;
 };
 
-export function HomeHero({
-  isLoggedIn,
-  title,
-  subtitle,
-  cta,
-  guestCta,
-  ctaSub,
-  alreadyHaveAccount,
-  loginLabel,
-}: Props) {
+export function HomeHero({ title, subtitle, cta, ctaSub }: Props) {
   return (
     <section
       style={{
@@ -62,7 +49,7 @@ export function HomeHero({
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
           <Link
-            href={isLoggedIn ? "/recommend" : "/login"}
+            href="/recommend"
             className="pulse-gold btn-bounce"
             style={{
               display: "inline-flex",
@@ -78,18 +65,10 @@ export function HomeHero({
               textDecoration: "none",
             }}
           >
-            {isLoggedIn ? cta : guestCta}
+            {cta}
           </Link>
           <p style={{ fontSize: "11px", color: "rgba(240,237,232,0.3)", letterSpacing: "0.06em" }}>{ctaSub}</p>
         </div>
-        {!isLoggedIn && (
-          <p style={{ marginTop: "16px", fontSize: "13px", color: "rgba(240,237,232,0.4)" }}>
-            {alreadyHaveAccount}{" "}
-            <Link href="/login" style={{ color: "#E8C97A", textDecoration: "none" }}>
-              {loginLabel}
-            </Link>
-          </p>
-        )}
       </div>
     </section>
   );

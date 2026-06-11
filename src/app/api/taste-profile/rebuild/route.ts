@@ -1,14 +1,12 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { buildTasteProfile } from "@/lib/taste-profile/buildTasteProfile";
 import { MOOD_TAGS, type MoodTag } from "@/lib/constants/taxonomy";
 
 export async function POST() {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const latestPreference = await prisma.userPreference.findFirst({
-    where: { userId: authResult.userId },
+    where: { userId: userId },
     orderBy: { createdAt: "desc" },
   });
 
@@ -23,7 +21,7 @@ export async function POST() {
   }
 
   const latestProfile = await prisma.userTasteProfile.findFirst({
-    where: { userId: authResult.userId },
+    where: { userId: userId },
     orderBy: { profileVersion: "desc" },
     select: { profileVersion: true },
   });
@@ -40,7 +38,7 @@ export async function POST() {
 
   const profile = await prisma.userTasteProfile.create({
     data: {
-      userId: authResult.userId,
+      userId: userId,
       sourcePreferenceId: latestPreference.id,
       profileVersion: (latestProfile?.profileVersion ?? 0) + 1,
       ...vector,

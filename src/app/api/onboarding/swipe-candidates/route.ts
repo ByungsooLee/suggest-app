@@ -1,13 +1,11 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { ONBOARDING_MOVIES_V1 } from "@/lib/onboarding/onboarding-movie-list";
 
 const ONBOARDING_MOVIE_COUNT = 14;
 
 export async function GET(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const url = new URL(request.url);
   const fallbackPosterUrl = new URL("/images/no-poster.svg", url.origin).toString();
   const titleYearPairs = ONBOARDING_MOVIES_V1.map((movie) => ({

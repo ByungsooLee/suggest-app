@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { type AppPersonRole, syncPersonFromTmdbId } from "@/lib/people/person-record";
 import { toTmdbProfileImageUrl } from "@/lib/tmdb/client";
@@ -8,9 +8,7 @@ function isRole(value: string | null): value is AppPersonRole {
 }
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { id } = await context.params;
   const roleParam = new URL(request.url).searchParams.get("role");
   const requestedRole = isRole(roleParam) ? roleParam : null;

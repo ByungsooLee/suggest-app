@@ -12,16 +12,12 @@ const QUICK_MOODS = [
   { emoji: "☀️", mood: "uplifting" },
 ] as const;
 
-export function HomeMoodChips({ isLoggedIn }: { isLoggedIn: boolean }) {
+export function HomeMoodChips() {
   const homeT = useTranslations("home");
   const formT = useTranslations("recommendForm.moods");
   const router = useRouter();
 
   const handleMood = (mood: string) => {
-    if (!isLoggedIn) {
-      router.push("/login");
-      return;
-    }
     sessionStorage.setItem("presetMood", mood);
     router.push("/recommend?from=mood");
   };

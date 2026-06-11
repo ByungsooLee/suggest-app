@@ -1,26 +1,23 @@
 import { Link } from "@/i18n/navigation";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
+import { getAppUser, getAppUserId } from "@/lib/auth/app-user";
 import { AvatarTrigger } from "@/components/account/avatar-trigger";
 import { ScreenHeader } from "@/components/screen-header";
 import { prisma } from "@/lib/db/prisma";
 import { RankingsGate } from "./rankings-gate";
 
 export default async function TasteProfilePage() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  const appUser = await getAppUser();
+  const userId = await getAppUserId();
 
   const profile = await prisma.userTasteProfile.findFirst({
-    where: { userId: session.user.id },
+    where: { userId },
     orderBy: { createdAt: "desc" },
   });
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-xl px-6 py-10">
-      <AvatarTrigger image={session.user.image} name={session.user.name} />
+      <AvatarTrigger image={appUser.image} name={appUser.name} />
       <ScreenHeader
         title="あなたのTaste Profile"
         description="推薦で使う特徴量をシンプルに表示します。必要なら再構築できます。"

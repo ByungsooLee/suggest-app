@@ -25,6 +25,7 @@ suggest-app is a dark-cinema movie recommendation app. The core promise is helpi
 - Keep message keys aligned across all three locale files in the same shape.
 - Domain IDs such as mood tags, genres, watch contexts, reactions, and route params stay in English snake_case; only labels are translated.
 - Movie titles may use the title-language preference, but surrounding UI must use the active app locale.
+- Recommendation history/records must include localized movie fields (`localizedTitles`/`localizedData`) and render titles through `getMovieTitle()` with the active title-language preference; dates and surrounding labels must use the active app locale.
 
 ## UI Consistency Rules
 
@@ -35,10 +36,11 @@ suggest-app is a dark-cinema movie recommendation app. The core promise is helpi
 
 ## Data And API Rules
 
-- Auth-required route handlers should use `requireUser()` unless the local file already has a deliberate pattern.
+- Auth-required route handlers should use `getAppUserId()` from `@/lib/auth/app-user`.
 - Shared taxonomy values belong in `src/lib/constants/taxonomy.ts`.
 - Validation belongs in `src/lib/validation/schemas.ts`; avoid duplicating ad hoc request parsing in routes.
 - Prisma schema changes require a migration and a generated client check.
+- External catalog enrichment must be low-impact: default to small batches, add per-request delay and 429 backoff, support dry-run, and avoid overwriting existing user/catalog data unnecessarily.
 
 ## Verification
 

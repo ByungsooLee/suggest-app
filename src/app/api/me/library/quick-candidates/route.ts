@@ -1,13 +1,11 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { selectQuickCandidates } from "@/lib/library/quick-candidate-strategy";
 
 const DEFAULT_LIMIT = 12;
 
 export async function GET(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { searchParams } = new URL(request.url);
   const limitRaw = Number(searchParams.get("limit") ?? String(DEFAULT_LIMIT));
   const limit = Number.isFinite(limitRaw) ? Math.max(6, Math.min(limitRaw, 24)) : DEFAULT_LIMIT;
@@ -16,18 +14,18 @@ export async function GET(request: Request) {
 
   const [watched, quickLogs, onboardingReactions, movies] = await Promise.all([
     prisma.userWatchedContent.findMany({
-      where: { userId: authResult.userId, movieId: { not: null } },
+      where: { userId: userId, movieId: { not: null } },
       select: { movieId: true, reaction: true },
       take: 2000,
     }),
     prisma.quickReactionLog.findMany({
-      where: { userId: authResult.userId },
+      where: { userId: userId },
       orderBy: { createdAt: "desc" },
       select: { movieId: true },
       take: 1000,
     }),
     prisma.onboardingMovieReaction.findMany({
-      where: { userId: authResult.userId },
+      where: { userId: userId },
       include: { movie: true },
     }),
     prisma.movie.findMany({
@@ -119,7 +117,7 @@ export async function GET(request: Request) {
   ];
 
   const selected = selectQuickCandidates({
-    userId: authResult.userId,
+    userId: userId,
     movies,
     excludedMovieIds,
     likedSeedMovies,

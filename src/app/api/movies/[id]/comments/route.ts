@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { z } from "zod";
 
@@ -9,8 +9,7 @@ const PostSchema = z.object({
 });
 
 export async function GET(_req: Request, { params }: Params) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
+  const userId = await getAppUserId();
   const { id: movieId } = await params;
 
   const comments = await prisma.movieComment.findMany({
@@ -37,9 +36,7 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 export async function POST(req: Request, { params }: Params) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-  const { userId } = authResult;
+  const userId = await getAppUserId();
   const { id: movieId } = await params;
 
   const movie = await prisma.movie.findUnique({

@@ -5,8 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { PersonChip } from "@/components/person/PersonChip";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
-import { getMovieTitle } from "@/lib/movie-title";
-import { type SwipeCardMovie } from "@/components/recommend/SwipeCard";
+import { getMovieTitle } from "@/lib/i18n/localized-movie";
+import { type SwipeCardMovie } from "@/lib/movies/movie-card";
 import { MovieSocialActions } from "@/components/movie/MovieSocialActions";
 
 type MbtiCtx = {

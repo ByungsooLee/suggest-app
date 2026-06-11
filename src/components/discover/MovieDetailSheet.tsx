@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
 import type { MovieCardPayload } from "@/lib/movies/movie-card";
-import { getMovieTitle } from "@/lib/movie-title";
+import { getMovieTitle } from "@/lib/i18n/localized-movie";
 import { PersonChip } from "@/components/person/PersonChip";
 type DiscoverMovie = MovieCardPayload;
 

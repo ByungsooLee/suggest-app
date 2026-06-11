@@ -1,19 +1,17 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET() {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const [watchedItems, recentQuickReactions] = await Promise.all([
     prisma.userWatchedContent.findMany({
-      where: { userId: authResult.userId },
+      where: { userId: userId },
       select: { contentType: true, reaction: true },
       take: 2000,
     }),
     prisma.quickReactionLog.count({
       where: {
-        userId: authResult.userId,
+        userId: userId,
         createdAt: {
           gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
         },

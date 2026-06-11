@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 
 import { PersonChip } from "@/components/person/PersonChip";
 import type { PersonChipData } from "@/components/person/types";
-import { getMovieTitle } from "@/lib/movie-title";
+import { getMovieTitle } from "@/lib/i18n/localized-movie";
 import type { PromptType } from "@/lib/prompts/movie-prompt-generator";
 
 type MoodEntry = { label: string; value: number };

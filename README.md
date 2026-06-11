@@ -12,7 +12,7 @@
 ## Tech Stack
 
 - Next.js 16 (App Router, TypeScript, Tailwind)
-- Auth.js (`next-auth` v5 beta) + Credentials Provider
+- Auth: single local demo user via `getAppUserId()` (no login UI)
 - Prisma Adapter + PostgreSQL
 - Zod validation
 
@@ -68,14 +68,12 @@ npm run db:seed
 npm run dev
 ```
 
-## Quick Login (Local)
+## Quick Start (Local)
 
-Google OAuth設定なしで確認できます。
+No login required. The app uses a shared local demo user automatically.
 
-1) `/login` を開く  
-2) 「新規登録」で `name / email / username / password` を入力  
-3) 作成後、自動で `/onboarding` へ遷移  
-4) 次回以降は同じ `email + username + password` でログイン
+1. Start PostgreSQL and run `npx prisma db push && npm run db:seed`
+2. `npm run dev` → open http://localhost:3000
 
 ## Shared Vocabulary Rule
 

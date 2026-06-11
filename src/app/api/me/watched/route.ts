@@ -1,8 +1,7 @@
 import { type WatchedContentType } from "@prisma/client";
 import { z } from "zod";
 
-import { requireUser } from "@/lib/auth/require-user";
-import { isMissingUserWatchedContentTableError } from "@/lib/db/prisma-compat";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { sanitizeOptionalText, toWatchedItemDto } from "@/lib/mypage/watched-content";
 import { parseJson } from "@/lib/validation/http";
@@ -18,36 +17,12 @@ type WatchedListItemWithSort = ReturnType<typeof toWatchedItemDto> & {
   releaseYearSortKey: number | null;
 };
 
-type WatchedWithMovieRecord = {
-  id: string;
-  userId: string;
-  contentType: WatchedContentType;
-  title: string;
-  posterUrl: string | null;
-  watched: boolean;
-  movieId: string | null;
-  source: "onboarding_known" | "onboarding_liked" | "recommend_like" | "manual";
-  catalogSource: "manual" | "onboarding" | "search_add" | "quick_classify" | "recommendation";
-  quickConfidence: number | null;
-  watchSource: "netflix" | "prime_video" | "cinema" | "other" | null;
-  watchedAt: Date | null;
-  ratingScore: number | null;
-  reaction: "like" | "normal" | "dislike" | null;
-  memo: string | null;
-  rewatch: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  movie: { id: string; title: string; posterUrl: string | null; releaseYear: number } | null;
-};
-
 function matchesType(item: WatchedListItemWithSort, typeFilter: "all" | WatchedContentType) {
   return typeFilter === "all" || item.contentType === typeFilter;
 }
 
 export async function GET(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { searchParams } = new URL(request.url);
   const parsedType = WatchedTypeFilterSchema.safeParse(searchParams.get("type") ?? "all");
   if (!parsedType.success) {
@@ -67,9 +42,8 @@ export async function GET(request: Request) {
   }
   const q = searchParams.get("q")?.trim().toLowerCase() ?? "";
 
-  let modernItems: WatchedWithMovieRecord[] = [];
-  const legacyMovies = await prisma.userWatchedMovie.findMany({
-    where: { userId: authResult.userId },
+  const modernItems = await prisma.userWatchedContent.findMany({
+    where: { userId },
     include: {
       movie: {
         select: {
@@ -83,27 +57,6 @@ export async function GET(request: Request) {
     orderBy: { createdAt: "desc" },
     take: 800,
   });
-  try {
-    modernItems = await prisma.userWatchedContent.findMany({
-      where: { userId: authResult.userId },
-      include: {
-        movie: {
-          select: {
-            id: true,
-            title: true,
-            posterUrl: true,
-            releaseYear: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 800,
-    });
-  } catch (error) {
-    if (!isMissingUserWatchedContentTableError(error)) throw error;
-  }
-
-  const modernMovieIds = new Set(modernItems.map((item) => item.movieId).filter((id): id is string => Boolean(id)));
 
   const modernDto: WatchedListItemWithSort[] = modernItems.map((item) => ({
     ...toWatchedItemDto(item),
@@ -112,30 +65,8 @@ export async function GET(request: Request) {
     releaseYearSortKey: item.movie?.releaseYear ?? null,
   }));
 
-  const legacyDto: WatchedListItemWithSort[] = legacyMovies
-    .filter((item) => !modernMovieIds.has(item.movieId))
-    .map((item) => ({
-      id: `legacy_${item.id}`,
-      title: item.movie.title,
-      contentType: "movie",
-      posterUrl: item.movie.posterUrl ?? "/images/no-poster.svg",
-      watched: true,
-      watchedAt: item.createdAt.toISOString(),
-      ratingScore: null,
-      reaction: null,
-      watchSource: null,
-      memo: null,
-      rewatch: false,
-      movieId: item.movieId,
-      catalogSource: "onboarding",
-      quickConfidence: null,
-      createdSortKey: item.createdAt.toISOString(),
-      watchedSortKey: item.createdAt.toISOString(),
-      releaseYearSortKey: item.movie.releaseYear ?? null,
-    }));
-
   const typeFilter = parsedType.data === "all" ? "all" : (parsedType.data as WatchedContentType);
-  const items = [...modernDto, ...legacyDto]
+  const items = modernDto
     .filter((item) => matchesType(item, typeFilter))
     .filter((item) => (parsedReaction.data ? item.reaction === parsedReaction.data : true))
     .filter((item) => (q ? item.title.toLowerCase().includes(q) : true))
@@ -182,9 +113,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const parsed = await parseJson(request, WatchedCreateSchema);
   if (!parsed.ok) return parsed.response;
 
@@ -203,7 +132,7 @@ export async function POST(request: Request) {
   }
 
   const payload = {
-    userId: authResult.userId,
+    userId: userId,
     contentType: parsed.data.contentType,
     movieId: movie?.id ?? null,
     title: titleFromInput ?? movie?.title ?? "Untitled",
@@ -220,97 +149,53 @@ export async function POST(request: Request) {
     quickConfidence: parsed.data.quickConfidence ?? null,
   };
 
-  try {
-    const created = movie?.id
-      ? await prisma.userWatchedContent.upsert({
-          where: {
-            userId_movieId_contentType: {
-              userId: authResult.userId,
-              movieId: movie.id,
-              contentType: parsed.data.contentType,
+  const created = movie?.id
+    ? await prisma.userWatchedContent.upsert({
+        where: {
+          userId_movieId_contentType: {
+            userId,
+            movieId: movie.id,
+            contentType: parsed.data.contentType,
+          },
+        },
+        update: {
+          title: payload.title,
+          posterUrl: payload.posterUrl,
+          watched: payload.watched,
+          watchedAt: payload.watchedAt,
+          ratingScore: payload.ratingScore,
+          reaction: payload.reaction,
+          watchSource: payload.watchSource,
+          memo: payload.memo,
+          rewatch: payload.rewatch,
+          catalogSource: payload.catalogSource,
+          quickConfidence: payload.quickConfidence,
+        },
+        create: payload,
+        include: {
+          movie: {
+            select: {
+              id: true,
+              title: true,
+              posterUrl: true,
+              releaseYear: true,
             },
           },
-          update: {
-            title: payload.title,
-            posterUrl: payload.posterUrl,
-            watched: payload.watched,
-            watchedAt: payload.watchedAt,
-            ratingScore: payload.ratingScore,
-            reaction: payload.reaction,
-            watchSource: payload.watchSource,
-            memo: payload.memo,
-            rewatch: payload.rewatch,
-            catalogSource: payload.catalogSource,
-            quickConfidence: payload.quickConfidence,
-          },
-          create: payload,
-          include: {
-            movie: {
-              select: {
-                id: true,
-                title: true,
-                posterUrl: true,
-                releaseYear: true,
-              },
+        },
+      })
+    : await prisma.userWatchedContent.create({
+        data: payload,
+        include: {
+          movie: {
+            select: {
+              id: true,
+              title: true,
+              posterUrl: true,
+              releaseYear: true,
             },
           },
-        })
-      : await prisma.userWatchedContent.create({
-          data: payload,
-          include: {
-            movie: {
-              select: {
-                id: true,
-                title: true,
-                posterUrl: true,
-                releaseYear: true,
-              },
-            },
-          },
-        });
+        },
+      });
 
-    return Response.json({ item: toWatchedItemDto(created) }, { status: 201 });
-  } catch (error) {
-    if (!isMissingUserWatchedContentTableError(error)) throw error;
-    if (!movie?.id) {
-      return Response.json(
-        {
-          code: "WATCHED_UPGRADE_REQUIRED",
-          message: "ドラマ/手動タイトルの保存にはDBマイグレーション適用が必要です。",
-        },
-        { status: 503 },
-      );
-    }
-    await prisma.userWatchedMovie.createMany({
-      data: [
-        {
-          userId: authResult.userId,
-          movieId: movie.id,
-          source: "manual",
-        },
-      ],
-      skipDuplicates: true,
-    });
-    return Response.json(
-      {
-        item: {
-          id: `legacy_movie_${movie.id}`,
-          title: movie.title,
-          contentType: "movie",
-          posterUrl: movie.posterUrl ?? "/images/no-poster.svg",
-          watched: true,
-          watchedAt: null,
-          ratingScore: null,
-          reaction: null,
-          watchSource: null,
-          memo: null,
-          rewatch: false,
-          movieId: movie.id,
-          catalogSource: "manual",
-          quickConfidence: null,
-        },
-      },
-      { status: 201 },
-    );
-  }
+  return Response.json({ item: toWatchedItemDto(created) }, { status: 201 });
 }

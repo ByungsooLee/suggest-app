@@ -20,10 +20,10 @@
 ## 2. 技術スタック
 
 - Frontend: Next.js 16 App Router, React 19, TypeScript, Tailwind CSS
-- Auth: Auth.js (next-auth v5 beta), Credentials Provider
+- Auth: 単一ローカルユーザー（`getAppUserId()` / `getAppUser()`）
 - DB/ORM: PostgreSQL, Prisma
 - Validation: Zod
-- Password: bcryptjs
+- Password: bcryptjs（デモユーザー seed 用）
 
 ---
 
@@ -34,21 +34,21 @@ flowchart LR
   User[User Browser]
   NextApp[Next.js App Router]
   ApiRoutes[Route Handlers API]
-  AuthLayer[Auth.js Credentials]
+  AppUserLayer[getAppUserId]
   PrismaLayer[Prisma Client]
   PostgresDB[(PostgreSQL)]
   ExternalTMDB[TMDB API]
 
   User --> NextApp
   NextApp --> ApiRoutes
-  ApiRoutes --> AuthLayer
+  ApiRoutes --> AppUserLayer
   ApiRoutes --> PrismaLayer
   PrismaLayer --> PostgresDB
   ApiRoutes --> ExternalTMDB
 ```
 
 補足:
-- 認証必須APIは `requireUser()` を通してガード
+- API は `getAppUserId()` で単一ローカルユーザーを解決（`demo@example.com` を自動作成）
 - 推薦ロジックは `src/lib/recommendation/engine.ts` に集約
 - 外部データは主にTMDB（候補補完・人物情報・ポスター厳密照合）
 
@@ -56,15 +56,10 @@ flowchart LR
 
 ## 4. 認証設計
 
-### 4.1 ログイン方式
-- Credentials認証（`email + username + password`）
-- セッション戦略は JWT
-- サインインページは `/login`
-
-### 4.2 実装ファイル
-- `src/auth.ts`: NextAuth設定本体
-- `src/app/api/auth/[...nextauth]/route.ts`: Auth handler公開
-- `src/lib/auth/require-user.ts`: API用の認証ガード
+### 4.1 方式
+- NextAuth は撤去済み
+- ローカル開発では `src/lib/auth/app-user.ts` がデモユーザーを自動作成・利用
+- 実装ファイル: `src/lib/auth/app-user.ts`
 
 ---
 
@@ -72,20 +67,19 @@ flowchart LR
 
 ### 5.1 画面一覧
 - `/` ランディング
-- `/login` ログイン/登録
 - `/onboarding` 初期嗜好入力（MBTI + スワイプ + 既知作品評価）
 - `/profile/taste` 味覚プロファイル表示 + ランキング導線
 - `/mypage` 嗜好の継続調整（ジャンル/監督/俳優/発見モード）
+- `/history` 推薦履歴
 - `/recommend` 推薦条件入力
 - `/recommend/result/[sessionId]` 推薦結果表示
-- `/history`, `/settings`
+- `/browse`, `/discover`, `/techo`, `/mbti`
 
 ### 5.2 主要フロー
-1. ログイン
-2. オンボーディング送信 (`POST /api/onboarding`)
-3. Taste Profile生成
-4. 推薦入力送信 (`POST /api/recommendations`)
-5. 推薦結果確認 + フィードバック (`POST /api/feedback`)
+1. オンボーディング送信 (`POST /api/onboarding`)
+2. Taste Profile生成
+3. 推薦入力送信 (`POST /api/recommendations`)
+4. 推薦結果確認
 
 ---
 
@@ -100,12 +94,12 @@ flowchart LR
 - `Movie`: 推薦対象カタログ（タグ、監督、俳優、スコア等）
 - `RecommendationSession`: 推薦実行コンテキストの保存
 - `RecommendationResult`: セッション内の順位付き結果
-- `FeedbackLog`: 推薦結果への反応ログ
 
 ### 6.2 オンボーディング拡張
 - `UserOnboardingProfile`: MBTI/バージョン
 - `UserMovieSwipe`: known/unknown + liked/skipped + rating
-- `UserWatchedMovie`: 視聴済みとして蓄積（source付き）
+- `UserWatchedContent`: 視聴済みライブラリ（source/catalogSource 付き）
+- `UserWatchlistItem`: ウォッチリスト
 
 ### 6.3 補助エンティティ
 - `MovieAvailability`: 配信可用性
@@ -115,9 +109,8 @@ flowchart LR
 
 ## 7. API設計（現行）
 
-### 7.1 認証/ユーザー
-- `GET /api/me`: セッションユーザー情報
-- `GET|POST /api/auth/[...nextauth]`: 認証
+### 7.1 ユーザー
+- `GET /api/me`: ローカルユーザー情報
 
 ### 7.2 オンボーディング
 - `POST /api/onboarding`: オンボーディング保存 + Taste Profile生成
@@ -127,19 +120,18 @@ flowchart LR
 ### 7.3 推薦
 - `POST /api/recommendations`: 推薦実行
 - `GET /api/recommendations/[sessionId]`: セッション結果取得
-- `POST /api/feedback`: 反応ログ保存
 
 ### 7.4 プロファイル/設定
-- `GET /api/taste-profile`: 最新Taste Profile取得
-- `POST /api/taste-profile/rebuild`: 再構築
-- `GET|POST /api/mypage/preferences`: マイページ嗜好取得/更新
+- `POST /api/taste-profile/rebuild`: Taste Profile 再構築
+- `GET|PATCH /api/me/preferences`: マイページ嗜好取得/更新
 - `GET /api/profile/rankings`: 視聴蓄積による監督/俳優ランキング
+- `GET|POST /api/me/watched`, `GET|PATCH|DELETE /api/me/watched/[id]`: 視聴ライブラリ
+- `GET|POST /api/me/watchlist`, `PATCH|DELETE /api/me/watchlist/[id]`: ウォッチリスト
 
 ### 7.5 カタログ/外部連携
 - `GET /api/movies/search`
 - `GET /api/movies/suggestions`
 - `GET /api/people/[name]`
-- `POST /api/admin/catalog/sync`
 
 ---
 

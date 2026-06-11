@@ -9,14 +9,10 @@
     "tagline": "Tonight's movie, decided in 3 seconds.",
     "sub": "Matched by mood × company × MBTI",
     "cta": "Find tonight's pick →",
-    "ctaGuest": "Get started free →",
     "ctaSub": "4 steps · about 1 min",
     "moodLabel": "Current mood",
-    "discoverBanner": "Discover movies you'll love",
     "discoverProgress": "{current} / 100 films",
     "recentPicks": "Picks for you",
-    "alreadyHaveAccount": "Already have an account?",
-    "login": "Sign in",
     "stats": {
       "total": "Total watched",
       "thisMonth": "This month",
@@ -24,21 +20,6 @@
     },
     "discoverCardTitle": "Build your film taste",
     "mbtiCardTitle": "Check your compatibility with your watch partner",
-    "guestFeatures": {
-      "mood": {
-        "title": "Mood-based picks",
-        "desc": "Narrow down tonight's movie from 8 moods"
-      },
-      "steps": {
-        "title": "Done in 4 steps",
-        "desc": "Answer a few questions and get the best pick"
-      },
-      "mbti": {
-        "title": "Learns MBTI and taste",
-        "desc": "A personal engine that gets better the more you use it"
-      }
-    },
-    "createAccount": "Create an account to start →",
     "browseLink": "Browse the catalog →"
   },
   "mood": {
@@ -336,14 +317,8 @@
     },
     "settings": {
       "title": "Settings",
-      "language": "App language",
-      "titleLanguage": "Film title language",
-      "plan": "Plan",
-      "free": "Free",
-      "premium": "Premium",
-      "upgrade": "Upgrade to Premium"
+      "language": "App language"
     },
-    "signOut": "Sign out",
     "stats": {
       "title": "Watch Stats",
       "description": "A compact overview of your viewing habits.",
@@ -378,6 +353,24 @@
       "discoveryWide": "Wide",
       "directorLabel": "Favourite directors",
       "actorLabel": "Favourite actors",
+      "writerLabel": "Favourite writers",
+      "writerHint": "Writer preferences are factored into your recommendation score.",
+      "genreAxisTitle": "Genre / Style",
+      "genreAxisHint": "Tap to like (gold), tap again to avoid (green), tap again to clear.",
+      "examplePrefix": "e.g. ",
+      "formLoadError": "Failed to load settings.",
+      "formLoading": "Loading settings...",
+      "confirmSelect": "Confirm selection",
+      "personSearchPlaceholder": "Search by name...",
+      "personCountSuffix": "{count} related films",
+      "personNotFound": "No results found",
+      "savedWithNote": "Saved. Changes will be reflected in your next recommendation.",
+      "modalTitleDirector": "Select your favourite directors",
+      "modalTitleActor": "Select your favourite actors",
+      "modalTitleWriter": "Select your favourite writers",
+      "modalSubDirector": "You can select multiple directors.",
+      "modalSubActor": "You can select multiple actors.",
+      "modalSubWriter": "For those who pick films by their writers.",
       "suggestionsLoading": "Loading suggestions…",
       "suggestionsError": "Failed to load suggestions.",
       "fallback": "Showing suggestions from the full catalogue as matches were limited.",
@@ -387,9 +380,16 @@
       "saveError": "Failed to save preferences."
     },
     "history": {
-      "title": "Recommendation History",
+      "eyebrow": "RECOMMENDATION LOG",
+      "title": "Recommendation Records",
+      "previewTitle": "Review past recommendations",
       "description": "See your recent recommendations and what you did with each one.",
+      "previewDescription": "Revisit earlier picks and reopen the result page when one feels right tonight.",
+      "pageDescription": "Browse your saved recommendation records. Open a record to see the full result page.",
       "empty": "No history yet. Run a recommendation to see it here.",
+      "viewAll": "View all",
+      "openRecord": "Open recommendation result",
+      "rank": "#{rank}",
       "status": {
         "recommended": "Suggested",
         "saved": "Saved",
@@ -400,7 +400,8 @@
     "tasteSummary": {
       "title": "Your Taste Summary",
       "description": "Inferred from your watch history and preference settings.",
-      "loading": "Preparing taste summary…"
+      "loading": "Preparing taste summary…",
+      "empty": "Once your watch history grows, your taste summary will appear here."
     },
     "library": {
       "previewLabel": "Watch History",
@@ -411,31 +412,6 @@
       "addWatched": "Log a title",
       "quickAdd": "Quick classify"
     }
-  },
-  "auth": {
-    "signIn": "Sign in",
-    "signUp": "Sign up",
-    "email": "Email",
-    "password": "Password",
-    "continueWithGoogle": "Continue with Google"
-  },
-  "feedback": {
-    "title": "Recommendation feedback (one tap)",
-    "reactions": {
-      "liked": "Loved it",
-      "too_dark": "Too heavy",
-      "too_long": "Too long",
-      "not_now": "Not now",
-      "mismatch": "Wrong mood"
-    },
-    "saving": "Saving...",
-    "saved": "Feedback saved.",
-    "error": "Failed to save feedback. Please try again."
-  },
-  "history": {
-    "title": "History",
-    "deferred": "Deferred",
-    "description": "This is planned for a later MVP pass. Recommendation sessions are already being saved."
   },
   "notFound": {
     "title": "Page not found",
@@ -459,7 +435,9 @@
     "premium": "Premium",
     "openMypage": "Open My Page",
     "profileAvatarAlt": "Profile avatar",
-    "runtimeMinutes": "{minutes} min"
+    "runtimeMinutes": "{minutes} min",
+    "add": "Add",
+    "removeAriaLabel": "Remove {name}"
   },
   "person": {
     "roles": {
@@ -468,10 +446,23 @@
       "writer": "Writer"
     },
     "loading": "Loading person details...",
+    "loadingProfile": "Loading profile...",
     "loadError": "Couldn't load person details",
     "knownFor": "Known for",
     "recentCredits": "Recent related titles",
+    "recentNews": "Recent news",
     "collaborators": "Frequent collaborators",
-    "viewPage": "View person page →"
+    "viewPage": "View person page →",
+    "noBio": "No bio available.",
+    "noKnownFor": "No known works available.",
+    "noNews": "No news available."
+  },
+  "movieSocial": {
+    "commentCount": "Comments ({count})",
+    "commentPlaceholder": "Write a comment...",
+    "send": "Send",
+    "loading": "Loading...",
+    "empty": "No comments yet. Be the first!",
+    "anonymous": "Anonymous"
   }
 }

@@ -6,8 +6,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import type { PersonChipData } from "@/components/person/types";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
 import { resolveField, type LocalizedData } from "@/lib/i18n/localized-movie";
-import { getMovieTitle } from "@/lib/movie-title";
-import { LangSelector } from "@/components/lang-selector";
+import { getMovieTitle } from "@/lib/i18n/localized-movie";
+import { MovieTitleLanguageSwitcher } from "@/components/LanguageSwitcher";
 import { generateMoviePrompt, type PromptType } from "@/lib/prompts/movie-prompt-generator";
 import { useDominantColor } from "@/hooks/useDominantColor";
 import {
@@ -160,7 +160,7 @@ export function MovieDetailClient({
           {detailT("backToJournal")}
         </Link>
         <div style={{ flex: 1 }} />
-        <LangSelector />
+        <MovieTitleLanguageSwitcher />
       </div>
 
       <div style={{ maxWidth: "640px", margin: "0 auto", padding: "24px 16px 48px" }}>

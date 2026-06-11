@@ -1,12 +1,10 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 const PAGE_SIZE = 20;
 
 export async function GET(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim().toLowerCase() ?? "";
   const actor = searchParams.get("actor")?.trim().toLowerCase() ?? "";

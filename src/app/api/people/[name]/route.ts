@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { resolveStrictPersonMatch } from "@/lib/people/strict-person-match";
 import { PersonPreviewSchema } from "@/lib/validation/schemas";
@@ -17,9 +17,7 @@ function isPersonRole(value: string | null): value is PersonRole {
 }
 
 export async function GET(request: Request, context: { params: Promise<{ name: string }> }) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { name: rawName } = await context.params;
   const name = decodeURIComponent(rawName).trim();
   if (!name) {

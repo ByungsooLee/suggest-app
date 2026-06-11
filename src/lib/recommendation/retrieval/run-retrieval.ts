@@ -1,13 +1,15 @@
 import { RETRIEVAL_POOL_LIMITS } from "@/lib/recommendation/constants";
-import { buildRetrievalTrace } from "@/lib/recommendation/debug-trace";
+import { buildRetrievalTrace } from "@/lib/recommendation/trace";
 import { type CandidateMovie, type RetrievalCandidate, type RetrievalTrace } from "@/lib/recommendation/types";
-import { retrieveAdjacentDiscovery } from "@/lib/recommendation/retrieval/channels/adjacent-discovery";
-import { retrieveCreatorAffinity } from "@/lib/recommendation/retrieval/channels/creator-affinity";
-import { retrieveMoodCompatible } from "@/lib/recommendation/retrieval/channels/mood-compatible";
-import { type ChannelContext } from "@/lib/recommendation/retrieval/channels/shared";
-import { retrieveTasteNearest } from "@/lib/recommendation/retrieval/channels/taste-nearest";
-import { retrieveQualityFit } from "@/lib/recommendation/retrieval/channels/quality-fit";
-import { retrieveWatchContext } from "@/lib/recommendation/retrieval/channels/watch-context";
+import {
+  retrieveAdjacentDiscovery,
+  retrieveCreatorAffinity,
+  retrieveMoodCompatible,
+  retrieveQualityFit,
+  retrieveTasteNearest,
+  retrieveWatchContext,
+  type ChannelContext,
+} from "@/lib/recommendation/retrieval/channels";
 import { type FeatureVector } from "@/lib/recommendation/feature-vector";
 import { type WatchContext } from "@/lib/constants/taxonomy";
 

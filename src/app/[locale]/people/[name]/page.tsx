@@ -1,6 +1,4 @@
 import { Link } from "@/i18n/navigation";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { PersonBioSection } from "./person-bio-section";
 
@@ -22,9 +20,6 @@ export default async function PersonPage({
   params: Promise<{ name: string }>;
   searchParams: Promise<{ role?: string }>;
 }) {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
-
   const { name: rawName } = await params;
   const { role: roleParam } = await searchParams;
   const name = decodeURIComponent(rawName).trim();

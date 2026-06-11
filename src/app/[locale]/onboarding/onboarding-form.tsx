@@ -55,9 +55,9 @@ export function OnboardingForm() {
       const response = await fetch("/api/onboarding/swipe-candidates", { cache: "no-store" });
       if (response.status === 401) {
         if (!cancelled) {
-          setCandidateError("セッションが切れています。再ログインしてください。");
+          setCandidateError("データの取得に失敗しました。");
           setLoadingCandidates(false);
-          router.push("/login?error=session_stale");
+          router.refresh();
         }
         return;
       }
@@ -124,8 +124,8 @@ export function OnboardingForm() {
         try {
           const data = (await response.json()) as { message?: string; code?: string };
           if (data.code === "SESSION_STALE") {
-            message = "セッションが切れています。再ログインしてください。";
-            router.push("/login?error=session_stale");
+            message = "データの取得に失敗しました。";
+            router.refresh();
           } else if (data.message) {
             message = data.message;
           }

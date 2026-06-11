@@ -23,6 +23,7 @@ Use this skill for cleanup work that makes suggest-app feel like one coherent pr
 - Update all three message files in the same shape.
 - Use `useTranslations()` in client components and `getTranslations()` in server components.
 - Do not translate persisted enum values, route params, Prisma IDs, taxonomy IDs, or API payload fields.
+- For recommendation history/records, include `localizedTitles`/`localizedData` in API or server selects, render movie titles through `getMovieTitle()` with `useMovieTitleLang()`, and format dates with the active app locale.
 - Prefer existing shared UI primitives before adding new component patterns.
 - Keep copy short, product-like, and consistent with the Dark Cinema tone.
 - Replace hardcoded loading, empty, error, button, aria-label, and placeholder text before deeper refactors.

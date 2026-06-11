@@ -9,14 +9,10 @@
     "tagline": "今夜の映画、3秒で決める。",
     "sub": "気分 × 誰と × MBTIで最適な1本を",
     "cta": "今夜の1本を探す →",
-    "ctaGuest": "無料ではじめる →",
     "ctaSub": "4ステップ · 約1分",
     "moodLabel": "今の気分",
-    "discoverBanner": "好みの映画を発見する",
     "discoverProgress": "{current} / 100本",
     "recentPicks": "あなたへのピック",
-    "alreadyHaveAccount": "すでにアカウントをお持ちの方は",
-    "login": "ログイン",
     "stats": {
       "total": "総視聴本数",
       "thisMonth": "今月",
@@ -24,21 +20,6 @@
     },
     "discoverCardTitle": "好みの映画を育てる",
     "mbtiCardTitle": "一緒に観る人との相性チェック",
-    "guestFeatures": {
-      "mood": {
-        "title": "気分ベースで提案",
-        "desc": "8種類の気分から今夜の映画を絞り込む"
-      },
-      "steps": {
-        "title": "4ステップ完結",
-        "desc": "質問に答えるだけで最適な1本が決まる"
-      },
-      "mbti": {
-        "title": "MBTI×好みを学習",
-        "desc": "使うほど精度が上がるパーソナルエンジン"
-      }
-    },
-    "createAccount": "アカウントを作成してはじめる →",
     "browseLink": "カタログを見る →"
   },
   "mood": {
@@ -336,14 +317,8 @@
     },
     "settings": {
       "title": "設定",
-      "language": "アプリの表示言語",
-      "titleLanguage": "映画タイトルの表示言語",
-      "plan": "プラン",
-      "free": "無料",
-      "premium": "プレミアム",
-      "upgrade": "プレミアムにアップグレード"
+      "language": "アプリの表示言語"
     },
-    "signOut": "サインアウト",
     "stats": {
       "title": "視聴統計",
       "description": "視聴傾向をコンパクトに可視化します。",
@@ -378,6 +353,24 @@
       "discoveryWide": "広げる",
       "directorLabel": "推し監督",
       "actorLabel": "推し俳優",
+      "writerLabel": "推し脚本家",
+      "writerHint": "脚本家の傾向は推薦スコアに加味されます。",
+      "genreAxisTitle": "ジャンル / スタイル",
+      "genreAxisHint": "タップで「好き」（ゴールド）、もう一度で「避けたい」（緑）、もう一度で解除",
+      "examplePrefix": "例：",
+      "formLoadError": "設定の読み込みに失敗しました。",
+      "formLoading": "設定を読み込み中...",
+      "confirmSelect": "選択を確定する",
+      "personSearchPlaceholder": "名前で検索...",
+      "personCountSuffix": "関連作品 {count} 本",
+      "personNotFound": "候補が見つかりません",
+      "savedWithNote": "保存しました。次回推薦から反映されます。",
+      "modalTitleDirector": "推し監督を選ぶ",
+      "modalTitleActor": "推し俳優を選ぶ",
+      "modalTitleWriter": "推し脚本家を選ぶ",
+      "modalSubDirector": "好きな監督を複数選択できます",
+      "modalSubActor": "好きな俳優を複数選択できます",
+      "modalSubWriter": "脚本で映画を選ぶ人向けの設定です",
       "suggestionsLoading": "候補を読み込み中...",
       "suggestionsError": "候補の取得に失敗しました。",
       "fallback": "候補が少ないため、全体データから提案しています。",
@@ -387,9 +380,16 @@
       "saveError": "保存に失敗しました。"
     },
     "history": {
-      "title": "推薦履歴",
+      "eyebrow": "RECOMMENDATION LOG",
+      "title": "推薦記録",
+      "previewTitle": "過去の推薦記録を確認",
       "description": "最近の提案と、その後のアクションを確認できます。",
+      "previewDescription": "以前の提案を見返して、今夜の候補をもう一度選べます。",
+      "pageDescription": "これまでの推薦を一覧で確認できます。記録を開くと推薦結果ページで詳しく見られます。",
       "empty": "まだ推薦履歴がありません。おすすめを1回作成するとここに表示されます。",
+      "viewAll": "すべて見る",
+      "openRecord": "推薦結果を開く",
+      "rank": "#{rank}",
       "status": {
         "recommended": "提案のみ",
         "saved": "保存済み",
@@ -400,7 +400,8 @@
     "tasteSummary": {
       "title": "映画嗜好サマリー",
       "description": "視聴履歴と嗜好設定から傾向を解釈しています。",
-      "loading": "嗜好サマリーを準備中です。"
+      "loading": "嗜好サマリーを準備中です。",
+      "empty": "視聴履歴が増えると、あなたの好みサマリを表示します。"
     },
     "library": {
       "previewLabel": "視聴履歴",
@@ -411,31 +412,6 @@
       "addWatched": "視聴済みを登録",
       "quickAdd": "クイック分類"
     }
-  },
-  "auth": {
-    "signIn": "サインイン",
-    "signUp": "新規登録",
-    "email": "メールアドレス",
-    "password": "パスワード",
-    "continueWithGoogle": "Googleで続ける"
-  },
-  "feedback": {
-    "title": "推薦フィードバック（ワンタップ）",
-    "reactions": {
-      "liked": "好き",
-      "too_dark": "重すぎた",
-      "too_long": "長すぎた",
-      "not_now": "今じゃない",
-      "mismatch": "気分と違う"
-    },
-    "saving": "保存中...",
-    "saved": "フィードバックを保存しました。",
-    "error": "保存に失敗しました。再試行してください。"
-  },
-  "history": {
-    "title": "履歴",
-    "deferred": "後続実装",
-    "description": "MVPでは後続実装対象です。現時点では推薦セッション保存のみ実装済みです。"
   },
   "notFound": {
     "title": "ページが見つかりません",
@@ -459,7 +435,9 @@
     "premium": "プレミアム",
     "openMypage": "マイページを開く",
     "profileAvatarAlt": "プロフィール画像",
-    "runtimeMinutes": "{minutes}分"
+    "runtimeMinutes": "{minutes}分",
+    "add": "追加",
+    "removeAriaLabel": "{name}を削除"
   },
   "person": {
     "roles": {
@@ -468,10 +446,23 @@
       "writer": "脚本"
     },
     "loading": "人物情報を読み込み中...",
+    "loadingProfile": "プロフィールを取得中...",
     "loadError": "人物情報を読み込めませんでした",
     "knownFor": "代表作",
     "recentCredits": "最近の関連作品",
+    "recentNews": "最近の話題",
     "collaborators": "主なコラボレーター",
-    "viewPage": "人物ページを見る →"
+    "viewPage": "人物ページを見る →",
+    "noBio": "プロフィール情報がまだありません。",
+    "noKnownFor": "代表作情報がまだありません。",
+    "noNews": "ニュースは取得できませんでした。"
+  },
+  "movieSocial": {
+    "commentCount": "コメント {count}件",
+    "commentPlaceholder": "コメントを書く...",
+    "send": "送信",
+    "loading": "読み込み中...",
+    "empty": "まだコメントがありません。最初のコメントを残しましょう。",
+    "anonymous": "匿名"
   }
 }

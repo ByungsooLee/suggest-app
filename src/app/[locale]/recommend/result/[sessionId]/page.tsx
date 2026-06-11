@@ -1,8 +1,8 @@
 import { Link } from "@/i18n/navigation";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { auth } from "@/auth";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
 import { movieCardSelect } from "@/lib/db/selects/movie";
@@ -17,15 +17,12 @@ export default async function RecommendResultPage({
   params: Promise<{ sessionId: string }>;
 }) {
   const t = await getTranslations("recommend.emptyState");
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  const userId = await getAppUserId();
 
   const { sessionId } = await params;
 
   const recommendationSession = await prisma.recommendationSession.findFirst({
-    where: { id: sessionId, userId: session.user.id },
+    where: { id: sessionId, userId },
     include: {
       results: {
         include: {

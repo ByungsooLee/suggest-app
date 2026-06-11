@@ -2,12 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
-import type { MovieCardPayload } from "@/lib/movies/movie-card";
-import { getMovieTitle } from "@/lib/movie-title";
+import type { DiscoverMovie } from "@/lib/movies/movie-card";
+import { getMovieTitle } from "@/lib/i18n/localized-movie";
 import { getMovieCardGradient } from "@/components/swipe/card-styles";
 import { useSwipeCardDrag } from "@/components/swipe/useSwipeCardDrag";
-
-export type DiscoverMovie = MovieCardPayload;
 
 type Props = {
   movie: DiscoverMovie;

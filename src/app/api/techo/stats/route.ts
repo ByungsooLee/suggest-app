@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getAppUserId();
 
   const year = Number(req.nextUrl.searchParams.get("year") ?? new Date().getFullYear());
   const start = new Date(year, 0, 1);
   const end = new Date(year + 1, 0, 1);
 
   const logs = await prisma.watchLog.findMany({
-    where: { userId: session.user.id, watchedAt: { gte: start, lt: end } },
+    where: { userId, watchedAt: { gte: start, lt: end } },
     include: { movie: { select: { id: true, title: true, releaseYear: true, genrePrimary: true, posterUrl: true, directors: true } } },
     orderBy: { watchedAt: "desc" },
   });

@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 const UNLOCK_THRESHOLD = 20;
@@ -20,11 +20,9 @@ function rankNames(items: string[][]) {
 }
 
 export async function GET() {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
-  const watched = await prisma.userWatchedMovie.findMany({
-    where: { userId: authResult.userId },
+  const userId = await getAppUserId();
+  const watched = await prisma.userWatchedContent.findMany({
+    where: { userId, contentType: "movie", movieId: { not: null } },
     include: {
       movie: {
         select: {
@@ -37,10 +35,11 @@ export async function GET() {
     take: 600,
   });
 
-  const watchedCount = watched.length;
+  const withMovie = watched.filter((item) => item.movie != null);
+  const watchedCount = withMovie.length;
   const unlocked = watchedCount >= UNLOCK_THRESHOLD;
-  const directors = unlocked ? rankNames(watched.map((item) => item.movie.directors)) : [];
-  const actors = unlocked ? rankNames(watched.map((item) => item.movie.cast)) : [];
+  const directors = unlocked ? rankNames(withMovie.map((item) => item.movie!.directors)) : [];
+  const actors = unlocked ? rankNames(withMovie.map((item) => item.movie!.cast)) : [];
 
   return Response.json(
     {

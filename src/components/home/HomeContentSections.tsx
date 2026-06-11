@@ -111,63 +111,6 @@ export function HomeLoggedInSections({
   );
 }
 
-type GuestFeature = {
-  icon: string;
-  title: string;
-  desc: string;
-};
-
-type GuestProps = {
-  features: GuestFeature[];
-  createAccountLabel: string;
-};
-
-export function HomeGuestSections({ features, createAccountLabel }: GuestProps) {
-  return (
-    <section style={{ marginTop: "32px" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {features.map((feature) => (
-          <div
-            key={feature.title}
-            style={{
-              display: "flex",
-              gap: "14px",
-              alignItems: "flex-start",
-              padding: "14px 16px",
-              borderRadius: "10px",
-              background: "rgba(240,237,232,0.03)",
-              border: "1px solid rgba(240,237,232,0.06)",
-            }}
-          >
-            <span style={{ fontSize: "20px", flexShrink: 0 }}>{feature.icon}</span>
-            <div>
-              <p style={{ fontSize: "13px", fontWeight: 500, color: "#f0ede8", margin: "0 0 2px" }}>{feature.title}</p>
-              <p style={{ fontSize: "12px", color: "rgba(240,237,232,0.4)", margin: 0 }}>{feature.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Link
-        href="/login"
-        style={{
-          display: "block",
-          marginTop: "20px",
-          padding: "13px",
-          borderRadius: "10px",
-          background: "rgba(240,237,232,0.06)",
-          border: "1px solid rgba(240,237,232,0.1)",
-          textAlign: "center",
-          color: "rgba(240,237,232,0.6)",
-          fontSize: "14px",
-          textDecoration: "none",
-        }}
-      >
-        {createAccountLabel}
-      </Link>
-    </section>
-  );
-}
-
 export function HomeBrowseLink({ label }: { label: string }) {
   return (
     <div style={{ marginTop: "32px", textAlign: "center" }}>

@@ -1,5 +1,5 @@
-import { notFound, redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { notFound } from "next/navigation";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { movieDetailSelect } from "@/lib/db/selects/movie";
 import { prisma } from "@/lib/db/prisma";
 import { normalizeLocalizedData } from "@/lib/i18n/localized-movie";
@@ -11,8 +11,7 @@ export default async function MovieDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  const userId = await getAppUserId();
 
   const { id } = await params;
 
@@ -33,7 +32,7 @@ export default async function MovieDetailPage({
         })
       : Promise.resolve([]),
     prisma.watchLog.findUnique({
-      where: { userId_movieId: { userId: session.user.id, movieId: id } },
+      where: { userId_movieId: { userId, movieId: id } },
       select: { emotion: true, memo: true, score: true, chatSummary: true, watchedAt: true },
     }),
   ]);

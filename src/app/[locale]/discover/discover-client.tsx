@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DiscoverSwipeCard, type DiscoverMovie } from "@/components/discover/DiscoverSwipeCard";
+import { DiscoverSwipeCard } from "@/components/discover/DiscoverSwipeCard";
+import type { DiscoverMovie } from "@/lib/movies/movie-card";
 import { MovieDetailSheet } from "@/components/discover/MovieDetailSheet";
 import { ReasonTagPicker } from "@/components/discover/ReasonTagPicker";
 import { DiscoverProgress } from "@/components/discover/DiscoverProgress";

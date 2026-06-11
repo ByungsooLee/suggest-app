@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { routing } from "@/i18n/routing";
 
 export async function PATCH(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const userId = await getAppUserId();
 
   const { locale } = (await req.json()) as { locale?: string };
   if (!locale || !(routing.locales as readonly string[]).includes(locale)) {
@@ -15,7 +12,7 @@ export async function PATCH(req: Request) {
   }
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: userId },
     data: { locale },
   });
 

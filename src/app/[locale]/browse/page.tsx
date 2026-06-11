@@ -1,13 +1,8 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { MOVIE_GENRES } from "@/lib/constants/taxonomy";
 import { CreditsBrowser } from "./credits-browser";
 
 export default async function BrowsePage() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
-
   const movies = await prisma.movie.findMany({
     orderBy: [{ reviewScore: "desc" }],
     take: 500,

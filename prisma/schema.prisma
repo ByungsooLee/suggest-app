@@ -41,12 +41,6 @@ enum SwipeAction {
   skipped
 }
 
-enum WatchedSource {
-  onboarding_known
-  onboarding_liked
-  manual
-}
-
 enum MbtiType {
   INTJ
   INTP
@@ -164,8 +158,6 @@ model User {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  accounts               Account[]
-  sessions               Session[]
   preferences            UserPreference[]
   tasteProfiles          UserTasteProfile[]
   recommendationSessions RecommendationSession[]
@@ -174,7 +166,6 @@ model User {
   movieSwipes            UserMovieSwipe[]
   discoverSwipes         MovieSwipe[]
   movieProfile           UserMovieProfile?
-  watchedMovies          UserWatchedMovie[]
   watchedContents        UserWatchedContent[]
   watchlistItems         UserWatchlistItem[]
   onboardingReactions    OnboardingMovieReaction[]
@@ -182,46 +173,6 @@ model User {
   watchLogs              WatchLog[]
   movieLikes             MovieLike[]
   movieComments          MovieComment[]
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@id([identifier, token])
-  @@unique([token])
 }
 
 model UserPreference {
@@ -312,7 +263,6 @@ model Movie {
   credits               MovieCredit[]
   swipes                UserMovieSwipe[]
   discoverSwipes        MovieSwipe[]
-  watchedByUsers        UserWatchedMovie[]
   watchedContentByUsers UserWatchedContent[]
   watchlistByUsers      UserWatchlistItem[]
   onboardingReactions   OnboardingMovieReaction[]
@@ -535,21 +485,6 @@ model UserMovieSwipe {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
-  @@index([userId, createdAt(sort: Desc)])
-  @@index([movieId])
-}
-
-model UserWatchedMovie {
-  id        String        @id @default(cuid())
-  userId    String
-  movieId   String
-  source    WatchedSource
-  createdAt DateTime      @default(now())
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, movieId])
   @@index([userId, createdAt(sort: Desc)])
   @@index([movieId])
 }

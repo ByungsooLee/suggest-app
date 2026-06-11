@@ -1,14 +1,12 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { parseJson } from "@/lib/validation/http";
 import { MeProfilePatchSchema } from "@/lib/validation/schemas";
 
 export async function GET() {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const profile = await prisma.user.findUnique({
-    where: { id: authResult.userId },
+    where: { id: userId },
     select: {
       id: true,
       name: true,
@@ -36,9 +34,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const parsed = await parseJson(request, MeProfilePatchSchema);
   if (!parsed.ok) return parsed.response;
 
@@ -47,7 +43,7 @@ export async function PATCH(request: Request) {
   }
 
   const updated = await prisma.user.update({
-    where: { id: authResult.userId },
+    where: { id: userId },
     data: {
       name: parsed.data.name,
       image: parsed.data.image,

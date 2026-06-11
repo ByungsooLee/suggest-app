@@ -74,6 +74,8 @@ export type RecommendationHistoryItem = {
   sessionId: string;
   movieId: string;
   title: string;
+  localizedTitles?: unknown;
+  localizedData?: unknown;
   posterUrl: string | null;
   rank: number;
   recommendedAt: string;

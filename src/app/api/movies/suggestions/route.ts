@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { MOVIE_GENRES } from "@/lib/constants/taxonomy";
 import { prisma } from "@/lib/db/prisma";
 
@@ -25,6 +25,16 @@ const curatedFallback = {
     "Timothee Chalamet",
     "Saoirse Ronan",
     "Tom Cruise",
+  ],
+  writers: [
+    "Christopher Nolan",
+    "Charlie Kaufman",
+    "Aaron Sorkin",
+    "Paul Thomas Anderson",
+    "Quentin Tarantino",
+    "Coen Brothers",
+    "Wes Anderson",
+    "Bong Joon-ho",
   ],
 };
 
@@ -62,7 +72,7 @@ function aggregateNames(values: string[][], limit: number) {
     .map(([name, count]) => ({ name, count }));
 }
 
-function toSuggestionItems(items: Array<{ name: string; count: number }>, role: "director" | "actor") {
+function toSuggestionItems(items: Array<{ name: string; count: number }>, role: "director" | "actor" | "writer") {
   return items.map((item) => ({
     ...item,
     role,
@@ -71,9 +81,7 @@ function toSuggestionItems(items: Array<{ name: string; count: number }>, role: 
 }
 
 export async function GET(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const url = new URL(request.url);
   const genres = toValidGenres(url.searchParams.get("genres"));
   const parsedLimit = Number(url.searchParams.get("limit"));
@@ -95,6 +103,22 @@ export async function GET(request: Request) {
     take: 300,
   });
 
+  // Fetch writer names from MovieCredit table (separate from directors/cast string arrays)
+  const writerCredits = await prisma.movieCredit.findMany({
+    where: {
+      role: "writer",
+      ...(genres.length > 0
+        ? {
+            movie: {
+              OR: [{ genrePrimary: { in: genres } }, { genreSecondary: { in: genres } }],
+            },
+          }
+        : {}),
+    },
+    select: { person: { select: { name: true } } },
+    take: 1000,
+  });
+
   const fromAllCatalog =
     movies.length === 0
       ? await prisma.movie.findMany({
@@ -102,6 +126,15 @@ export async function GET(request: Request) {
           take: 300,
         })
       : movies;
+
+  const allWriterCredits =
+    writerCredits.length === 0 && genres.length > 0
+      ? await prisma.movieCredit.findMany({
+          where: { role: "writer" },
+          select: { person: { select: { name: true } } },
+          take: 1000,
+        })
+      : writerCredits;
 
   const directors = aggregateNames(
     fromAllCatalog.map((movie) => movie.directors),
@@ -111,6 +144,19 @@ export async function GET(request: Request) {
     fromAllCatalog.map((movie) => movie.cast),
     limit,
   );
+
+  // Aggregate writer names from credits
+  const writerCounts = new Map<string, number>();
+  for (const credit of allWriterCredits) {
+    const name = credit.person.name.trim();
+    if (!name || isPlaceholderName(name)) continue;
+    writerCounts.set(name, (writerCounts.get(name) ?? 0) + 1);
+  }
+  const writers = [...writerCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([name, count]) => ({ name, count }));
+
   const finalDirectors =
     directors.length > 0
       ? directors
@@ -119,12 +165,17 @@ export async function GET(request: Request) {
     actors.length > 0
       ? actors
       : curatedFallback.actors.slice(0, limit).map((name, index) => ({ name, count: Math.max(1, limit - index) }));
+  const finalWriters =
+    writers.length > 0
+      ? writers
+      : curatedFallback.writers.slice(0, limit).map((name, index) => ({ name, count: Math.max(1, limit - index) }));
 
   return Response.json(
     {
       genres,
       directors: toSuggestionItems(finalDirectors, "director"),
       actors: toSuggestionItems(finalActors, "actor"),
+      writers: toSuggestionItems(finalWriters, "writer"),
       fallbackUsed: (movies.length === 0 && genres.length > 0) || directors.length === 0 || actors.length === 0,
     },
     { status: 200 },

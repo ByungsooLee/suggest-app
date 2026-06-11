@@ -9,14 +9,10 @@
     "tagline": "오늘 밤 영화, 3초 만에 결정.",
     "sub": "기분 × 함께 보는 사람 × MBTI로 최적의 한 편을",
     "cta": "오늘 밤 영화 찾기 →",
-    "ctaGuest": "무료로 시작하기 →",
     "ctaSub": "4단계 · 약 1분",
     "moodLabel": "현재 기분",
-    "discoverBanner": "좋아할 영화 발견하기",
     "discoverProgress": "{current} / 100편",
     "recentPicks": "당신을 위한 픽",
-    "alreadyHaveAccount": "이미 계정이 있다면",
-    "login": "로그인",
     "stats": {
       "total": "총 시청 편수",
       "thisMonth": "이번 달",
@@ -24,21 +20,6 @@
     },
     "discoverCardTitle": "취향 영화를 키우기",
     "mbtiCardTitle": "함께 보는 사람과의 궁합 체크",
-    "guestFeatures": {
-      "mood": {
-        "title": "기분 기반 추천",
-        "desc": "8가지 기분에서 오늘 밤 영화를 좁혀갑니다"
-      },
-      "steps": {
-        "title": "4단계로 끝",
-        "desc": "질문에 답하면 가장 잘 맞는 한 편이 정해집니다"
-      },
-      "mbti": {
-        "title": "MBTI×취향 학습",
-        "desc": "쓸수록 정밀해지는 개인화 엔진"
-      }
-    },
-    "createAccount": "계정을 만들어 시작하기 →",
     "browseLink": "카탈로그 보기 →"
   },
   "mood": {
@@ -336,14 +317,8 @@
     },
     "settings": {
       "title": "설정",
-      "language": "앱 표시 언어",
-      "titleLanguage": "영화 제목 언어",
-      "plan": "플랜",
-      "free": "무료",
-      "premium": "프리미엄",
-      "upgrade": "프리미엄으로 업그레이드"
+      "language": "앱 표시 언어"
     },
-    "signOut": "로그아웃",
     "stats": {
       "title": "시청 통계",
       "description": "시청 경향을 간결하게 시각화합니다.",
@@ -378,6 +353,24 @@
       "discoveryWide": "넓게",
       "directorLabel": "좋아하는 감독",
       "actorLabel": "좋아하는 배우",
+      "writerLabel": "좋아하는 각본가",
+      "writerHint": "각본가 성향은 추천 점수에 반영됩니다.",
+      "genreAxisTitle": "장르 / 스타일",
+      "genreAxisHint": "탭하면 「좋아요」(골드), 다시 탭하면 「피하고 싶어요」(초록), 한 번 더 탭하면 해제",
+      "examplePrefix": "예: ",
+      "formLoadError": "설정을 불러오지 못했습니다.",
+      "formLoading": "설정을 불러오는 중...",
+      "confirmSelect": "선택 확정",
+      "personSearchPlaceholder": "이름으로 검색...",
+      "personCountSuffix": "관련 작품 {count}편",
+      "personNotFound": "결과가 없습니다",
+      "savedWithNote": "저장했습니다. 다음 추천부터 반영됩니다.",
+      "modalTitleDirector": "좋아하는 감독 선택",
+      "modalTitleActor": "좋아하는 배우 선택",
+      "modalTitleWriter": "좋아하는 각본가 선택",
+      "modalSubDirector": "감독을 여러 명 선택할 수 있습니다.",
+      "modalSubActor": "배우를 여러 명 선택할 수 있습니다.",
+      "modalSubWriter": "각본가로 영화를 고르는 분을 위한 설정입니다.",
       "suggestionsLoading": "후보를 불러오는 중...",
       "suggestionsError": "후보를 불러오지 못했습니다.",
       "fallback": "일치하는 항목이 적어 전체 데이터에서 제안합니다.",
@@ -387,9 +380,16 @@
       "saveError": "저장에 실패했습니다."
     },
     "history": {
+      "eyebrow": "RECOMMENDATION LOG",
       "title": "추천 기록",
+      "previewTitle": "지난 추천 기록 확인",
       "description": "최근 추천 내역과 그 이후 행동을 확인할 수 있습니다.",
+      "previewDescription": "이전에 받은 추천을 다시 열어 오늘 밤 후보를 고를 수 있습니다.",
+      "pageDescription": "지금까지 받은 추천 기록을 한곳에서 확인할 수 있습니다. 기록을 열면 추천 결과 페이지에서 자세히 볼 수 있습니다.",
       "empty": "아직 추천 기록이 없습니다. 추천을 한 번 받으면 여기에 표시됩니다.",
+      "viewAll": "전체 보기",
+      "openRecord": "추천 결과 열기",
+      "rank": "#{rank}",
       "status": {
         "recommended": "제안만",
         "saved": "저장됨",
@@ -400,7 +400,8 @@
     "tasteSummary": {
       "title": "취향 요약",
       "description": "시청 기록과 취향 설정을 바탕으로 해석한 경향입니다.",
-      "loading": "취향 요약을 준비 중입니다."
+      "loading": "취향 요약을 준비 중입니다.",
+      "empty": "시청 기록이 늘어나면 취향 요약을 표시합니다."
     },
     "library": {
       "previewLabel": "시청 기록",
@@ -411,31 +412,6 @@
       "addWatched": "시청 등록",
       "quickAdd": "빠른 분류"
     }
-  },
-  "auth": {
-    "signIn": "로그인",
-    "signUp": "회원가입",
-    "email": "이메일",
-    "password": "비밀번호",
-    "continueWithGoogle": "Google로 계속하기"
-  },
-  "feedback": {
-    "title": "추천 피드백 (원탭)",
-    "reactions": {
-      "liked": "좋아요",
-      "too_dark": "너무 무거웠어요",
-      "too_long": "너무 길었어요",
-      "not_now": "지금은 아니에요",
-      "mismatch": "기분과 달라요"
-    },
-    "saving": "저장 중...",
-    "saved": "피드백을 저장했습니다.",
-    "error": "저장에 실패했습니다. 다시 시도해 주세요."
-  },
-  "history": {
-    "title": "기록",
-    "deferred": "후속 구현",
-    "description": "MVP에서는 후속 구현 대상입니다. 현재는 추천 세션 저장만 구현되어 있습니다."
   },
   "notFound": {
     "title": "페이지를 찾을 수 없습니다",
@@ -459,7 +435,9 @@
     "premium": "프리미엄",
     "openMypage": "마이페이지 열기",
     "profileAvatarAlt": "프로필 이미지",
-    "runtimeMinutes": "{minutes}분"
+    "runtimeMinutes": "{minutes}분",
+    "add": "추가",
+    "removeAriaLabel": "{name} 삭제"
   },
   "person": {
     "roles": {
@@ -468,10 +446,23 @@
       "writer": "각본"
     },
     "loading": "인물 정보를 불러오는 중...",
+    "loadingProfile": "프로필을 불러오는 중...",
     "loadError": "인물 정보를 불러오지 못했습니다",
     "knownFor": "대표작",
     "recentCredits": "최근 관련 작품",
+    "recentNews": "최근 이슈",
     "collaborators": "주요 협업자",
-    "viewPage": "인물 페이지 보기 →"
+    "viewPage": "인물 페이지 보기 →",
+    "noBio": "프로필 정보가 아직 없습니다.",
+    "noKnownFor": "대표작 정보가 아직 없습니다.",
+    "noNews": "뉴스를 가져올 수 없었습니다."
+  },
+  "movieSocial": {
+    "commentCount": "댓글 {count}건",
+    "commentPlaceholder": "댓글을 입력하세요...",
+    "send": "전송",
+    "loading": "불러오는 중...",
+    "empty": "아직 댓글이 없습니다. 첫 댓글을 남겨보세요.",
+    "anonymous": "익명"
   }
 }

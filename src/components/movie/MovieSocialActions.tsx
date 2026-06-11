@@ -1,12 +1,7 @@
 "use client";
 
-// src/components/movie/MovieSocialActions.tsx
-//
-// 参照UI（FilmCafe）と同じ縦アクションバー。
-// いいね・コメントのみ。保存は詳細画面下部「後で見る」ボタンに集約。
-// 楽観的更新：ボタン押下で即座にUIを更新し、バックグラウンドでAPI送信。
-
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 // ── 型 ─────────────────────────────────────────────────────────────────────
 
@@ -58,6 +53,7 @@ type CommentDrawerProps = {
 };
 
 function CommentDrawer({ movieId, movieTitle, count, onClose, onCountChange }: CommentDrawerProps) {
+  const t = useTranslations("movieSocial");
   const [comments,  setComments]  = useState<Comment[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [draft,     setDraft]     = useState("");
@@ -128,7 +124,7 @@ function CommentDrawer({ movieId, movieTitle, count, onClose, onCountChange }: C
           <div>
             <p style={{ fontSize: 13, fontWeight: 500, color: "#F0EDE8" }}>{movieTitle}</p>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 2 }}>
-              コメント {count}件
+              {t("commentCount", { count })}
             </p>
           </div>
           <button
@@ -146,11 +142,11 @@ function CommentDrawer({ movieId, movieTitle, count, onClose, onCountChange }: C
         <div style={{ overflowY: "auto", flex: 1, padding: "12px 16px" }}>
           {loading ? (
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textAlign: "center", padding: "20px 0" }}>
-              読み込み中...
+              {t("loading")}
             </p>
           ) : comments.length === 0 ? (
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", textAlign: "center", padding: "20px 0" }}>
-              まだコメントがありません。最初のコメントを残しましょう。
+              {t("empty")}
             </p>
           ) : (
             comments.map((c) => (
@@ -163,12 +159,12 @@ function CommentDrawer({ movieId, movieTitle, count, onClose, onCountChange }: C
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 12, color: "#E8C97A", fontWeight: 500,
                 }}>
-                  {(c.user.name ?? c.user.username ?? "?").slice(0, 1)}
+                  {(c.user.name ?? c.user.username ?? t("anonymous")).slice(0, 1)}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 3 }}>
                     <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
-                      {c.user.name ?? c.user.username ?? "匿名"}
+                      {c.user.name ?? c.user.username ?? t("anonymous")}
                     </span>
                     <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>
                       {formatDate(c.createdAt)}
@@ -194,7 +190,7 @@ function CommentDrawer({ movieId, movieTitle, count, onClose, onCountChange }: C
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }}
-            placeholder="コメントを書く..."
+            placeholder={t("commentPlaceholder")}
             maxLength={500}
             style={{
               flex: 1, background: "rgba(255,255,255,0.06)",
@@ -216,7 +212,7 @@ function CommentDrawer({ movieId, movieTitle, count, onClose, onCountChange }: C
               transition: "all 0.15s",
             }}
           >
-            {posting ? "..." : "送信"}
+            {posting ? "..." : t("send")}
           </button>
         </div>
       </div>
@@ -233,7 +229,6 @@ export function MovieSocialActions({ movieId, movieTitle }: Props) {
   const [showComments, setShowComments] = useState(false);
   const [likeLoading,  setLikeLoading]  = useState(false);
 
-  // 初期データ取得
   useEffect(() => {
     const load = async () => {
       try {
@@ -243,18 +238,16 @@ export function MovieSocialActions({ movieId, movieTitle }: Props) {
         setLikeCount(data.count);
         setLiked(data.liked);
       } catch {
-        // サイレント失敗
+        // silent failure
       }
     };
     void load();
   }, [movieId]);
 
-  // いいねトグル（楽観的更新）
   const toggleLike = useCallback(async () => {
     if (likeLoading) return;
     setLikeLoading(true);
 
-    // 楽観的更新
     const newLiked = !liked;
     setLiked(newLiked);
     setLikeCount((n) => n + (newLiked ? 1 : -1));
@@ -265,16 +258,13 @@ export function MovieSocialActions({ movieId, movieTitle }: Props) {
       });
       if (res.ok) {
         const data = (await res.json()) as { count: number; liked: boolean };
-        // サーバー値で上書き（ズレ補正）
         setLikeCount(data.count);
         setLiked(data.liked);
       } else {
-        // ロールバック
         setLiked(!newLiked);
         setLikeCount((n) => n + (newLiked ? -1 : 1));
       }
     } catch {
-      // ロールバック
       setLiked(!newLiked);
       setLikeCount((n) => n + (newLiked ? -1 : 1));
     } finally {
@@ -339,7 +329,6 @@ export function MovieSocialActions({ movieId, movieTitle }: Props) {
 
       </div>
 
-      {/* コメントドロワー */}
       {showComments && (
         <CommentDrawer
           movieId={movieId}

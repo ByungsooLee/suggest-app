@@ -1,15 +1,11 @@
-import { auth } from "@/auth";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET() {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    return Response.json({ user: null }, { status: 200 });
-  }
+  const userId = await getAppUserId();
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: userId },
     select: {
       id: true,
       name: true,

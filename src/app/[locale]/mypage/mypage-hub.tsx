@@ -28,7 +28,7 @@ export function MyPageHub() {
     errorMessage,
   } = useMyPageHubData({
     loadError: t("loadError"),
-    tasteFallback: "視聴履歴が増えると、あなたの好みサマリを表示します。",
+    tasteFallback: t("tasteSummary.empty"),
   });
 
   if (state === "loading") {

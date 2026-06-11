@@ -3,7 +3,7 @@ import { ONBOARDING_MOVIE_TITLE_SET } from "@/lib/onboarding/onboarding-movie-li
 import { buildContextVector } from "@/lib/recommendation/build-context-vector";
 import { buildKnownTasteVector } from "@/lib/recommendation/build-known-taste-vector";
 import { buildMbtiAdjustmentVector } from "@/lib/recommendation/build-mbti-vector";
-import { buildRecommendationTrace } from "@/lib/recommendation/build-recommendation-trace";
+import { buildRecommendationTrace } from "@/lib/recommendation/trace";
 import { RECOMMENDATION_FEATURE_FLAGS } from "@/lib/recommendation/constants";
 import { type FeatureDimension, type FeatureVector, cosineSimilarity, extractMovieVector } from "@/lib/recommendation/feature-vector";
 import { scoreFinalPreRerank } from "@/lib/recommendation/ranking/score-final-pre-rerank";

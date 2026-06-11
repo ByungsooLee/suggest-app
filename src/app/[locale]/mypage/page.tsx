@@ -1,26 +1,22 @@
 import { Link } from "@/i18n/navigation";
-import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
-import { auth } from "@/auth";
+import { getAppUser } from "@/lib/auth/app-user";
 import { AvatarTrigger } from "@/components/account/avatar-trigger";
 import { AppLanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ScreenHeader } from "@/components/screen-header";
 import { PopButton } from "@/components/ui/pop-button";
 import { PopCard } from "@/components/ui/pop-card";
-import { getTranslations } from "next-intl/server";
 import { MyPageHub } from "./mypage-hub";
 
 export default async function MyPage() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  const appUser = await getAppUser();
   const t = await getTranslations("mypage");
   const settingsT = await getTranslations("mypage.settings");
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10">
-      <AvatarTrigger image={session.user.image} name={session.user.name} />
+      <AvatarTrigger image={appUser.image} name={appUser.name} />
       <ScreenHeader
         title={t("title")}
         description={t("description")}

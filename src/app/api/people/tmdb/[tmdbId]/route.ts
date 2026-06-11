@@ -1,12 +1,10 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { syncPersonFromTmdbId } from "@/lib/people/person-record";
 import { toTmdbProfileImageUrl } from "@/lib/tmdb/client";
 
 export async function GET(_request: Request, context: { params: Promise<{ tmdbId: string }> }) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { tmdbId: rawTmdbId } = await context.params;
   const tmdbId = Number.parseInt(rawTmdbId, 10);
 

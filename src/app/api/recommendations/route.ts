@@ -1,6 +1,6 @@
 import { recommendMovies } from "@/lib/recommendation/engine";
 import { Prisma } from "@prisma/client";
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { recommendationCandidateSelect } from "@/lib/db/selects/movie";
 import { prisma } from "@/lib/db/prisma";
 import { resolveStrictMoviePoster } from "@/lib/movies/strict-movie-poster-match";
@@ -38,14 +38,12 @@ function mergeUnique(values: string[][]): string[] {
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const parsed = await parseJson(request, RecommendationsRequestSchema);
   if (!parsed.ok) return parsed.response;
 
   const onboardingProfile = await prisma.userOnboardingProfile.findFirst({
-    where: { userId: authResult.userId },
+    where: { userId: userId },
     orderBy: { updatedAt: "desc" },
     select: { mbtiType: true, selectedMood: true },
   });
@@ -60,73 +58,27 @@ export async function POST(request: Request) {
     );
   }
 
-  let userPreferences:
-    | {
-        favoriteGenres: string[];
-        preferredDirectors: string[];
-        preferredActors: string[];
-        useFavoritesInRecommendations: boolean;
-        preferenceInfluenceStrength: "light" | "balanced" | "strong";
-        recommendationStyleMode: "safe" | "balanced" | "discovery_focused";
-      }
-    | null = null;
-  try {
-    userPreferences = await prisma.user.findUnique({
-      where: { id: authResult.userId },
-      select: {
-        favoriteGenres: true,
-        preferredDirectors: true,
-        preferredActors: true,
-        useFavoritesInRecommendations: true,
-        preferenceInfluenceStrength: true,
-        recommendationStyleMode: true,
-      },
-    });
-  } catch (error) {
-    if (!(error instanceof Prisma.PrismaClientValidationError)) throw error;
-    const legacyPrefs = await prisma.user.findUnique({
-      where: { id: authResult.userId },
-      select: {
-        favoriteGenres: true,
-        preferredDirectors: true,
-        preferredActors: true,
-      },
-    });
-    userPreferences = legacyPrefs
-      ? {
-          ...legacyPrefs,
-          useFavoritesInRecommendations: true,
-          preferenceInfluenceStrength: "balanced",
-          recommendationStyleMode: "balanced",
-        }
-      : null;
-  }
+  const userPreferences = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      favoriteGenres: true,
+      preferredDirectors: true,
+      preferredActors: true,
+      useFavoritesInRecommendations: true,
+      preferenceInfluenceStrength: true,
+      recommendationStyleMode: true,
+    },
+  });
 
-  const [watchedContentRows, legacyWatchedMovieIds] = await Promise.all([
-    prisma.userWatchedContent
-      .findMany({
-        where: { userId: authResult.userId, contentType: "movie", movieId: { not: null } },
-        select: { movieId: true, reaction: true, catalogSource: true },
-        take: 1000,
-      })
-      .catch((error) => {
-        const isMissingTable =
-          error instanceof Prisma.PrismaClientKnownRequestError && (error.code === "P2021" || error.code === "P2022");
-        if (isMissingTable) return [] as Array<{ movieId: string | null; reaction: "like" | "normal" | "dislike" | null; catalogSource: string }>;
-        throw error;
-      }),
-    prisma.userWatchedMovie
-      .findMany({
-        where: { userId: authResult.userId },
-        select: { movieId: true },
-        take: 1000,
-      })
-      .then((items) => items.map((item) => item.movieId)),
-  ]);
+  const watchedContentRows = await prisma.userWatchedContent.findMany({
+    where: { userId, contentType: "movie", movieId: { not: null } },
+    select: { movieId: true, reaction: true, catalogSource: true },
+    take: 1000,
+  });
   const watchedContentMovieIds = watchedContentRows.map((item) => item.movieId).filter((id): id is string => Boolean(id));
 
   const onboardingReactions = await prisma.onboardingMovieReaction.findMany({
-    where: { userId: authResult.userId },
+    where: { userId: userId },
     include: {
       movie: true,
     },
@@ -136,7 +88,7 @@ export async function POST(request: Request) {
     orderBy: [{ releaseYear: "desc" }, { title: "asc" }],
   });
   const recentSessions = await prisma.recommendationSession.findMany({
-    where: { userId: authResult.userId },
+    where: { userId: userId },
     orderBy: { createdAt: "desc" },
     take: REPETITION_CONTROL.maxSessions,
     include: {
@@ -175,7 +127,7 @@ export async function POST(request: Request) {
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
   const discoverMovieProfile = await prisma.userMovieProfile.findUnique({
-    where: { userId: authResult.userId },
+    where: { userId: userId },
     select: { genreWeights: true, directorAffinity: true, writerAffinity: true },
   });
 
@@ -209,7 +161,7 @@ export async function POST(request: Request) {
       watchingWith: parsed.data.watchingWith,
       excludeContentWarnings: parsed.data.excludeContentWarnings,
       excludeTags: parsed.data.excludeTags,
-      watchedMovieIds: mergeUnique([watchedContentMovieIds, legacyWatchedMovieIds]),
+      watchedMovieIds: watchedContentMovieIds,
       useFavoritesInRecommendations: userPreferences?.useFavoritesInRecommendations ?? true,
       influenceStrength: userPreferences?.preferenceInfluenceStrength ?? "balanced",
       recommendationStyleMode: userPreferences?.recommendationStyleMode ?? "balanced",
@@ -256,7 +208,7 @@ export async function POST(request: Request) {
 
   const session = await prisma.recommendationSession.create({
     data: {
-      userId: authResult.userId,
+      userId: userId,
       tasteProfileId: null,
       status: recommendations.length === 0 ? "empty" : "completed",
       currentMoods: parsed.data.currentMoods,

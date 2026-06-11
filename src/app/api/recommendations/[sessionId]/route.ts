@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 type ReasonType = "mood_match" | "context_match" | "runtime_fit" | "style_match" | "actor_match" | "director_match" | "review_match";
@@ -19,14 +19,12 @@ const inferConfidenceLabel = (score: number): ConfidenceLabel => {
 };
 
 export async function GET(request: Request, context: { params: Promise<{ sessionId: string }> }) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-
+  const userId = await getAppUserId();
   const { sessionId } = await context.params;
   const debugEnabled = new URL(request.url).searchParams.get("debug") === "1";
 
   const session = await prisma.recommendationSession.findFirst({
-    where: { id: sessionId, userId: authResult.userId },
+    where: { id: sessionId, userId: userId },
     include: {
       results: {
         include: { movie: true },

@@ -1,16 +1,14 @@
-import { auth } from "@/auth";
 import { Link } from "@/i18n/navigation";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { getTranslations } from "next-intl/server";
 
 export async function Navigation() {
-  const session = await auth();
-  if (!session?.user?.id) return null;
+  const userId = await getAppUserId();
   const t = await getTranslations("nav");
 
-  // Check if MBTI is set (for badge)
   const profile = await prisma.userOnboardingProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
     select: { mbtiType: true },
   });
   const mbtiUnset = !profile?.mbtiType;

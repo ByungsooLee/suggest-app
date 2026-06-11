@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import type { DiscoverMovie } from "@/components/discover/DiscoverSwipeCard";
+import { getAppUserId } from "@/lib/auth/app-user";
+import type { DiscoverMovie } from "@/lib/movies/movie-card";
 import { movieCardSelect } from "@/lib/db/selects/movie";
 import { prisma } from "@/lib/db/prisma";
 import { mapCreditsToPersonChipData } from "@/lib/movies/credits";
 import { createMovieCardPayload } from "@/lib/movies/movie-card";
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getAppUserId();
 
   const { searchParams } = new URL(req.url);
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "10", 10), 30);
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
   const excludeIds = excludeParam ? excludeParam.split(",").filter(Boolean) : [];
 
   const profile = await prisma.userMovieProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
     select: { genreWeights: true },
   });
 

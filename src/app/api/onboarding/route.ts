@@ -1,5 +1,5 @@
 import { buildTasteProfile } from "@/lib/taste-profile/buildTasteProfile";
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 import { type UserMood } from "@/lib/onboarding/mood-map";
 import { parseJson } from "@/lib/validation/http";
@@ -20,9 +20,7 @@ function topNames(names: string[], limit: number) {
 
 export async function POST(request: Request) {
   try {
-    const authResult = await requireUser();
-    if (!authResult.ok) return authResult.response;
-
+    const userId = await getAppUserId();
     const parsed = await parseJson(request, OnboardingSubmitSchema);
     if (!parsed.ok) return parsed.response;
 
@@ -84,7 +82,7 @@ export async function POST(request: Request) {
 
       const preference = await tx.userPreference.create({
         data: {
-          userId: authResult.userId,
+          userId: userId,
           favoriteArtists: favoriteArtists.length > 0 ? favoriteArtists : ["No Artist Data"],
           favoriteMovies: favoriteMovies.length > 0 ? favoriteMovies : ["No Movie Data"],
           preferredMoods,
@@ -93,7 +91,7 @@ export async function POST(request: Request) {
       });
 
       const latestProfile = await tx.userTasteProfile.findFirst({
-        where: { userId: authResult.userId },
+        where: { userId: userId },
         orderBy: { profileVersion: "desc" },
         select: { profileVersion: true },
       });
@@ -114,7 +112,7 @@ export async function POST(request: Request) {
 
       const tasteProfile = await tx.userTasteProfile.create({
         data: {
-          userId: authResult.userId,
+          userId: userId,
           sourcePreferenceId: preference.id,
           profileVersion: (latestProfile?.profileVersion ?? 0) + 1,
           ...vector,
@@ -122,7 +120,7 @@ export async function POST(request: Request) {
       });
 
       const existingOnboarding = await tx.userOnboardingProfile.findFirst({
-        where: { userId: authResult.userId },
+        where: { userId: userId },
         orderBy: { updatedAt: "desc" },
         select: { id: true },
       });
@@ -138,7 +136,7 @@ export async function POST(request: Request) {
       } else {
         await tx.userOnboardingProfile.create({
           data: {
-            userId: authResult.userId,
+            userId: userId,
             mbtiType: parsed.data.mbtiType,
             selectedMood: parsed.data.selectedMood,
             onboardingVersion: parsed.data.onboardingVersion,
@@ -147,18 +145,18 @@ export async function POST(request: Request) {
       }
 
       await tx.onboardingMovieReaction.deleteMany({
-        where: { userId: authResult.userId },
+        where: { userId: userId },
       });
       await tx.onboardingMovieReaction.createMany({
         data: parsed.data.reactions.map((reaction) => ({
-          userId: authResult.userId,
+          userId: userId,
           movieId: reaction.movieId,
           reactionType: reaction.reactionType,
         })),
       });
 
       await tx.user.update({
-        where: { id: authResult.userId },
+        where: { id: userId },
         data: { onboardingCompletedAt: new Date() },
       });
 

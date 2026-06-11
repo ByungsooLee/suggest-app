@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useState, useMemo } from "react";
 import { useMovieTitleLang } from "@/lib/i18n/lang-context";
-import { getMovieTitle } from "@/lib/movie-title";
-import { LangSelector } from "@/components/lang-selector";
+import { getMovieTitle } from "@/lib/i18n/localized-movie";
+import { MovieTitleLanguageSwitcher } from "@/components/LanguageSwitcher";
 
 type Movie = {
   id: string;
@@ -108,7 +108,7 @@ export function CreditsBrowser({ movies, genres }: Props) {
           <div className="flex items-center gap-3">
             <span className="credits-label shrink-0" style={{ color: "var(--color-accent)" }}>BROWSE</span>
             <div className="flex-1" />
-            <LangSelector />
+            <MovieTitleLanguageSwitcher />
           </div>
 
           {/* Row 2: search + sort */}

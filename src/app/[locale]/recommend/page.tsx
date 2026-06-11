@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-import { auth } from "@/auth";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { AvatarTrigger } from "@/components/account/avatar-trigger";
 import { prisma } from "@/lib/db/prisma";
 import { ScreenHeader } from "@/components/screen-header";
@@ -14,13 +14,10 @@ import { RecommendForm } from "./recommend-form";
 export default async function RecommendPage() {
   const t = await getTranslations("recommend.page");
   const tGenres = await getTranslations("browsePage.genres");
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  const userId = await getAppUserId();
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: userId },
     select: { onboardingCompletedAt: true, name: true, image: true },
   });
   if (!user?.onboardingCompletedAt) {
@@ -28,12 +25,12 @@ export default async function RecommendPage() {
   }
 
   const profile = await prisma.userTasteProfile.findFirst({
-    where: { userId: session.user.id },
+    where: { userId },
     orderBy: { createdAt: "desc" },
     select: { id: true },
   });
   const mypagePreferences = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: userId },
     select: {
       favoriteGenres: true,
       excludedGenres: true,

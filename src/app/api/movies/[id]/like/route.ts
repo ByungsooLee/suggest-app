@@ -1,12 +1,10 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { getAppUserId } from "@/lib/auth/app-user";
 import { prisma } from "@/lib/db/prisma";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-  const { userId } = authResult;
+  const userId = await getAppUserId();
   const { id: movieId } = await params;
 
   const [count, myLike] = await Promise.all([
@@ -21,9 +19,7 @@ export async function GET(_req: Request, { params }: Params) {
 }
 
 export async function POST(_req: Request, { params }: Params) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-  const { userId } = authResult;
+  const userId = await getAppUserId();
   const { id: movieId } = await params;
 
   const movie = await prisma.movie.findUnique({
@@ -45,9 +41,7 @@ export async function POST(_req: Request, { params }: Params) {
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  const authResult = await requireUser();
-  if (!authResult.ok) return authResult.response;
-  const { userId } = authResult;
+  const userId = await getAppUserId();
   const { id: movieId } = await params;
 
   await prisma.movieLike.deleteMany({ where: { userId, movieId } });

@@ -17,6 +17,9 @@ export type MovieCardPayload = {
   localizedData: LocalizedData | null;
 };
 
+export type SwipeCardMovie = MovieCardPayload;
+export type DiscoverMovie = MovieCardPayload;
+
 type MovieCardSource = Omit<MovieCardPayload, "localizedData"> & {
   localizedData?: unknown;
 };
